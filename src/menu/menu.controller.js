@@ -2,559 +2,598 @@
 
 import { Menu } from './menu.model.js';
 import { MenuItem } from './menu-item.model.js';
-import { validationResult } from 'express-validator';
+import { Restaurant } from '../restaurant/restaurant.model.js';
 import { Op } from 'sequelize';
 
-// ========== CATEGORÍAS ==========
+// ==================== MENU CATEGORIES ====================
 
+/**
+ * Create menu category
+ * @route POST /api/v1/menus
+ */
 export const createMenu = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Errores de validación',
-        errors: errors.array(),
+    const { name, description, restaurant_id, display_order } = req.body;
+
+    // Verificar que el restaurante existe
+    const restaurant = await Restaurant.findByPk(restaurant_id);
+    if (!restaurant) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Restaurant not found',
       });
     }
 
-    const { restaurant_id, name, description, display_order, is_active, icon } =
-      req.body;
-
+    // Verificar duplicados
     const existingMenu = await Menu.findOne({
       where: {
+        name,
         restaurant_id,
-        name: {
-          [Op.iLike]: name,
-        },
+        is_active: true,
       },
     });
 
     if (existingMenu) {
       return res.status(409).json({
-        success: false,
-        message: 'Ya existe una categoría con ese nombre en este restaurante',
+        ok: false,
+        message: 'A menu category with this name already exists in this restaurant',
       });
     }
 
     const menu = await Menu.create({
-      restaurant_id,
       name,
       description,
+      restaurant_id,
       display_order: display_order || 0,
-      is_active: is_active !== undefined ? is_active : true,
-      icon,
     });
 
     return res.status(201).json({
-      success: true,
-      message: 'Categoría de menú creada exitosamente',
-      data: menu,
+      ok: true,
+      message: 'Menu category created successfully',
+      menu,
     });
   } catch (error) {
     console.error('Error creating menu:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Error al crear la categoría de menú',
-      error: error.message,
+      ok: false,
+      message: 'Internal server error while creating menu category',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
 
+/**
+ * Get all menu categories
+ * @route GET /api/v1/menus
+ */
 export const getAllMenus = async (req, res) => {
   try {
-    const { restaurant_id, is_active } = req.query;
+    const { restaurant_id, page = 1, limit = 20 } = req.query;
 
-    const whereClause = {};
+    const where = { is_active: true };
+    if (restaurant_id) where.restaurant_id = restaurant_id;
 
-    if (restaurant_id) {
-      whereClause.restaurant_id = restaurant_id;
-    }
+    const offset = (parseInt(page) - 1) * parseInt(limit);
 
-    if (is_active !== undefined) {
-      whereClause.is_active = is_active === 'true';
-    }
-
-    const menus = await Menu.findAll({
-      where: whereClause,
+    const { count, rows: menus } = await Menu.findAndCountAll({
+      where,
+      limit: parseInt(limit),
+      offset,
+      order: [['display_order', 'ASC'], ['name', 'ASC']],
       include: [
         {
-          model: MenuItem,
-          as: 'items',
-          attributes: [
-            'id',
-            'name',
-            'price',
-            'is_available',
-            'image_url',
-            'display_order',
-          ],
-          required: false,
+          model: Restaurant,
+          as: 'restaurant',
+          attributes: ['id', 'name'],
         },
-      ],
-      order: [
-        ['display_order', 'ASC'],
-        ['name', 'ASC'],
-        [{ model: MenuItem, as: 'items' }, 'display_order', 'ASC'],
       ],
     });
 
     return res.status(200).json({
-      success: true,
-      count: menus.length,
-      data: menus,
+      ok: true,
+      message: 'Menu categories retrieved successfully',
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total_pages: Math.ceil(count / parseInt(limit)),
+      },
+      menus,
     });
   } catch (error) {
-    console.error('Error fetching menus:', error);
+    console.error('Error getting menus:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Error al obtener las categorías',
-      error: error.message,
+      ok: false,
+      message: 'Internal server error while retrieving menu categories',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
 
+/**
+ * Get menu category by ID
+ * @route GET /api/v1/menus/:id
+ */
 export const getMenuById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const menu = await Menu.findByPk(id, {
+    const menu = await Menu.findOne({
+      where: { id, is_active: true },
       include: [
+        {
+          model: Restaurant,
+          as: 'restaurant',
+          attributes: ['id', 'name', 'category'],
+        },
         {
           model: MenuItem,
           as: 'items',
-          order: [['display_order', 'ASC']],
+          where: { is_active: true },
+          required: false,
+          order: [['name', 'ASC']],
         },
       ],
     });
 
     if (!menu) {
       return res.status(404).json({
-        success: false,
-        message: 'Categoría no encontrada',
+        ok: false,
+        message: 'Menu category not found',
       });
     }
 
     return res.status(200).json({
-      success: true,
-      data: menu,
+      ok: true,
+      message: 'Menu category retrieved successfully',
+      menu,
     });
   } catch (error) {
-    console.error('Error fetching menu:', error);
+    console.error('Error getting menu:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Error al obtener la categoría',
-      error: error.message,
+      ok: false,
+      message: 'Internal server error while retrieving menu category',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
 
+/**
+ * Update menu category
+ * @route PUT /api/v1/menus/:id
+ */
 export const updateMenu = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Errores de validación',
-        errors: errors.array(),
-      });
-    }
-
     const { id } = req.params;
-    const { name, description, display_order, is_active, icon } = req.body;
+    const updateData = req.body;
 
-    const menu = await Menu.findByPk(id);
+    const menu = await Menu.findOne({
+      where: { id, is_active: true },
+    });
 
     if (!menu) {
       return res.status(404).json({
-        success: false,
-        message: 'Categoría no encontrada',
+        ok: false,
+        message: 'Menu category not found',
       });
     }
 
-    if (name && name !== menu.name) {
+    // Verificar duplicados si se cambia el nombre
+    if (updateData.name && updateData.name !== menu.name) {
       const existingMenu = await Menu.findOne({
         where: {
+          name: updateData.name,
           restaurant_id: menu.restaurant_id,
-          name: {
-            [Op.iLike]: name,
-          },
-          id: {
-            [Op.ne]: id,
-          },
+          is_active: true,
+          id: { [Op.ne]: id },
         },
       });
 
       if (existingMenu) {
         return res.status(409).json({
-          success: false,
-          message: 'Ya existe una categoría con ese nombre',
+          ok: false,
+          message: 'A menu category with this name already exists',
         });
       }
     }
 
-    await menu.update({
-      name: name || menu.name,
-      description: description !== undefined ? description : menu.description,
-      display_order:
-        display_order !== undefined ? display_order : menu.display_order,
-      is_active: is_active !== undefined ? is_active : menu.is_active,
-      icon: icon !== undefined ? icon : menu.icon,
-    });
+    delete updateData.id;
+    delete updateData.restaurant_id;
+    delete updateData.created_at;
+
+    await menu.update(updateData);
 
     return res.status(200).json({
-      success: true,
-      message: 'Categoría actualizada exitosamente',
-      data: menu,
+      ok: true,
+      message: 'Menu category updated successfully',
+      menu,
     });
   } catch (error) {
     console.error('Error updating menu:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Error al actualizar la categoría',
-      error: error.message,
+      ok: false,
+      message: 'Internal server error while updating menu category',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
 
+/**
+ * Delete menu category (soft delete)
+ * @route DELETE /api/v1/menus/:id
+ */
 export const deleteMenu = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const menu = await Menu.findByPk(id);
+    const menu = await Menu.findOne({
+      where: { id, is_active: true },
+    });
 
     if (!menu) {
       return res.status(404).json({
-        success: false,
-        message: 'Categoría no encontrada',
+        ok: false,
+        message: 'Menu category not found',
       });
     }
 
-    const itemsCount = await MenuItem.count({
-      where: { menu_id: id },
-    });
+    await menu.update({ is_active: false });
 
-    if (itemsCount > 0) {
-      return res.status(400).json({
-        success: false,
-        message: `No se puede eliminar. Tiene ${itemsCount} platillo(s) asociado(s)`,
-      });
-    }
-
-    await menu.destroy();
+    // También desactivar todos los items de esta categoría
+    await MenuItem.update(
+      { is_active: false },
+      { where: { menu_id: id } }
+    );
 
     return res.status(200).json({
-      success: true,
-      message: 'Categoría eliminada exitosamente',
+      ok: true,
+      message: 'Menu category deleted successfully',
     });
   } catch (error) {
     console.error('Error deleting menu:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Error al eliminar la categoría',
-      error: error.message,
+      ok: false,
+      message: 'Internal server error while deleting menu category',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
 
-// ========== PLATILLOS ==========
+// ==================== MENU ITEMS ====================
 
+/**
+ * Create menu item
+ * @route POST /api/v1/menu-items
+ */
 export const createMenuItem = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Errores de validación',
-        errors: errors.array(),
-      });
-    }
-
     const {
-      menu_id,
-      restaurant_id,
       name,
       description,
       price,
+      menu_id,
+      restaurant_id,
       image_url,
-      preparation_time,
-      calories,
       ingredients,
       allergens,
-      is_available,
+      preparation_time,
+      calories,
       is_vegetarian,
       is_vegan,
       is_gluten_free,
-      is_spicy,
-      spicy_level,
-      display_order,
+      spice_level,
+      portion_size,
     } = req.body;
 
-    const menu = await Menu.findByPk(menu_id);
-    if (!menu) {
+    // Verificar que el restaurante existe
+    const restaurant = await Restaurant.findByPk(restaurant_id);
+    if (!restaurant) {
       return res.status(404).json({
-        success: false,
-        message: 'La categoría no existe',
+        ok: false,
+        message: 'Restaurant not found',
       });
     }
 
+    // Verificar que la categoría existe
+    const menu = await Menu.findOne({
+      where: { id: menu_id, is_active: true },
+    });
+
+    if (!menu) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Menu category not found',
+      });
+    }
+
+    // Verificar que la categoría pertenece al restaurante
+    if (menu.restaurant_id !== restaurant_id) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Menu category does not belong to this restaurant',
+      });
+    }
+
+    // Verificar duplicados
     const existingItem = await MenuItem.findOne({
       where: {
-        menu_id,
-        name: {
-          [Op.iLike]: name,
-        },
+        name,
+        restaurant_id,
+        is_active: true,
       },
     });
 
     if (existingItem) {
       return res.status(409).json({
-        success: false,
-        message: 'Ya existe un platillo con ese nombre en esta categoría',
+        ok: false,
+        message: 'A menu item with this name already exists in this restaurant',
       });
     }
 
     const menuItem = await MenuItem.create({
-      menu_id,
-      restaurant_id,
       name,
       description,
       price,
+      menu_id,
+      restaurant_id,
       image_url,
+      ingredients: ingredients || [],
+      allergens: allergens || [],
       preparation_time,
       calories,
-      ingredients,
-      allergens,
-      is_available: is_available !== undefined ? is_available : true,
       is_vegetarian: is_vegetarian || false,
       is_vegan: is_vegan || false,
       is_gluten_free: is_gluten_free || false,
-      is_spicy: is_spicy || false,
-      spicy_level: is_spicy ? spicy_level || 1 : 0,
-      display_order: display_order || 0,
+      spice_level: spice_level || 'none',
+      portion_size,
+      is_available: true,
     });
 
     return res.status(201).json({
-      success: true,
-      message: 'Platillo creado exitosamente',
-      data: menuItem,
+      ok: true,
+      message: 'Menu item created successfully',
+      menuItem,
     });
   } catch (error) {
     console.error('Error creating menu item:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Error al crear el platillo',
-      error: error.message,
+      ok: false,
+      message: 'Internal server error while creating menu item',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
 
+/**
+ * Get all menu items
+ * @route GET /api/v1/menu-items
+ */
 export const getAllMenuItems = async (req, res) => {
   try {
     const {
-      menu_id,
       restaurant_id,
+      menu_id,
       is_available,
       is_vegetarian,
       is_vegan,
-      is_gluten_free,
-      min_price,
-      max_price,
+      search,
+      page = 1,
+      limit = 20,
     } = req.query;
 
-    const whereClause = {};
+    const where = { is_active: true };
+    if (restaurant_id) where.restaurant_id = restaurant_id;
+    if (menu_id) where.menu_id = menu_id;
+    if (is_available !== undefined) where.is_available = is_available === 'true';
+    if (is_vegetarian !== undefined) where.is_vegetarian = is_vegetarian === 'true';
+    if (is_vegan !== undefined) where.is_vegan = is_vegan === 'true';
 
-    if (menu_id) whereClause.menu_id = menu_id;
-    if (restaurant_id) whereClause.restaurant_id = restaurant_id;
-    if (is_available !== undefined)
-      whereClause.is_available = is_available === 'true';
-    if (is_vegetarian !== undefined)
-      whereClause.is_vegetarian = is_vegetarian === 'true';
-    if (is_vegan !== undefined) whereClause.is_vegan = is_vegan === 'true';
-    if (is_gluten_free !== undefined)
-      whereClause.is_gluten_free = is_gluten_free === 'true';
-
-    if (min_price || max_price) {
-      whereClause.price = {};
-      if (min_price) whereClause.price[Op.gte] = parseFloat(min_price);
-      if (max_price) whereClause.price[Op.lte] = parseFloat(max_price);
+    if (search) {
+      where[Op.or] = [
+        { name: { [Op.iLike]: `%${search}%` } },
+        { description: { [Op.iLike]: `%${search}%` } },
+      ];
     }
 
-    const menuItems = await MenuItem.findAll({
-      where: whereClause,
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    const { count, rows: menuItems } = await MenuItem.findAndCountAll({
+      where,
+      limit: parseInt(limit),
+      offset,
+      order: [['name', 'ASC']],
       include: [
         {
           model: Menu,
           as: 'menu',
-          attributes: ['id', 'name', 'display_order'],
+          attributes: ['id', 'name'],
         },
-      ],
-      order: [
-        ['display_order', 'ASC'],
-        ['name', 'ASC'],
+        {
+          model: Restaurant,
+          as: 'restaurant',
+          attributes: ['id', 'name'],
+        },
       ],
     });
 
     return res.status(200).json({
-      success: true,
-      count: menuItems.length,
-      data: menuItems,
+      ok: true,
+      message: 'Menu items retrieved successfully',
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total_pages: Math.ceil(count / parseInt(limit)),
+      },
+      menuItems,
     });
   } catch (error) {
-    console.error('Error fetching menu items:', error);
+    console.error('Error getting menu items:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Error al obtener los platillos',
-      error: error.message,
+      ok: false,
+      message: 'Internal server error while retrieving menu items',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
 
+/**
+ * Get menu item by ID
+ * @route GET /api/v1/menu-items/:id
+ */
 export const getMenuItemById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const menuItem = await MenuItem.findByPk(id, {
+    const menuItem = await MenuItem.findOne({
+      where: { id, is_active: true },
       include: [
         {
           model: Menu,
           as: 'menu',
-          attributes: ['id', 'name', 'display_order'],
+          attributes: ['id', 'name'],
+        },
+        {
+          model: Restaurant,
+          as: 'restaurant',
+          attributes: ['id', 'name', 'address', 'phone'],
         },
       ],
     });
 
     if (!menuItem) {
       return res.status(404).json({
-        success: false,
-        message: 'Platillo no encontrado',
+        ok: false,
+        message: 'Menu item not found',
       });
     }
 
     return res.status(200).json({
-      success: true,
-      data: menuItem,
+      ok: true,
+      message: 'Menu item retrieved successfully',
+      menuItem,
     });
   } catch (error) {
-    console.error('Error fetching menu item:', error);
+    console.error('Error getting menu item:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Error al obtener el platillo',
-      error: error.message,
+      ok: false,
+      message: 'Internal server error while retrieving menu item',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
 
+/**
+ * Update menu item
+ * @route PUT /api/v1/menu-items/:id
+ */
 export const updateMenuItem = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Errores de validación',
-        errors: errors.array(),
-      });
-    }
-
     const { id } = req.params;
     const updateData = req.body;
 
-    const menuItem = await MenuItem.findByPk(id);
+    const menuItem = await MenuItem.findOne({
+      where: { id, is_active: true },
+    });
 
     if (!menuItem) {
       return res.status(404).json({
-        success: false,
-        message: 'Platillo no encontrado',
+        ok: false,
+        message: 'Menu item not found',
       });
     }
 
-    if (updateData.menu_id && updateData.menu_id !== menuItem.menu_id) {
-      const menu = await Menu.findByPk(updateData.menu_id);
-      if (!menu) {
-        return res.status(404).json({
-          success: false,
-          message: 'La categoría no existe',
-        });
-      }
-    }
-
+    // Verificar duplicados si se cambia el nombre
     if (updateData.name && updateData.name !== menuItem.name) {
       const existingItem = await MenuItem.findOne({
         where: {
-          menu_id: updateData.menu_id || menuItem.menu_id,
-          name: {
-            [Op.iLike]: updateData.name,
-          },
-          id: {
-            [Op.ne]: id,
-          },
+          name: updateData.name,
+          restaurant_id: menuItem.restaurant_id,
+          is_active: true,
+          id: { [Op.ne]: id },
         },
       });
 
       if (existingItem) {
         return res.status(409).json({
-          success: false,
-          message: 'Ya existe un platillo con ese nombre en esta categoría',
+          ok: false,
+          message: 'A menu item with this name already exists',
         });
       }
     }
 
+    delete updateData.id;
+    delete updateData.restaurant_id;
+    delete updateData.created_at;
+
     await menuItem.update(updateData);
 
     return res.status(200).json({
-      success: true,
-      message: 'Platillo actualizado exitosamente',
-      data: menuItem,
+      ok: true,
+      message: 'Menu item updated successfully',
+      menuItem,
     });
   } catch (error) {
     console.error('Error updating menu item:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Error al actualizar el platillo',
-      error: error.message,
+      ok: false,
+      message: 'Internal server error while updating menu item',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
 
+/**
+ * Delete menu item (soft delete)
+ * @route DELETE /api/v1/menu-items/:id
+ */
 export const deleteMenuItem = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const menuItem = await MenuItem.findByPk(id);
+    const menuItem = await MenuItem.findOne({
+      where: { id, is_active: true },
+    });
 
     if (!menuItem) {
       return res.status(404).json({
-        success: false,
-        message: 'Platillo no encontrado',
+        ok: false,
+        message: 'Menu item not found',
       });
     }
 
-    await menuItem.destroy();
+    await menuItem.update({ is_active: false });
 
     return res.status(200).json({
-      success: true,
-      message: 'Platillo eliminado exitosamente',
+      ok: true,
+      message: 'Menu item deleted successfully',
     });
   } catch (error) {
     console.error('Error deleting menu item:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Error al eliminar el platillo',
-      error: error.message,
+      ok: false,
+      message: 'Internal server error while deleting menu item',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
 
+/**
+ * Toggle menu item availability
+ * @route PATCH /api/v1/menu-items/:id/toggle
+ */
 export const toggleMenuItemAvailability = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const menuItem = await MenuItem.findByPk(id);
+    const menuItem = await MenuItem.findOne({
+      where: { id, is_active: true },
+    });
 
     if (!menuItem) {
       return res.status(404).json({
-        success: false,
-        message: 'Platillo no encontrado',
+        ok: false,
+        message: 'Menu item not found',
       });
     }
 
@@ -563,20 +602,20 @@ export const toggleMenuItemAvailability = async (req, res) => {
     });
 
     return res.status(200).json({
-      success: true,
-      message: `Platillo ${menuItem.is_available ? 'disponible' : 'no disponible'}`,
-      data: {
+      ok: true,
+      message: `Menu item ${menuItem.is_available ? 'marked as available' : 'marked as unavailable'}`,
+      menuItem: {
         id: menuItem.id,
         name: menuItem.name,
         is_available: menuItem.is_available,
       },
     });
   } catch (error) {
-    console.error('Error toggling availability:', error);
+    console.error('Error toggling menu item availability:', error);
     return res.status(500).json({
-      success: false,
-      message: 'Error al cambiar disponibilidad',
-      error: error.message,
+      ok: false,
+      message: 'Internal server error while toggling availability',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
