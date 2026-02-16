@@ -37,7 +37,7 @@ const routes = (app) => {
     res.status(200).json({
       status: 'Healthy',
       timestamp: new Date().toISOString(),
-      service: 'Proyecto Bancario Authentication Service',
+      service: 'Gestion Restaurantes Authentication Service',
     });
   });
   // 404 handler (standardized)
@@ -60,11 +60,11 @@ export const initServer = async () => {
     app.use(errorHandler);
 
     app.listen(PORT, () => {
-      console.log(`Proyecto Bancario Auth Server running on port ${PORT}`);
+      console.log(`Gestion Restaurantes Auth Server running on port ${PORT}`);
       console.log(`Health check: http://localhost:${PORT}${BASE_PATH}/health`);
     });
   } catch (err) {
-    console.error(`Error starting Proyecto Bancario Auth Server: ${err.message}`);
+    console.error(`Error starting Gestion Restaurantes Auth Server: ${err.message}`);
     process.exit(1);
   }
 };
