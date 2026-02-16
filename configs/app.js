@@ -5,9 +5,20 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { dbConnection } from './db.js';
-// Ensure models are registered before DB sync
+
+// IMPORTAR SOLO LOS MODELOS QUE EXISTEN
+import '../src/restaurant/restaurant.model.js';
 import '../src/users/user.model.js';
 import '../src/auth/role.model.js';
+import '../src/menu/menu.model.js';
+import '../src/menu/menu-item.model.js';
+// import '../src/order/order.model.js';              // ← COMENTADO (aún no existe)
+// import '../src/order/order-item.model.js';         // ← COMENTADO
+// import '../src/reservation/reservation.model.js';  // ← COMENTADO
+// import '../src/event/event.model.js';              // ← COMENTADO
+// import '../src/event/event-participant.model.js';  // ← COMENTADO
+// import '../src/table/table.model.js';              // ← COMENTADO
+
 import { requestLimit } from '../middlewares/request-limit.js';
 import { corsOptions } from './cors-configuration.js';
 import { helmetConfiguration } from './helmet-configuration.js';
@@ -15,8 +26,16 @@ import {
   errorHandler,
   notFound,
 } from '../middlewares/server-genericError-handler.js';
+
+// RUTAS
 import authRoutes from '../src/auth/auth.routes.js';
 import userRoutes from '../src/users/user.routes.js';
+import restaurantRoutes from '../src/restaurant/restaurant.routes.js';
+import menuRoutes from '../src/menu/menu.routes.js';
+// import orderRoutes from '../src/order/order.routes.js';              // ← COMENTADO
+// import reservationRoutes from '../src/reservation/reservation.routes.js';  // ← COMENTADO
+// import eventRoutes from '../src/event/event.routes.js';              // ← COMENTADO
+// import tableRoutes from '../src/table/table.routes.js';              // ← COMENTADO
 
 const BASE_PATH = '/api/v1';
 
@@ -32,15 +51,21 @@ const middlewares = (app) => {
 const routes = (app) => {
   app.use(`${BASE_PATH}/auth`, authRoutes);
   app.use(`${BASE_PATH}/users`, userRoutes);
+  app.use(`${BASE_PATH}/restaurants`, restaurantRoutes);
+  app.use(`${BASE_PATH}/menus`, menuRoutes);
+  // app.use(`${BASE_PATH}/orders`, orderRoutes);              // ← COMENTADO
+  // app.use(`${BASE_PATH}/reservations`, reservationRoutes);  // ← COMENTADO
+  // app.use(`${BASE_PATH}/events`, eventRoutes);              // ← COMENTADO
+  // app.use(`${BASE_PATH}/tables`, tableRoutes);              // ← COMENTADO
 
   app.get(`${BASE_PATH}/health`, (req, res) => {
     res.status(200).json({
       status: 'Healthy',
       timestamp: new Date().toISOString(),
-      service: 'Gestion Restaurantes Authentication Service',
+      service: 'Gestion Restaurantes Service',
     });
   });
-  // 404 handler (standardized)
+
   app.use(notFound);
 };
 
@@ -51,7 +76,6 @@ export const initServer = async () => {
 
   try {
     await dbConnection();
-    // Seed essential data (roles)
     const { seedRoles } = await import('../helpers/role-seed.js');
     await seedRoles();
     middlewares(app);
@@ -60,11 +84,11 @@ export const initServer = async () => {
     app.use(errorHandler);
 
     app.listen(PORT, () => {
-      console.log(`Gestion Restaurantes Auth Server running on port ${PORT}`);
+      console.log(`Gestion Restaurantes Server running on port ${PORT}`);
       console.log(`Health check: http://localhost:${PORT}${BASE_PATH}/health`);
     });
   } catch (err) {
-    console.error(`Error starting Gestion Restaurantes Auth Server: ${err.message}`);
+    console.error(`Error starting server: ${err.message}`);
     process.exit(1);
   }
 };

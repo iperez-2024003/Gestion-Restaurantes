@@ -1,0 +1,178 @@
+{
+	"info": {
+		"_postman_id": "beb828b8-2a3d-448c-8171-74470ef75939",
+		"name": "Gestor-Restaurantes",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48330261",
+		"_collection_link": "https://jmagzul-2024029-5678306.postman.co/workspace/jmagzul-2024029's-Workspace~3a8d1672-7800-4f58-8fb4-71f2019e90de/collection/48330261-beb828b8-2a3d-448c-8171-74470ef75939?action=share&source=collection_link&creator=48330261"
+	},
+	"item": [
+		{
+			"name": "MENU",
+			"item": [
+				{
+					"name": "CATEGORIAS",
+					"item": [
+						{
+							"name": "Crear-Categoría",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"restaurant_id\": \"fdff7c7f-3a3e-407d-a5c7-60ef00d2b20e\",\r\n  \"name\": \"Entradas\",\r\n  \"description\": \"Deliciosas entradas para comenzar\",\r\n  \"display_order\": 1,\r\n  \"is_active\": true,\r\n  \"icon\": \"appetizer\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3005/api/v1/menus",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3005",
+									"path": [
+										"api",
+										"v1",
+										"menus"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Listar-Categorias",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar-Categorias",
+							"request": {
+								"method": "PUT",
+								"header": []
+							},
+							"response": []
+						},
+						{
+							"name": "Eliminar-Categorias",
+							"request": {
+								"method": "DELETE",
+								"header": []
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "PLATILLOS",
+					"item": [
+						{
+							"name": "Crear-Platillos",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"menu_id\": \"fdff7c7f-3a3e-407d-a5c7-60ef00d2b20e\",\r\n  \"restaurant_id\": \"fdff7c7f-3a3e-407d-a5c7-60ef00d2b20e\",\r\n  \"name\": \"Tacos al Pastor\",\r\n  \"description\": \"Deliciosos tacos al pastor con piña\",\r\n  \"price\": 85.50,\r\n  \"preparation_time\": 15,\r\n  \"is_available\": true,\r\n  \"is_vegetarian\": false,\r\n  \"is_spicy\": true,\r\n  \"spicy_level\": 3,\r\n  \"display_order\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3005/api/v1/menus/items",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3005",
+									"path": [
+										"api",
+										"v1",
+										"menus",
+										"items"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Listar-Platillos",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						},
+						{
+							"name": "Eliminar-Platillos",
+							"request": {
+								"method": "DELETE",
+								"header": []
+							},
+							"response": []
+						},
+						{
+							"name": "Actualizar-Platillos",
+							"request": {
+								"method": "PUT",
+								"header": []
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "RESTAURANTES",
+			"item": [
+				{
+					"name": "Crear-Restaurante",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Restaurante El Buen Sabor\",\r\n    \"description\": \"El mejor restaurante de comida guatemalteca tradicional\",\r\n    \"phone\": \"+502 2345-6789\",\r\n    \"email\": \"contacto@buensabor.gt\",\r\n    \"address\": \"5ta Avenida 12-45, Zona 10\",\r\n    \"city\": \"Guatemala City\",\r\n    \"country\": \"Guatemala\",\r\n    \"cuisine_type\": \"Guatemalteca\",\r\n    \"price_range\": \"$$\",\r\n    \"opening_time\": \"08:00:00\",\r\n    \"closing_time\": \"22:00:00\",\r\n    \"capacity\": 80,\r\n    \"accepts_reservations\": true,\r\n    \"has_delivery\": true,\r\n    \"has_takeout\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3005/api/v1/restaurant",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3005",
+							"path": [
+								"api",
+								"v1",
+								"restaurant"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Restaurantes",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
