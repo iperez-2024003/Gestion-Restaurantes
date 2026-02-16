@@ -117,7 +117,7 @@ export const UserProfile = sequelize.define(
       allowNull: false,
       field: 'user_id',
       references: {
-        model: User,
+        model: 'users',
         key: 'id',
       },
     },
@@ -161,7 +161,7 @@ export const UserEmail = sequelize.define(
       allowNull: false,
       field: 'user_id',
       references: {
-        model: User,
+        model: 'users',
         key: 'id',
       },
     },
@@ -203,7 +203,7 @@ export const UserPasswordReset = sequelize.define(
       allowNull: false,
       field: 'user_id',
       references: {
-        model: User,
+        model: 'users',
         key: 'id',
       },
     },

@@ -1,6 +1,6 @@
 'use strict';
 
-import express from 'express';
+import { Router } from 'express';
 import {
   createMenu,
   getAllMenus,
@@ -14,35 +14,63 @@ import {
   deleteMenuItem,
   toggleMenuItemAvailability,
 } from './menu.controller.js';
+import { validateJWT } from '../../middlewares/validate-JWT.js';
 import {
-  createMenuValidation,
-  updateMenuValidation,
-  createMenuItemValidation,
-  updateMenuItemValidation,
-  uuidParamValidation,
-  menuQueryValidation,
-  menuItemQueryValidation,
+  validateMenuCreation,
+  validateMenuUpdate,
+  validateMenuItemCreation,
+  validateMenuItemUpdate,
 } from './menu.validation.js';
 
-const router = express.Router();
+const router = Router();
 
-// CATEGORÍAS
-router.post('/', createMenuValidation, createMenu);
-router.get('/', menuQueryValidation, getAllMenus);
-router.get('/:id', uuidParamValidation, getMenuById);
-router.put('/:id', updateMenuValidation, updateMenu);
-router.delete('/:id', uuidParamValidation, deleteMenu);
+// ==================== MENU CATEGORIES ROUTES ====================
 
-// PLATILLOS - Estas rutas van en un archivo separado o aquí
-router.post('/items', createMenuItemValidation, createMenuItem);
-router.get('/items', menuItemQueryValidation, getAllMenuItems);
-router.get('/items/:id', uuidParamValidation, getMenuItemById);
-router.put('/items/:id', updateMenuItemValidation, updateMenuItem);
-router.delete('/items/:id', uuidParamValidation, deleteMenuItem);
-router.patch(
-  '/items/:id/toggle',
-  uuidParamValidation,
-  toggleMenuItemAvailability
-);
+/**
+ * Public routes
+ */
+// Get all menu categories
+router.get('/', getAllMenus);
+
+// Get menu category by ID
+router.get('/:id', getMenuById);
+
+/**
+ * Protected routes (require authentication)
+ */
+// Create menu category
+router.post('/', [validateJWT, validateMenuCreation], createMenu);
+
+// Update menu category
+router.put('/:id', [validateJWT, validateMenuUpdate], updateMenu);
+
+// Delete menu category
+router.delete('/:id', validateJWT, deleteMenu);
+
+// ==================== MENU ITEMS ROUTES ====================
+
+/**
+ * Public routes
+ */
+// Get all menu items
+router.get('/items/all', getAllMenuItems);
+
+// Get menu item by ID
+router.get('/items/:id', getMenuItemById);
+
+/**
+ * Protected routes (require authentication)
+ */
+// Create menu item
+router.post('/items', [validateJWT, validateMenuItemCreation], createMenuItem);
+
+// Update menu item
+router.put('/items/:id', [validateJWT, validateMenuItemUpdate], updateMenuItem);
+
+// Delete menu item
+router.delete('/items/:id', validateJWT, deleteMenuItem);
+
+// Toggle menu item availability
+router.patch('/items/:id/toggle', validateJWT, toggleMenuItemAvailability);
 
 export default router;

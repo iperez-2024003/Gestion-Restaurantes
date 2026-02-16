@@ -2,6 +2,7 @@
 
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
+import { Restaurant } from '../restaurant/restaurant.model.js';
 
 export const Menu = sequelize.define(
   'menu',
@@ -12,6 +13,29 @@ export const Menu = sequelize.define(
       primaryKey: true,
       allowNull: false,
     },
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: 'Menu category name cannot be empty',
+        },
+        len: {
+          args: [2, 100],
+          msg: 'Menu category name must be between 2 and 100 characters',
+        },
+      },
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      validate: {
+        len: {
+          args: [0, 500],
+          msg: 'Description cannot exceed 500 characters',
+        },
+      },
+    },
     restaurant_id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -19,25 +43,8 @@ export const Menu = sequelize.define(
         model: 'restaurant',
         key: 'id',
       },
-      onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
-    },
-    name: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'El nombre de la categoría es obligatorio',
-        },
-        len: {
-          args: [2, 100],
-          msg: 'El nombre debe tener entre 2 y 100 caracteres',
-        },
-      },
-    },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
+      onDelete: 'CASCADE',
     },
     display_order: {
       type: DataTypes.INTEGER,
@@ -46,7 +53,7 @@ export const Menu = sequelize.define(
       validate: {
         min: {
           args: [0],
-          msg: 'El orden debe ser mayor o igual a 0',
+          msg: 'Display order cannot be negative',
         },
       },
     },
@@ -54,11 +61,6 @@ export const Menu = sequelize.define(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
-    },
-    icon: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      comment: 'Nombre del icono para la categoría',
     },
     created_at: {
       type: DataTypes.DATE,
@@ -79,25 +81,28 @@ export const Menu = sequelize.define(
     underscored: true,
     indexes: [
       {
+        name: 'idx_menu_restaurant',
         fields: ['restaurant_id'],
       },
       {
-        fields: ['restaurant_id', 'display_order'],
-      },
-      {
+        name: 'idx_menu_active',
         fields: ['is_active'],
       },
     ],
   }
 );
 
-Menu.beforeValidate((menu) => {
-  if (menu.name) {
-    menu.name = menu.name.trim();
-  }
-  if (menu.description) {
-    menu.description = menu.description.trim();
-  }
+// Relaciones
+Menu.belongsTo(Restaurant, {
+  foreignKey: 'restaurant_id',
+  as: 'restaurant',
+  onDelete: 'CASCADE',
 });
 
-console.log('Menu model loaded successfully');
+Restaurant.hasMany(Menu, {
+  foreignKey: 'restaurant_id',
+  as: 'menus',
+  onDelete: 'CASCADE',
+});
+
+export default Menu;
