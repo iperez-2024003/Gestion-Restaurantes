@@ -2,18 +2,18 @@
 
 import { Router } from 'express';
 import {
-  createOrder,
-  getAllOrders,
-  getOrderById,
-  updateOrderStatus,
-  cancelOrder,
-  addItemToOrder,
-  removeItemFromOrder,
+    createOrder,
+    getAllOrders,
+    getOrderById,
+    updateOrderStatus,
+    cancelOrder,
+    addItemToOrder,
+    removeItemFromOrder,
 } from './order.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
 import {
-  validateOrderCreation,
-  validateAddItem,
+    validateOrderCreation,
+    validateAddItem,
 } from './order.validation.js';
 
 const router = Router();

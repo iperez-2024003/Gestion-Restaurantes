@@ -3,7 +3,11 @@
 import { body, validationResult } from 'express-validator';
 
 /**
+<<<<<<< HEAD
  * Validation middleware for menu category creation
+=======
+ * Validation for creation
+>>>>>>> a861ce4450457dceb4ae922c84fe629dc3b6f748
  */
 export const validateMenuCreation = [
   body('name')
@@ -47,7 +51,11 @@ export const validateMenuCreation = [
 ];
 
 /**
+<<<<<<< HEAD
  * Validation middleware for menu category update
+=======
+ * Validation for update
+>>>>>>> a861ce4450457dceb4ae922c84fe629dc3b6f748
  */
 export const validateMenuUpdate = [
   body('name')
@@ -84,7 +92,11 @@ export const validateMenuUpdate = [
 ];
 
 /**
+<<<<<<< HEAD
  * Validation middleware for menu item creation
+=======
+ * Validation for menu item creation
+>>>>>>> a861ce4450457dceb4ae922c84fe629dc3b6f748
  */
 export const validateMenuItemCreation = [
   body('name')
@@ -187,7 +199,11 @@ export const validateMenuItemCreation = [
 ];
 
 /**
+<<<<<<< HEAD
  * Validation middleware for menu item update
+=======
+ * Validation for menu item update
+>>>>>>> a861ce4450457dceb4ae922c84fe629dc3b6f748
  */
 export const validateMenuItemUpdate = [
   body('name')
