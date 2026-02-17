@@ -26,8 +26,8 @@ pnpm run dev
 
 # O si usas npm
 npm run dev
-Servidor corriendo en: http://localhost:3000
-Health Check: http://localhost:3000/api/v1/health
+Servidor corriendo en: http://localhost:3005
+Health Check: http://localhost:3005/api/v1/health
 
 🔐 Autenticación y Uso
 Paso 1: Registrar Usuario
@@ -231,7 +231,7 @@ Click "Backup"
 
 
 📋 Endpoints Principales
-Base URL: http://localhost:3000/api/v1
+Base URL: http://localhost:3005/api/v1
 Autenticación
 
 POST /auth/register - Registrarse
@@ -306,7 +306,7 @@ Click en "Add" (nuevo environment)
 Nombre: Gestion Restaurantes - Local
 Variables:
 
-VariableValorbase_urlhttp://localhost:3000/api/v1token(vacío - se llena después del login)restaurant_id(vacío - se llena después de crear restaurante)user_id(vacío - se llena después del register)
+VariableValorbase_urlhttp://localhost:3005/api/v1token(vacío - se llena después del login)restaurant_id(vacío - se llena después de crear restaurante)user_id(vacío - se llena después del register)
 
 Click "Save"
 Selecciona el environment en el dropdown superior
@@ -329,17 +329,17 @@ docker-compose up -d
 
 # Ver logs:
 docker-compose logs postgres
-Error: Port 3000 already in use
+Error: Port 3005 already in use
 bash# Opción 1: Cambiar puerto en .env
 PORT=3001
 
 # Opción 2: Matar proceso
 # Windows:
-netstat -ano | findstr :3000
+netstat -ano | findstr :3005
 taskkill /PID <numero> /F
 
 # Mac/Linux:
-lsof -ti:3000 | xargs kill -9
+lsof -ti:3005 | xargs kill -9
 Error: JWT token invalid
 
 Verifica que el header tenga: Authorization: Bearer TU_TOKEN
