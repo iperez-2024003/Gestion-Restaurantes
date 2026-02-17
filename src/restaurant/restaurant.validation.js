@@ -206,7 +206,8 @@ export const validateRestaurantCreation = [
   body('admin_id')
     .notEmpty()
     .withMessage('Administrator ID is required')
-    .isUUID()
+    .isString()
+    .isLength({ min: 10, max: 20 })
     .withMessage('Administrator ID must be a valid UUID'),
 
   body('parent_restaurant_id')
@@ -386,9 +387,11 @@ export const validateRestaurantUpdate = [
     .withMessage('Website URL must be a valid URL'),
 
   body('admin_id')
-    .optional()
-    .isUUID()
-    .withMessage('Administrator ID must be a valid UUID'),
+    .notEmpty()
+    .withMessage('Administrator ID is required')
+    .isString()
+    .isLength({ min: 10, max: 20 })
+    .withMessage('Administrator ID must be between 10 and 20 characters'), 
 
   body('parent_restaurant_id')
     .optional()

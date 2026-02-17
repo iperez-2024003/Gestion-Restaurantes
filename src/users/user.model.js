@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
 import { generateUserId } from '../../helpers/uuid-generator.js';
 
-// Modelo User principal (equivalente a User.cs en .NET) - usando snake_case
+
 export const User = sequelize.define(
   'User',
   {

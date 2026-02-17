@@ -31,7 +31,7 @@ export const Reservation = sequelize.define(
       onDelete: 'CASCADE',
     },
     user_id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(100),
       allowNull: true,
       references: {
         model: 'users',

@@ -14,7 +14,7 @@ export const Restaurant = sequelize.define(
       allowNull: false,
     },
     name: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(100),
       allowNull: false,
       validate: {
         notEmpty: {
@@ -321,7 +321,7 @@ export const Restaurant = sequelize.define(
       comment: 'Array of special features (live_music, valet_parking, etc.)',
     },
     admin_id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(100),
       allowNull: false,
       references: {
         model: 'users',

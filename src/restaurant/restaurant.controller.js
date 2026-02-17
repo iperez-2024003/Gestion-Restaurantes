@@ -264,7 +264,7 @@ export const getRestaurantById = async (req, res) => {
         {
           model: User,
           as: 'administrator',
-          attributes: ['id', 'username', 'email', 'phone'],
+          attributes: ['id', 'username', 'email',],
         },
         {
           model: Restaurant,
