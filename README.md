@@ -11,7 +11,16 @@ Cualquier duda comunicarse con mi persona iperez-2024003@kinal.edu.gt
 🚀 Iniciar el Proyecto
 1. Iniciar Base de Datos con Docker
 bash# Iniciar PostgreSQL y pgAdmin
-docker-compose up -d
+docker run --name gestion-restaurantes -e POSTGRES_USER=root -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=Gestion-Restaurantes -p 5436:5432 -d postgres
+
+Abrir PgAdmin y verificar la base de datos
+Crear o registrar dentro de un server en pgAdmin con los datos que estan dentro del .env
+En este caso Nombre de la base de datos es Gestion-Restaurantes y luego en el apartado de connection 
+HostName: Localhost
+Port: 5036
+Username: root
+Password: admin
+Con eso ya tenemos nuestra base de datos lista para usar en postman
 
 # Verificar que estén corriendo
 docker ps
@@ -21,13 +30,10 @@ Servicios activos:
 🖥️ pgAdmin: http://localhost:5050
 
 2. Iniciar el Servidor API
-bash# En la carpeta del proyecto
+En la carpeta del proyecto adentro de Visual Studio o ya sea desde el CMD de la carpeta
 pnpm run dev
-
-# O si usas npm
-npm run dev
-Servidor corriendo en: http://localhost:3005
-Health Check: http://localhost:3005/api/v1/health
+Autenticacion desde postman esto es una guia ya que el postman esta cargado en el proyecto solo
+la unica modificacion que se haria seria la del token en Bearer Token lo demas es intacto
 
 🔐 Autenticación y Uso
 Paso 1: Registrar Usuario
@@ -64,7 +70,6 @@ json{
   "user": { ... }
 }
 🎫 Copia el token completo - Lo necesitas para todas las demás peticiones
-
 Paso 3: Crear Restaurante
 Endpoint: POST /api/v1/restaurants
 Headers:
@@ -118,47 +123,8 @@ sql\l              -- Listar bases de datos
 \d users        -- Ver estructura de tabla
 \q              -- Salir
 
-🖥️ Uso de pgAdmin
-Acceder a pgAdmin
-
-Abre tu navegador
-Ve a: http://localhost:5050
-Login:
-
-Email: admin@admin.com
-Password: admin
-
-
-
-Conectar al Servidor (Primera vez)
-
-Click derecho en "Servers" → "Register" → "Server"
-Tab General:
-
-Name: Gestion Restaurantes
-
-
-Tab Connection:
-
-Host: postgres-restaurantes (nombre del contenedor)
-Port: 5432
-Database: Gestion-Restaurantes
-Username: root
-Password: root
-
-
-Click "Save"
-
-Ver las Tablas
-Servers 
-→ Gestion Restaurantes 
-→ Databases 
-→ Gestion-Restaurantes 
-→ Schemas 
-→ public 
-→ Tables
-Tablas creadas:
-
+Esta seria la estructura de el proyecto al momento
+Cuenta con varios archivos
 📁 users - Usuarios del sistema
 📁 roles - Roles (admin, waiter, customer)
 📁 restaurant - Restaurantes
@@ -229,7 +195,6 @@ Filename: backup_gestion_restaurantes_2026-02-16.sql
 Format: Plain
 Click "Backup"
 
-
 📋 Endpoints Principales
 Base URL: http://localhost:3005/api/v1
 Autenticación
@@ -293,55 +258,6 @@ Total: ~60 endpoints
 
 📬 Uso de Postman
 Importar Colección
-
-Abre Postman
-Click en "Import"
-Selecciona: Gestion_Restaurantes.postman_collection.json
-Click "Import"
-
-Configurar Environment
-
-Click en el icono del ojo 👁️ (esquina superior derecha)
-Click en "Add" (nuevo environment)
-Nombre: Gestion Restaurantes - Local
-Variables:
-
-VariableValorbase_urlhttp://localhost:3005/api/v1token(vacío - se llena después del login)restaurant_id(vacío - se llena después de crear restaurante)user_id(vacío - se llena después del register)
-
-Click "Save"
-Selecciona el environment en el dropdown superior
-
-Flujo de Prueba
-
-Register → Copia user_id
-Login → Copia token
-Create Restaurant → Copia restaurant_id
-Ahora puedes usar todos los demás endpoints
-
-
-🔧 Solución de Problemas
-Error: Cannot connect to PostgreSQL
-bash# Verifica que Docker esté corriendo
-docker ps
-
-# Si no está, inicia:
-docker-compose up -d
-
-# Ver logs:
-docker-compose logs postgres
-Error: Port 3005 already in use
-bash# Opción 1: Cambiar puerto en .env
-PORT=3001
-
-# Opción 2: Matar proceso
-# Windows:
-netstat -ano | findstr :3005
-taskkill /PID <numero> /F
-
-# Mac/Linux:
-lsof -ti:3005 | xargs kill -9
-Error: JWT token invalid
-
 Verifica que el header tenga: Authorization: Bearer TU_TOKEN
 Genera un nuevo token haciendo login de nuevo
 Asegúrate de copiar el token completo
@@ -389,13 +305,11 @@ Un cliente hace una reservación para 4 personas → Sistema verifica mesas disp
 🛡️ Seguridad y Validaciones
 El sistema implementa múltiples capas de seguridad:
 Autenticación JWT:
-
 Los usuarios deben hacer login para acceder
 Cada petición protegida requiere un token válido
 Los tokens expiran después de 24 horas
 
 Validaciones de Negocio:
-
 No se puede crear un pedido de platillos que no están disponibles
 No se puede reservar en horarios fuera de operación del restaurante
 No se pueden registrar más participantes de los permitidos en un evento
@@ -403,13 +317,11 @@ Los precios deben ser positivos
 Las fechas de reservación deben ser futuras
 
 Soft Delete:
-
 Nada se borra permanentemente de la base de datos
 Los registros se marcan como inactivos
 Se mantiene historial completo para auditoría
 
 Cálculos Automáticos:
-
 El sistema calcula automáticamente IVA (12%)
 Previene errores humanos en cuentas
 Mantiene consistencia en precios
@@ -431,7 +343,6 @@ Este proyecto demuestra conocimientos en:
 👥 Equipo de Desarrollo
 Scrum Master: Iverson Armando Pérez Maldonado
 Desarrolladores:
-
 1. Iverson Armando Pérez Maldonado - 2024003
 2. Jeremy Jhoel Méndez Palencia - 2021550
 3. Oscar Sebastian Cumatz Lopez - 2021660
@@ -440,7 +351,5 @@ Desarrolladores:
 6. Jorge Lisandro Magzul Tzuquén - 2024029
 7. Iverson Armando Pérez Maldonado - 2024003
 
-Institución: Centro Educativo Técnico Laboral Kinal
 Curso: IN6BM - Taller de Programación III
 Profesor: Elmer Rodrigo Santos García
-Período: Marzo - Junio 2026
