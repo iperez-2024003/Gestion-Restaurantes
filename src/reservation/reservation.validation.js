@@ -1,6 +1,6 @@
 'use strict';
 
-import { body, validationResult } from 'express-validator';
+import { body, query, validationResult } from 'express-validator';
 
 /**
  * Validation middleware for reservation creation
@@ -162,6 +162,43 @@ export const validateReservationUpdate = [
           field: error.path,
           message: error.msg,
         })),
+      });
+    }
+    next();
+  },
+];
+
+/**
+ * Validación de query para check-availability (GET /check-availability)
+ */
+export const validateCheckAvailability = [
+  query('restaurant_id')
+    .notEmpty()
+    .withMessage('restaurant_id es requerido')
+    .isUUID()
+    .withMessage('restaurant_id debe ser un UUID válido'),
+  query('reservation_date')
+    .notEmpty()
+    .withMessage('reservation_date es requerido (YYYY-MM-DD)')
+    .isDate()
+    .withMessage('reservation_date debe ser una fecha válida (YYYY-MM-DD)'),
+  query('reservation_time')
+    .notEmpty()
+    .withMessage('reservation_time es requerido')
+    .matches(/^([01]\d|2[0-3]):([0-5]\d)(:([0-5]\d))?$/)
+    .withMessage('reservation_time debe ser HH:MM o HH:MM:SS'),
+  query('party_size')
+    .notEmpty()
+    .withMessage('party_size es requerido')
+    .isInt({ min: 1, max: 20 })
+    .withMessage('party_size debe ser entre 1 y 20'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Validation errors',
+        errors: errors.array().map((error) => ({ field: error.path, message: error.msg })),
       });
     }
     next();
