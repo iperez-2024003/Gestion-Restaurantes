@@ -12,6 +12,7 @@ import {
   getRestaurantStats,
 } from './restaurant.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
+import { requireAdmin } from '../../middlewares/require-role.js';
 import { validateRestaurantCreation, validateRestaurantUpdate } from './restaurant.validation.js';
 
 const router = Router();
@@ -26,24 +27,24 @@ router.get('/', getAllRestaurants);
 router.get('/:id', getRestaurantById);
 
 /**
- * Protected routes (require authentication)
+ * Rutas solo ADMIN_ROLE (gestión de restaurantes, verificación, estadísticas)
  */
 // Create new restaurant
-router.post('/', [validateJWT, validateRestaurantCreation], createRestaurant);
+router.post('/', [validateJWT, requireAdmin, validateRestaurantCreation], createRestaurant);
 
 // Update restaurant
-router.put('/:id', [validateJWT, validateRestaurantUpdate], updateRestaurant);
+router.put('/:id', [validateJWT, requireAdmin, validateRestaurantUpdate], updateRestaurant);
 
 // Soft delete restaurant
-router.delete('/:id', validateJWT, deleteRestaurant);
+router.delete('/:id', [validateJWT, requireAdmin], deleteRestaurant);
 
 // Get restaurants by admin
-router.get('/admin/:adminId', validateJWT, getRestaurantsByAdmin);
+router.get('/admin/:adminId', [validateJWT, requireAdmin], getRestaurantsByAdmin);
 
-// Verify restaurant (Platform admin only)
-router.patch('/:id/verify', validateJWT, verifyRestaurant);
+// Verify restaurant (solo ADMIN_ROLE)
+router.patch('/:id/verify', [validateJWT, requireAdmin], verifyRestaurant);
 
 // Get restaurant statistics
-router.get('/:id/stats', validateJWT, getRestaurantStats);
+router.get('/:id/stats', [validateJWT, requireAdmin], getRestaurantStats);
 
 export default router;
