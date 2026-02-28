@@ -12,6 +12,7 @@ import {
   getEventParticipants,
 } from './event.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
+import { requireAdmin } from '../../middlewares/require-role.js';
 import {
   validateEventCreation,
   validateEventUpdate,
@@ -20,34 +21,17 @@ import {
 
 const router = Router();
 
-/**
- * Public routes
- */
-// Get all events
 router.get('/', getAllEvents);
-
-// Get event by ID
 router.get('/:id', getEventById);
 
-/**
- * Protected routes (require authentication)
- */
-// Create event
-router.post('/', [validateJWT, validateEventCreation], createEvent);
+/** Rutas solo ADMIN_ROLE (crear/editar/cancelar eventos) */
+router.post('/', [validateJWT, requireAdmin, validateEventCreation], createEvent);
+router.put('/:id', [validateJWT, requireAdmin, validateEventUpdate], updateEvent);
+router.delete('/:id', [validateJWT, requireAdmin], cancelEvent);
 
-// Update event
-router.put('/:id', [validateJWT, validateEventUpdate], updateEvent);
-
-// Cancel event
-router.delete('/:id', validateJWT, cancelEvent);
-
-// Register participant in event
+/** Usuario autenticado puede inscribirse, desinscribirse y ver participantes */
 router.post('/:id/register', [validateJWT, validateParticipantRegistration], registerParticipant);
-
-// Unregister from event
 router.delete('/:id/unregister', validateJWT, unregisterParticipant);
-
-// Get event participants
 router.get('/:id/participants', validateJWT, getEventParticipants);
 
 export default router;
