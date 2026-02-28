@@ -88,8 +88,15 @@ export const initServer = async () => {
 
   try {
     await dbConnection();
+    
+    // Seed roles
     const { seedRoles } = await import('../helpers/role-seed.js');
     await seedRoles();
+    
+    // ✨ NUEVO: Seed default ADMIN user
+    const { seedAdminUser } = await import('../helpers/admin-seed.js');
+    await seedAdminUser();
+    
     middlewares(app);
     routes(app);
 
