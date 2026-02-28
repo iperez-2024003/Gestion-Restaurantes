@@ -121,3 +121,27 @@ export const validateAddItem = [
     next();
   },
 ];
+
+const VALID_ORDER_STATUSES = ['pending', 'confirmed', 'preparing', 'ready', 'served', 'paid', 'cancelled'];
+
+/**
+ * Validación para actualizar estado del pedido (PATCH /:id/status)
+ */
+export const validateOrderStatusUpdate = [
+  body('status')
+    .notEmpty()
+    .withMessage('El estado del pedido es requerido')
+    .isIn(VALID_ORDER_STATUSES)
+    .withMessage(`El estado debe ser uno de: ${VALID_ORDER_STATUSES.join(', ')}`),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Validation errors',
+        errors: errors.array().map((error) => ({ field: error.path, message: error.msg })),
+      });
+    }
+    next();
+  },
+];
