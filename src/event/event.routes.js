@@ -13,6 +13,7 @@ import {
 } from './event.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
 import { requireAdmin } from '../../middlewares/require-role.js';
+import { validateUuidParam } from '../../middlewares/validate-params.js';
 import {
   validateEventCreation,
   validateEventUpdate,
@@ -22,16 +23,12 @@ import {
 const router = Router();
 
 router.get('/', getAllEvents);
-router.get('/:id', getEventById);
-
-/** Rutas solo ADMIN_ROLE (crear/editar/cancelar eventos) */
+router.get('/:id', validateUuidParam('id'), getEventById);
 router.post('/', [validateJWT, requireAdmin, validateEventCreation], createEvent);
-router.put('/:id', [validateJWT, requireAdmin, validateEventUpdate], updateEvent);
-router.delete('/:id', [validateJWT, requireAdmin], cancelEvent);
-
-/** Usuario autenticado puede inscribirse, desinscribirse y ver participantes */
-router.post('/:id/register', [validateJWT, validateParticipantRegistration], registerParticipant);
-router.delete('/:id/unregister', validateJWT, unregisterParticipant);
-router.get('/:id/participants', validateJWT, getEventParticipants);
+router.put('/:id', [validateJWT, requireAdmin, validateUuidParam('id'), validateEventUpdate], updateEvent);
+router.delete('/:id', [validateJWT, requireAdmin, validateUuidParam('id')], cancelEvent);
+router.post('/:id/register', [validateJWT, validateUuidParam('id'), validateParticipantRegistration], registerParticipant);
+router.delete('/:id/unregister', validateJWT, validateUuidParam('id'), unregisterParticipant);
+router.get('/:id/participants', validateJWT, validateUuidParam('id'), getEventParticipants);
 
 export default router;
