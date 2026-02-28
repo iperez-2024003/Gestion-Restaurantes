@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as authController from './auth.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
+import { validateProfileByIdBody } from '../../middlewares/validate-params.js';
 import {
   authRateLimit,
   requestLimit,
@@ -15,6 +16,7 @@ import {
   validateResetPassword,
   handleValidationErrors,
 } from '../../middlewares/validation.js';
+import { validatePasswordStrength } from '../../utils/password-utils.js';
 import { body } from 'express-validator';
 
 const router = Router();
@@ -55,7 +57,12 @@ const validateChangePassword = [
 
   body('newPassword')
     .notEmpty().withMessage('La nueva contraseña es obligatoria')
-    .isLength({ min: 8, max: 255 }).withMessage('La nueva contraseña debe tener entre 8 y 255 caracteres'),
+    .isLength({ min: 8, max: 255 }).withMessage('La nueva contraseña debe tener entre 8 y 255 caracteres')
+    .custom((value) => {
+      const { isValid, errors: strengthErrors } = validatePasswordStrength(value);
+      if (!isValid) throw new Error(strengthErrors.join('. '));
+      return true;
+    }),
 
   body('confirmPassword')
     .notEmpty().withMessage('La confirmación de contraseña es obligatoria'),
@@ -164,7 +171,7 @@ router.get('/profile', validateJWT, authController.getProfile);
  *     tags: [Profile]
  *     summary: Obtiene el perfil del usuario por ID
  */
-router.post('/profile/by-id', requestLimit, authController.getProfileById);
+router.post('/profile/by-id', requestLimit, validateProfileByIdBody, authController.getProfileById);
 
 /**
  * IMPORTANTE: change-password va ANTES de /profile (PUT)
