@@ -43,9 +43,11 @@ export const validateJWT = async (req, res, next) => {
       });
     }
 
-    // Agregar el usuario al request
+    // Agregar el usuario al request (user incluye UserRoles + Role para middlewares de rol)
     req.user = user;
     req.userId = user.Id.toString();
+    req.userRoleNames =
+      user.UserRoles?.map((ur) => ur?.Role?.Name).filter(Boolean) ?? [];
 
     next();
   } catch (error) {
