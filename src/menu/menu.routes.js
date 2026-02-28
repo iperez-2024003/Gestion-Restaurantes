@@ -16,6 +16,7 @@ import {
 } from './menu.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
 import { requireAdmin } from '../../middlewares/require-role.js';
+import { validateUuidParam } from '../../middlewares/validate-params.js';
 import {
   validateMenuCreation,
   validateMenuUpdate,
@@ -27,30 +28,19 @@ const router = Router();
 
 // ==================== MENU CATEGORIES ROUTES ====================
 
-/**
- * Public routes
- */
 router.get('/', getAllMenus);
-router.get('/:id', getMenuById);
-
-/**
- * Rutas solo ADMIN_ROLE (gestión de categorías de menú)
- */
+router.get('/:id', validateUuidParam('id'), getMenuById);
 router.post('/', [validateJWT, requireAdmin, validateMenuCreation], createMenu);
-router.put('/:id', [validateJWT, requireAdmin, validateMenuUpdate], updateMenu);
-router.delete('/:id', [validateJWT, requireAdmin], deleteMenu);
+router.put('/:id', [validateJWT, requireAdmin, validateUuidParam('id'), validateMenuUpdate], updateMenu);
+router.delete('/:id', [validateJWT, requireAdmin, validateUuidParam('id')], deleteMenu);
 
 // ==================== MENU ITEMS ROUTES ====================
 
 router.get('/items/all', getAllMenuItems);
-router.get('/items/:id', getMenuItemById);
-
-/**
- * Rutas solo ADMIN_ROLE (gestión de ítems de menú)
- */
+router.get('/items/:id', validateUuidParam('id'), getMenuItemById);
 router.post('/items', [validateJWT, requireAdmin, validateMenuItemCreation], createMenuItem);
-router.put('/items/:id', [validateJWT, requireAdmin, validateMenuItemUpdate], updateMenuItem);
-router.delete('/items/:id', [validateJWT, requireAdmin], deleteMenuItem);
-router.patch('/items/:id/toggle', [validateJWT, requireAdmin], toggleMenuItemAvailability);
+router.put('/items/:id', [validateJWT, requireAdmin, validateUuidParam('id'), validateMenuItemUpdate], updateMenuItem);
+router.delete('/items/:id', [validateJWT, requireAdmin, validateUuidParam('id')], deleteMenuItem);
+router.patch('/items/:id/toggle', [validateJWT, requireAdmin, validateUuidParam('id')], toggleMenuItemAvailability);
 
 export default router;
