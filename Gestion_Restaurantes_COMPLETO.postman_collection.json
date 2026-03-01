@@ -1,18 +1,18 @@
 {
   "info": {
-    "_postman_id": "09df4f9b-8516-4cea-943f-93dfaf40efb9",
-    "name": "Gestión Restaurantes - API Completa v2.0",
+    "_postman_id": "de8b7dc2-b163-4622-9353-f65d4fcb8edf",
+    "name": "Gestion Restaurantes - API Completa",
     "description": "Colección completa organizada por roles y permisos - Sistema de Gestión de Restaurantes",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "48332492",
-    "_collection_link": "https://go.postman.co/collection/48332492-09df4f9b-8516-4cea-943f-93dfaf40efb9?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/48332492-de8b7dc2-b163-4622-9353-f65d4fcb8edf?source=collection_link"
   },
   "item": [
     {
-      "name": "1. Auth & Profile",
+      "name": "1. Auth & Registro",
       "item": [
         {
-          "name": "🌐 Público (sin auth)",
+          "name": "👤 Cliente",
           "item": [
             {
               "name": "Registrar Usuario",
@@ -329,10 +329,10 @@
       "description": "Autenticación y gestión de perfil de usuario"
     },
     {
-      "name": "2. Restaurants",
+      "name": "2. Restaurantes",
       "item": [
         {
-          "name": "🌐 Público",
+          "name": "👤 Cliente",
           "item": [
             {
               "name": "Listar Restaurantes",
@@ -573,7 +573,7 @@
       "name": "3. Menus",
       "item": [
         {
-          "name": "🌐 Público",
+          "name": "👤 Cliente",
           "item": [
             {
               "name": "Ver Categorías de Menú",
@@ -906,10 +906,10 @@
       ]
     },
     {
-      "name": "4. Tables",
+      "name": "4. Mesas",
       "item": [
         {
-          "name": "🌐 Público",
+          "name": "👤 Cliente",
           "item": [
             {
               "name": "Ver Mesas",
@@ -1109,7 +1109,7 @@
       ]
     },
     {
-      "name": "5. Orders",
+      "name": "5. Pedidos",
       "item": [
         {
           "name": "👨‍🍳 Mesero/Admin",
@@ -1342,54 +1342,8 @@
       ]
     },
     {
-      "name": "6. Reservations",
+      "name": "6. Reservaciones",
       "item": [
-        {
-          "name": "🌐 Público",
-          "item": [
-            {
-              "name": "Verificar Disponibilidad",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:3005/api/v1/reservations/check-availability?restaurant_id={{restaurant_id}}&reservation_date=2026-03-20&reservation_time=19:00:00&party_size=4",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "3005",
-                  "path": [
-                    "api",
-                    "v1",
-                    "reservations",
-                    "check-availability"
-                  ],
-                  "query": [
-                    {
-                      "key": "restaurant_id",
-                      "value": "{{restaurant_id}}"
-                    },
-                    {
-                      "key": "reservation_date",
-                      "value": "2026-03-20"
-                    },
-                    {
-                      "key": "reservation_time",
-                      "value": "19:00:00"
-                    },
-                    {
-                      "key": "party_size",
-                      "value": "4"
-                    }
-                  ]
-                },
-                "description": "Verifica disponibilidad antes de reservar"
-              },
-              "response": []
-            }
-          ]
-        },
         {
           "name": "👤 Cliente",
           "item": [
@@ -1472,6 +1426,47 @@
                     }
                   ]
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Verificar Disponibilidad",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3005/api/v1/reservations/check-availability?restaurant_id={{restaurant_id}}&reservation_date=2026-03-20&reservation_time=19:00:00&party_size=4",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3005",
+                  "path": [
+                    "api",
+                    "v1",
+                    "reservations",
+                    "check-availability"
+                  ],
+                  "query": [
+                    {
+                      "key": "restaurant_id",
+                      "value": "{{restaurant_id}}"
+                    },
+                    {
+                      "key": "reservation_date",
+                      "value": "2026-03-20"
+                    },
+                    {
+                      "key": "reservation_time",
+                      "value": "19:00:00"
+                    },
+                    {
+                      "key": "party_size",
+                      "value": "4"
+                    }
+                  ]
+                },
+                "description": "Verifica disponibilidad antes de reservar"
               },
               "response": []
             }
@@ -1638,11 +1633,85 @@
       ]
     },
     {
-      "name": "7. Events",
+      "name": "7. Eventos",
       "item": [
         {
-          "name": "🌐 Público",
+          "name": "👤 Cliente",
           "item": [
+            {
+              "name": "Registrarse en Evento",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"participant_name\": \"María López\",\n  \"participant_email\": \"maria@test.com\",\n  \"participant_phone\": \"87654321\"\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:3005/api/v1/events/{{event_id}}/register",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3005",
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    "{{event_id}}",
+                    "register"
+                  ]
+                },
+                "description": "Registrarse como participante en un evento"
+              },
+              "response": []
+            },
+            {
+              "name": "Desregistrarse de Evento",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"participant_email\": \"maria@test.com\"\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:3005/api/v1/events/{{event_id}}/unregister",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3005",
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    "{{event_id}}",
+                    "unregister"
+                  ]
+                },
+                "description": "Cancelar registro en un evento"
+              },
+              "response": []
+            },
             {
               "name": "Ver Eventos Próximos",
               "request": {
@@ -1719,85 +1788,6 @@
                     }
                   ]
                 }
-              },
-              "response": []
-            }
-          ]
-        },
-        {
-          "name": "👤 Cliente",
-          "item": [
-            {
-              "name": "Registrarse en Evento",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{token}}"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"participant_name\": \"María López\",\n  \"participant_email\": \"maria@test.com\",\n  \"participant_phone\": \"87654321\"\n}"
-                },
-                "url": {
-                  "raw": "http://localhost:3005/api/v1/events/{{event_id}}/register",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "3005",
-                  "path": [
-                    "api",
-                    "v1",
-                    "events",
-                    "{{event_id}}",
-                    "register"
-                  ]
-                },
-                "description": "Registrarse como participante en un evento"
-              },
-              "response": []
-            },
-            {
-              "name": "Desregistrarse de Evento",
-              "request": {
-                "method": "DELETE",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{token}}"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"participant_email\": \"maria@test.com\"\n}"
-                },
-                "url": {
-                  "raw": "http://localhost:3005/api/v1/events/{{event_id}}/unregister",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "3005",
-                  "path": [
-                    "api",
-                    "v1",
-                    "events",
-                    "{{event_id}}",
-                    "unregister"
-                  ]
-                },
-                "description": "Cancelar registro en un evento"
               },
               "response": []
             }
@@ -1954,7 +1944,7 @@
       ]
     },
     {
-      "name": "8. Statistics",
+      "name": "8. Estadisticas",
       "item": [
         {
           "name": "👑 Admin",
