@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { body, validationResult } from 'express-validator';
 
@@ -19,8 +19,8 @@ export const validateEventCreation = [
   body('restaurant_id')
     .notEmpty()
     .withMessage('Restaurant ID is required')
-    .isUUID()
-    .withMessage('Restaurant ID must be a valid UUID'),
+    .isString()
+    .withMessage('Restaurant ID must be a valid String/ID'),
 
   body('event_type')
     .optional()
@@ -151,8 +151,8 @@ export const validateEventUpdate = [
 export const validateParticipantRegistration = [
   body('user_id')
     .optional()
-    .isUUID()
-    .withMessage('User ID must be a valid UUID'),
+    .isString()
+    .withMessage('User ID must be a valid String/ID'),
 
   body('participant_name')
     .trim()

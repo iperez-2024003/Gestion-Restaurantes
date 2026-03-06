@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
@@ -8,7 +8,7 @@ export const Event = sequelize.define(
   'event',
   {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
@@ -31,7 +31,7 @@ export const Event = sequelize.define(
       allowNull: true,
     },
     restaurant_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       allowNull: false,
       references: {
         model: 'restaurant',

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
@@ -9,7 +9,7 @@ export const Reservation = sequelize.define(
   'reservation',
   {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
@@ -21,7 +21,7 @@ export const Reservation = sequelize.define(
       comment: 'Unique reservation number (e.g., RES-20260315-0001)',
     },
     restaurant_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       allowNull: false,
       references: {
         model: 'restaurant',

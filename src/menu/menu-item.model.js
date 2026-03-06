@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
@@ -9,7 +9,7 @@ export const MenuItem = sequelize.define(
   'menu_item',
   {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
@@ -51,7 +51,7 @@ export const MenuItem = sequelize.define(
       },
     },
     menu_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       allowNull: false,
       references: {
         model: 'menu',
@@ -61,7 +61,7 @@ export const MenuItem = sequelize.define(
       onDelete: 'CASCADE',
     },
     restaurant_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       allowNull: false,
       references: {
         model: 'restaurant',

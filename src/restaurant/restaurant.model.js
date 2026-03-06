@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
@@ -8,7 +8,7 @@ export const Restaurant = sequelize.define(
   'restaurant',
   {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
@@ -332,7 +332,7 @@ export const Restaurant = sequelize.define(
       comment: 'Restaurant administrator user ID',
     },
     parent_restaurant_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       allowNull: true,
       references: {
         model: 'restaurant',

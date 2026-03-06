@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
@@ -9,12 +9,12 @@ export const EventParticipant = sequelize.define(
   'event_participant',
   {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
     event_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       allowNull: false,
       references: { model: 'event', key: 'id' },
       onUpdate: 'CASCADE',

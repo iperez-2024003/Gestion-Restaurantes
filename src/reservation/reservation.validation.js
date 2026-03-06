@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { body, query, validationResult } from 'express-validator';
 
@@ -9,13 +9,13 @@ export const validateReservationCreation = [
   body('restaurant_id')
     .notEmpty()
     .withMessage('Restaurant ID is required')
-    .isUUID()
-    .withMessage('Restaurant ID must be a valid UUID'),
+    .isString()
+    .withMessage('Restaurant ID must be a valid String/ID'),
 
   body('user_id')
     .optional()
-    .isUUID()
-    .withMessage('User ID must be a valid UUID'),
+    .isString()
+    .withMessage('User ID must be a valid String/ID'),
 
   body('customer_name')
     .trim()
@@ -169,19 +169,19 @@ export const validateReservationUpdate = [
 ];
 
 /**
- * Validación de query para check-availability (GET /check-availability)
+ * ValidaciÃ³n de query para check-availability (GET /check-availability)
  */
 export const validateCheckAvailability = [
   query('restaurant_id')
     .notEmpty()
     .withMessage('restaurant_id es requerido')
-    .isUUID()
-    .withMessage('restaurant_id debe ser un UUID válido'),
+    .isString()
+    .withMessage('restaurant_id debe ser un UUID vÃ¡lido'),
   query('reservation_date')
     .notEmpty()
     .withMessage('reservation_date es requerido (YYYY-MM-DD)')
     .isDate()
-    .withMessage('reservation_date debe ser una fecha válida (YYYY-MM-DD)'),
+    .withMessage('reservation_date debe ser una fecha vÃ¡lida (YYYY-MM-DD)'),
   query('reservation_time')
     .notEmpty()
     .withMessage('reservation_time es requerido')

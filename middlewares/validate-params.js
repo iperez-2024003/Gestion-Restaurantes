@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { param, query, body } from 'express-validator';
 import { handleValidationErrors } from './validation.js';
@@ -6,27 +6,27 @@ import { isValidUserId } from '../helpers/uuid-generator.js';
 import { ALLOWED_ROLES } from '../helpers/role-constants.js';
 
 /**
- * Valida un parámetro de ruta que debe ser UUID (restaurantes, menús, pedidos, reservas, eventos, mesas, etc.)
+ * Valida un parÃ¡metro de ruta que debe ser UUID (restaurantes, menÃºs, pedidos, reservas, eventos, mesas, etc.)
  */
 export const validateUuidParam = (paramName = 'id') => [
   param(paramName)
-    .isUUID(4)
-    .withMessage(`${paramName} debe ser un UUID válido`),
+    .isString()
+    .withMessage(`${paramName} debe ser un UUID vÃ¡lido`),
   handleValidationErrors,
 ];
 
 /**
- * Valida varios parámetros de ruta que deben ser UUID (ej: id e itemId)
+ * Valida varios parÃ¡metros de ruta que deben ser UUID (ej: id e itemId)
  */
 export const validateUuidParams = (...paramNames) => {
   const validations = paramNames.map((name) =>
-    param(name).isUUID(4).withMessage(`${name} debe ser un UUID válido`)
+    param(name).isString().withMessage(`${name} debe ser un UUID vÃ¡lido`)
   );
   return [...validations, handleValidationErrors];
 };
 
 /**
- * Valida un parámetro de ruta que debe ser userId (formato usr_xxx de 16 caracteres)
+ * Valida un parÃ¡metro de ruta que debe ser userId (formato usr_xxx de 16 caracteres)
  */
 export const validateUserIdParam = (paramName = 'userId') => [
   param(paramName)
@@ -34,7 +34,7 @@ export const validateUserIdParam = (paramName = 'userId') => [
     .withMessage(`${paramName} es requerido`)
     .custom((value) => {
       if (!isValidUserId(value)) {
-        throw new Error(`${paramName} debe tener formato válido (ej: usr_xxxxxxxxxxxx)`);
+        throw new Error(`${paramName} debe tener formato vÃ¡lido (ej: usr_xxxxxxxxxxxx)`);
       }
       return true;
     }),
@@ -42,7 +42,7 @@ export const validateUserIdParam = (paramName = 'userId') => [
 ];
 
 /**
- * Valida roleName en params (solo ADMIN_ROLE o USER_ROLE; acepta mayúsculas/minúsculas)
+ * Valida roleName en params (solo ADMIN_ROLE o USER_ROLE; acepta mayÃºsculas/minÃºsculas)
  */
 export const validateRoleNameParam = () => [
   param('roleName')
@@ -68,14 +68,14 @@ export const validateProfileByIdBody = [
     .withMessage('userId es requerido')
     .custom((value) => {
       if (!isValidUserId(value)) {
-        throw new Error('userId debe tener formato válido (ej: usr_xxxxxxxxxxxx)');
+        throw new Error('userId debe tener formato vÃ¡lido (ej: usr_xxxxxxxxxxxx)');
       }
       return true;
     }),
   handleValidationErrors,
 ];
 
-/** Query opcional period (week | month | year) para estadísticas de pedidos */
+/** Query opcional period (week | month | year) para estadÃ­sticas de pedidos */
 export const validateQueryPeriod = [
   query('period')
     .optional()
@@ -84,7 +84,7 @@ export const validateQueryPeriod = [
   handleValidationErrors,
 ];
 
-/** Query opcional limit (1-100) para estadísticas de platos populares */
+/** Query opcional limit (1-100) para estadÃ­sticas de platos populares */
 export const validateQueryLimit = [
   query('limit')
     .optional()

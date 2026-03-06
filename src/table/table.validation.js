@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { body, query, validationResult } from 'express-validator';
 
@@ -19,7 +19,7 @@ export const validateTableCreation = [
   body('capacity').notEmpty().withMessage('Capacity is required').isInt({ min: 1, max: 20 }).withMessage('Capacity must be between 1 and 20'),
   body('location').optional().isIn(['interior', 'terrace', 'vip', 'bar', 'window', 'private']).withMessage('Invalid location'),
   body('floor').optional().isInt({ min: 1 }).withMessage('Floor must be at least 1'),
-  body('restaurant_id').notEmpty().withMessage('Restaurant ID is required').isUUID().withMessage('Restaurant ID must be a valid UUID'),
+  body('restaurant_id').notEmpty().withMessage('Restaurant ID is required').isString().withMessage('Restaurant ID must be a valid String/ID'),
   handleErrors,
 ];
 
@@ -32,7 +32,7 @@ export const validateTableUpdate = [
   handleErrors,
 ];
 
-/** Validación para PATCH /:id/status (cambiar estado de mesa) */
+/** ValidaciÃ³n para PATCH /:id/status (cambiar estado de mesa) */
 export const validateTableStatusUpdate = [
   body('status')
     .notEmpty()
@@ -42,14 +42,14 @@ export const validateTableStatusUpdate = [
   handleErrors,
 ];
 
-/** Validación de query para GET /available */
+/** ValidaciÃ³n de query para GET /available */
 export const validateGetAvailableTablesQuery = [
   query('restaurant_id')
     .notEmpty()
     .withMessage('restaurant_id es requerido')
-    .isUUID()
-    .withMessage('restaurant_id debe ser un UUID válido'),
+    .isString()
+    .withMessage('restaurant_id debe ser un UUID vÃ¡lido'),
   query('capacity').optional().isInt({ min: 1, max: 20 }).withMessage('capacity debe ser entre 1 y 20'),
-  query('location').optional().isIn(['interior', 'terrace', 'vip', 'bar', 'window', 'private']).withMessage('location no válida'),
+  query('location').optional().isIn(['interior', 'terrace', 'vip', 'bar', 'window', 'private']).withMessage('location no vÃ¡lida'),
   handleErrors,
 ];

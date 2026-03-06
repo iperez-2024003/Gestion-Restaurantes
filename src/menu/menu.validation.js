@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { body, validationResult } from 'express-validator';
 
@@ -22,8 +22,8 @@ export const validateMenuCreation = [
   body('restaurant_id')
     .notEmpty()
     .withMessage('Restaurant ID is required')
-    .isUUID()
-    .withMessage('Restaurant ID must be a valid UUID'),
+    .isString()
+    .withMessage('Restaurant ID must be a valid String/ID'),
 
   body('display_order')
     .optional()
@@ -109,14 +109,14 @@ export const validateMenuItemCreation = [
   body('menu_id')
     .notEmpty()
     .withMessage('Menu category ID is required')
-    .isUUID()
-    .withMessage('Menu category ID must be a valid UUID'),
+    .isString()
+    .withMessage('Menu category ID must be a valid String/ID'),
 
   body('restaurant_id')
     .notEmpty()
     .withMessage('Restaurant ID is required')
-    .isUUID()
-    .withMessage('Restaurant ID must be a valid UUID'),
+    .isString()
+    .withMessage('Restaurant ID must be a valid String/ID'),
 
   body('image_url')
     .optional()
@@ -209,8 +209,8 @@ export const validateMenuItemUpdate = [
 
   body('menu_id')
     .optional()
-    .isUUID()
-    .withMessage('Menu category ID must be a valid UUID'),
+    .isString()
+    .withMessage('Menu category ID must be a valid String/ID'),
 
   body('image_url')
     .optional()
