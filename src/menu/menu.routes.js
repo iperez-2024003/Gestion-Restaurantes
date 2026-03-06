@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { Router } from 'express';
 import {
@@ -15,7 +15,7 @@ import {
   toggleMenuItemAvailability,
 } from './menu.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
-import { requireAdmin } from '../../middlewares/require-role.js';
+import { requireSuperAdmin } from '../../middlewares/require-role.js';
 import { validateUuidParam } from '../../middlewares/validate-params.js';
 import {
   validateMenuCreation,
@@ -30,17 +30,17 @@ const router = Router();
 
 router.get('/', getAllMenus);
 router.get('/:id', validateUuidParam('id'), getMenuById);
-router.post('/', [validateJWT, requireAdmin, validateMenuCreation], createMenu);
-router.put('/:id', [validateJWT, requireAdmin, validateUuidParam('id'), validateMenuUpdate], updateMenu);
-router.delete('/:id', [validateJWT, requireAdmin, validateUuidParam('id')], deleteMenu);
+router.post('/', [validateJWT, requireSuperAdmin, validateMenuCreation], createMenu);
+router.put('/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id'), validateMenuUpdate], updateMenu);
+router.delete('/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id')], deleteMenu);
 
 // ==================== MENU ITEMS ROUTES ====================
 
 router.get('/items/all', getAllMenuItems);
 router.get('/items/:id', validateUuidParam('id'), getMenuItemById);
-router.post('/items', [validateJWT, requireAdmin, validateMenuItemCreation], createMenuItem);
-router.put('/items/:id', [validateJWT, requireAdmin, validateUuidParam('id'), validateMenuItemUpdate], updateMenuItem);
-router.delete('/items/:id', [validateJWT, requireAdmin, validateUuidParam('id')], deleteMenuItem);
-router.patch('/items/:id/toggle', [validateJWT, requireAdmin, validateUuidParam('id')], toggleMenuItemAvailability);
+router.post('/items', [validateJWT, requireSuperAdmin, validateMenuItemCreation], createMenuItem);
+router.put('/items/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id'), validateMenuItemUpdate], updateMenuItem);
+router.delete('/items/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id')], deleteMenuItem);
+router.patch('/items/:id/toggle', [validateJWT, requireSuperAdmin, validateUuidParam('id')], toggleMenuItemAvailability);
 
 export default router;

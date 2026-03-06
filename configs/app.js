@@ -10,14 +10,15 @@ import { dbConnection } from './db.js';
 import '../src/users/user.model.js';
 import '../src/auth/role.model.js';
 import '../src/restaurant/restaurant.model.js';
-import '../src/menu/menu.model.js';          
+import '../src/menu/menu.model.js';
 import '../src/menu/menu-item.model.js';
 import '../src/table/table.model.js';
 import '../src/order/order.model.js';
-import '../src/order/order-item.model.js'; 
+import '../src/order/order-item.model.js';
 import '../src/reservation/reservation.model.js';
 import '../src/event/event.model.js';
 import '../src/event/event-participant.model.js';
+import '../src/review/review.model.js';
 
 
 
@@ -40,7 +41,8 @@ import orderRoutes from '../src/order/order.routes.js';
 import reservationRoutes from '../src/reservation/reservation.routes.js';
 import eventRoutes from '../src/event/event.routes.js';
 import statisticsRoutes from '../src/statistics/statistics.routes.js';
-import  tableRoutes  from '../src/table/table.routes.js';
+import tableRoutes from '../src/table/table.routes.js';
+import reviewRoutes from '../src/review/review.routes.js';
 
 
 
@@ -66,9 +68,10 @@ const routes = (app) => {
   app.use(`${BASE_PATH}/reservations`, reservationRoutes);
   app.use(`${BASE_PATH}/events`, eventRoutes);
   app.use(`${BASE_PATH}/statistics`, statisticsRoutes);
+  app.use(`${BASE_PATH}/reviews`, reviewRoutes);
 
- 
-  
+
+
 
   app.get(`${BASE_PATH}/health`, (req, res) => {
     res.status(200).json({
@@ -88,15 +91,15 @@ export const initServer = async () => {
 
   try {
     await dbConnection();
-    
+
     // Seed roles
     const { seedRoles } = await import('../helpers/role-seed.js');
     await seedRoles();
-    
+
     // ✨ NUEVO: Seed default ADMIN user
     const { seedAdminUser } = await import('../helpers/admin-seed.js');
     await seedAdminUser();
-    
+
     middlewares(app);
     routes(app);
 

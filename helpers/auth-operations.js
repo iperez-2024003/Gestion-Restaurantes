@@ -68,7 +68,7 @@ export const registerUserHelper = async (userData) => {
           // CORRECCIÓN CRÍTICA: Normalizar la ruta del archivo antes de subirlo
           // Convertir barras invertidas a barras normales
           let normalizedPath = profilePicture.replace(/\\/g, '/');
-          
+
           // Si la ruta es relativa, convertirla a absoluta
           if (!path.isAbsolute(normalizedPath)) {
             normalizedPath = path.resolve(normalizedPath).replace(/\\/g, '/');
@@ -94,7 +94,7 @@ export const registerUserHelper = async (userData) => {
       } else {
         // Si viene una URL de Cloudinary, usarla directamente
         if (profilePicture.startsWith('https://res.cloudinary.com/') ||
-            profilePicture.startsWith('http://res.cloudinary.com/')) {
+          profilePicture.startsWith('http://res.cloudinary.com/')) {
           profilePictureToStore = profilePicture;
         } else {
           // Si no es URL completa ni archivo local, intentar normalizar
@@ -181,7 +181,7 @@ export const loginUserHelper = async (emailOrUsername, password) => {
     }
 
     // Generate JWT with role claim
-    const role = user.UserRoles?.[0]?.Role?.Name || 'USER_ROLE';
+    const role = user.UserRoles?.[0]?.Role?.Name || 'CLIENT_ROLE';
     const token = await generateJWT(user.Id.toString(), { role });
 
     // Calcular fecha de expiración basada en la configuración

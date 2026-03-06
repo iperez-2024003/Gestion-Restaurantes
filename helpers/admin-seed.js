@@ -1,10 +1,10 @@
 import { User, UserProfile, UserEmail } from '../src/users/user.model.js';
 import { Role, UserRole } from '../src/auth/role.model.js';
 import { hashPassword } from '../utils/password-utils.js';
-import { ADMIN_ROLE } from './role-constants.js';
+import { SUPER_ADMIN_ROLE } from './role-constants.js';
 
 /**
- * Crea un usuario ADMIN por defecto si no existe
+ * Crea un usuario SUPER_ADMIN por defecto si no existe
  */
 export const seedAdminUser = async () => {
   try {
@@ -14,18 +14,18 @@ export const seedAdminUser = async () => {
     });
 
     if (existingAdmin) {
-      console.log('✅ Usuario ADMIN por defecto ya existe en el sistema.');
+      console.log('✅ Usuario SUPER_ADMIN por defecto ya existe en el sistema.');
       return;
     }
 
-    // 1. Buscar o crear el rol ADMIN
+    // 1. Buscar o crear el rol SUPER_ADMIN
     let adminRole = await Role.findOne({
-      where: { Name: ADMIN_ROLE },
+      where: { Name: SUPER_ADMIN_ROLE },
     });
 
     if (!adminRole) {
       adminRole = await Role.create({
-        Name: ADMIN_ROLE,
+        Name: SUPER_ADMIN_ROLE,
       });
     }
 
@@ -58,15 +58,15 @@ export const seedAdminUser = async () => {
       EmailVerificationTokenExpiry: null,
     });
 
-    // 6. Asignar el rol ADMIN
+    // 6. Asignar el rol SUPER_ADMIN
     await UserRole.create({
       UserId: adminUser.Id,
       RoleId: adminRole.Id,
     });
 
     // Mensaje simple
-    console.log('🎉 ADMIN creado por defecto: admin@restaurantes.com / Admin123!');
+    console.log('🎉 SUPER ADMIN creado por defecto: admin@restaurantes.com / Admin123!');
   } catch (error) {
-    console.error('❌ Error al crear usuario ADMIN:', error.message);
+    console.error('❌ Error al crear usuario SUPER ADMIN:', error.message);
   }
 };

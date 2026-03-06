@@ -6,7 +6,7 @@ import {
   setUserSingleRole,
 } from '../../helpers/role-db.js';
 import { getRequestUserRoleNames } from '../../middlewares/require-role.js';
-import { ALLOWED_ROLES, ADMIN_ROLE } from '../../helpers/role-constants.js';
+import { ALLOWED_ROLES, SUPER_ADMIN_ROLE } from '../../helpers/role-constants.js';
 import { buildUserResponse } from '../../utils/user-helpers.js';
 import { sequelize } from '../../configs/db.js';
 
@@ -19,7 +19,7 @@ export const updateUserRole = [
     if (!ALLOWED_ROLES.includes(normalized)) {
       return res.status(400).json({
         success: false,
-        message: 'Role not allowed. Use ADMIN_ROLE or USER_ROLE',
+        message: 'Role not allowed. Please provide a valid role',
       });
     }
 
@@ -44,13 +44,13 @@ export const getUserRoles = [
   asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const currentUserId = req.userId;
-    // Solo puede ver sus propios roles o ser ADMIN_ROLE para ver cualquier usuario
+    // Solo puede ver sus propios roles o ser SUPER_ADMIN_ROLE para ver cualquier usuario
     if (userId !== currentUserId) {
       const userRoles = await getRequestUserRoleNames(req);
-      if (!userRoles.includes(ADMIN_ROLE)) {
+      if (!userRoles.includes(SUPER_ADMIN_ROLE)) {
         return res.status(403).json({
           success: false,
-          message: 'Solo el rol ADMIN_ROLE puede consultar los roles de otros usuarios.',
+          message: 'Solo el rol SUPER_ADMIN_ROLE puede consultar los roles de otros usuarios.',
         });
       }
     }
@@ -66,7 +66,7 @@ export const getUsersByRole = [
     if (!ALLOWED_ROLES.includes(normalized)) {
       return res.status(400).json({
         success: false,
-        message: 'Role not allowed. Use ADMIN_ROLE or USER_ROLE',
+        message: 'Role not allowed. Please provide a valid role',
       });
     }
 

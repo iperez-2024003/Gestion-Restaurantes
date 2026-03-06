@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { Router } from 'express';
 import {
@@ -11,7 +11,7 @@ import {
   removeItemFromOrder,
 } from './order.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
-import { requireAdmin } from '../../middlewares/require-role.js';
+import { requireSuperAdmin } from '../../middlewares/require-role.js';
 import { validateUuidParam, validateUuidParams } from '../../middlewares/validate-params.js';
 import {
   validateOrderCreation,
@@ -30,6 +30,6 @@ router.post('/:id/items', [validateJWT, validateUuidParam('id'), validateAddItem
 router.delete('/:id/items/:itemId', validateJWT, validateUuidParams('id', 'itemId'), removeItemFromOrder);
 
 /** Solo ADMIN_ROLE puede actualizar estado del pedido */
-router.patch('/:id/status', [validateJWT, requireAdmin, validateUuidParam('id'), validateOrderStatusUpdate], updateOrderStatus);
+router.patch('/:id/status', [validateJWT, requireSuperAdmin, validateUuidParam('id'), validateOrderStatusUpdate], updateOrderStatus);
 
 export default router;

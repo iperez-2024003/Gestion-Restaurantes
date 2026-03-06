@@ -19,7 +19,7 @@ export const buildUserResponse = (user) => {
     phone:
       user.UserProfile && user.UserProfile.Phone ? user.UserProfile.Phone : '',
     profilePicture: profilePictureUrl,
-    role: user.UserRoles?.[0]?.Role?.Name ?? 'USER_ROLE',
+    role: user.UserRoles?.[0]?.Role?.Name ?? 'CLIENT_ROLE',
     status: user.Status,
     isEmailVerified: user.UserEmail ? user.UserEmail.EmailVerified : false,
     createdAt: user.CreatedAt,

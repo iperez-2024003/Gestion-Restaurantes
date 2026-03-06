@@ -52,7 +52,7 @@ export const validateRoleNameParam = () => [
     .custom((value) => {
       const normalized = (value || '').toUpperCase();
       if (!ALLOWED_ROLES.includes(normalized)) {
-        throw new Error('roleName debe ser ADMIN_ROLE o USER_ROLE');
+        throw new Error('roleName no es un rol válido del sistema');
       }
       return true;
     }),

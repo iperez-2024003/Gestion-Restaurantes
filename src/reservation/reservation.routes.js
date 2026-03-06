@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { Router } from 'express';
 import {
@@ -12,7 +12,7 @@ import {
   getTodayReservations,
 } from './reservation.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
-import { requireAdmin } from '../../middlewares/require-role.js';
+import { requireSuperAdmin } from '../../middlewares/require-role.js';
 import { validateUuidParam } from '../../middlewares/validate-params.js';
 import {
   validateReservationCreation,
@@ -33,6 +33,6 @@ router.put('/:id', [validateJWT, validateUuidParam('id'), validateReservationUpd
 router.delete('/:id', validateJWT, validateUuidParam('id'), cancelReservation);
 
 /** Solo ADMIN_ROLE puede confirmar una reserva */
-router.patch('/:id/confirm', [validateJWT, requireAdmin, validateUuidParam('id')], confirmReservation);
+router.patch('/:id/confirm', [validateJWT, requireSuperAdmin, validateUuidParam('id')], confirmReservation);
 
 export default router;
