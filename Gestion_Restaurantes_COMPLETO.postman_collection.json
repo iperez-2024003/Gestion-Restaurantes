@@ -2227,6 +2227,72 @@
         }
       ],
       "description": "Control de la plataforma: creación de restaurantes, gestión de usuarios globales y métricas globales."
+    },
+    {
+      "name": "6. 🧾 Facturación y Reportes",
+      "item": [
+        {
+          "name": "Enviar Factura por Correo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3005/api/v1/reports/send-invoice/{{order_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3005",
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "send-invoice",
+                "{{order_id}}"
+              ]
+            },
+            "description": "Genera el HTML de la factura y lo envía al correo del usuario (CLIENT_ROLE)."
+          },
+          "response": []
+        },
+        {
+          "name": "Resumen Diario de Ventas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3005/api/v1/reports/daily-summary/{{restaurant_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3005",
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "daily-summary",
+                "{{restaurant_id}}"
+              ]
+            },
+            "description": "Genera estadísticas del día y las envía al correo del administrador del restaurante."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints para la generación de facturas electrónicas y reportes gerenciales."
     }
   ],
   "variable": [

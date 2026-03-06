@@ -43,6 +43,7 @@ import eventRoutes from '../src/event/event.routes.js';
 import statisticsRoutes from '../src/statistics/statistics.routes.js';
 import tableRoutes from '../src/table/table.routes.js';
 import reviewRoutes from '../src/review/review.routes.js';
+import reportRoutes from '../src/report/report.routes.js';
 
 
 
@@ -69,6 +70,7 @@ const routes = (app) => {
   app.use(`${BASE_PATH}/events`, eventRoutes);
   app.use(`${BASE_PATH}/statistics`, statisticsRoutes);
   app.use(`${BASE_PATH}/reviews`, reviewRoutes);
+  app.use(`${BASE_PATH}/reports`, reportRoutes);
 
 
 
