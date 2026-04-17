@@ -19,7 +19,7 @@ export const createReview = async (req, res) => {
         if (!restaurant) {
             return res.status(404).json({
                 ok: false,
-                message: 'Restaurant not found',
+                message: 'Restaurante no encontrado',
             });
         }
 
@@ -50,7 +50,7 @@ export const createReview = async (req, res) => {
 
         return res.status(201).json({
             ok: true,
-            message: 'Review created successfully',
+            message: 'Creado exitosamente',
             review,
         });
     } catch (error) {
@@ -114,11 +114,11 @@ export const updateReview = async (req, res) => {
         if (!review) {
             return res.status(404).json({
                 ok: false,
-                message: 'Review not found',
+                message: 'No encontrado',
             });
         }
 
-        // Only the author can update the review
+        // Solo quedan the author can update the review
         if (review.user_id !== user_id) {
             return res.status(403).json({
                 ok: false,
@@ -135,7 +135,7 @@ export const updateReview = async (req, res) => {
 
         return res.status(200).json({
             ok: true,
-            message: 'Review updated successfully',
+            message: 'Actualizado exitosamente',
             review,
         });
     } catch (error) {
@@ -161,7 +161,7 @@ export const deleteReview = async (req, res) => {
         if (!review) {
             return res.status(404).json({
                 ok: false,
-                message: 'Review not found',
+                message: 'No encontrado',
             });
         }
 
@@ -184,7 +184,7 @@ export const deleteReview = async (req, res) => {
 
         return res.status(200).json({
             ok: true,
-            message: 'Review deleted successfully',
+            message: 'Eliminado exitosamente',
         });
     } catch (error) {
         console.error('Error deleting review:', error);

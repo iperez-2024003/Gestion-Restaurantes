@@ -2224,6 +2224,58 @@
             "description": "Cambia el rol de un usuario (solo ADMIN). Valores: SUPER_ADMIN_ROLE, CLIENT_ROLE"
           },
           "response": []
+        },
+        {
+          "name": "Horas Pico (Peak Hours)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/statistics/restaurant/{{restaurant_id}}/peak-hours",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "statistics",
+                "restaurant",
+                "{{restaurant_id}}",
+                "peak-hours"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Clientes Frecuentes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/statistics/restaurant/{{restaurant_id}}/frequent-customers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "statistics",
+                "restaurant",
+                "{{restaurant_id}}",
+                "frequent-customers"
+              ]
+            }
+          },
+          "response": []
         }
       ],
       "description": "Control de la plataforma: creación de restaurantes, gestión de usuarios globales y métricas globales."
@@ -2288,6 +2340,31 @@
               ]
             },
             "description": "Genera estadísticas del día y las envía al correo del administrador del restaurante."
+          },
+          "response": []
+        },
+        {
+          "name": "Descargar Reporte Excel Diario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/daily-excel/{{restaurant_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "daily-excel",
+                "{{restaurant_id}}"
+              ]
+            }
           },
           "response": []
         }

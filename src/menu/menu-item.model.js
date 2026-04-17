@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
@@ -96,6 +96,18 @@ export const MenuItem = sequelize.define(
       allowNull: false,
       defaultValue: true,
       comment: 'Item availability status',
+    },
+    stock_quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: {
+          args: [0],
+          msg: 'Stock quantity cannot be negative',
+        },
+      },
+      comment: 'Current inventory stock quantity',
     },
     preparation_time: {
       type: DataTypes.INTEGER,

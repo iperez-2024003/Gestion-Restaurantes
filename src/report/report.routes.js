@@ -1,8 +1,8 @@
 'use strict';
 
 import { Router } from 'express';
-import { sendOrderInvoice, getDailyReport } from './report.controller.js';
-import { validateJWT } from '../../middlewares/validate-jwt.js';
+import { sendOrderInvoice, getDailyReport, downloadDailyExcelReport } from './report.controller.js';
+import { validateJWT } from '../../middlewares/validate-JWT.js';
 import { requireAdmin, requireRestaurantAdmin, requireClient } from '../../middlewares/require-role.js';
 
 const router = Router();
@@ -20,5 +20,12 @@ router.post('/send-invoice/:orderId', [validateJWT], sendOrderInvoice);
  * @access Private
  */
 router.get('/daily-summary/:restaurantId', [validateJWT, requireRestaurantAdmin], getDailyReport);
+
+/**
+ * @route GET /api/v1/reports/daily-excel/:restaurantId
+ * @desc Descarga reporte diario en Excel
+ * @access Private
+ */
+router.get('/daily-excel/:restaurantId', [validateJWT, requireRestaurantAdmin], downloadDailyExcelReport);
 
 export default router;

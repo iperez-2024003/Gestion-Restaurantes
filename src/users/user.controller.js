@@ -27,7 +27,7 @@ export const updateUserRole = [
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: 'User not found' });
+        .json({ success: false, message: 'Usuario no encontrado' });
     }
 
     const { updatedUser } = await setUserSingleRole(

@@ -4,7 +4,9 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import http from 'http';
 import { dbConnection } from './db.js';
+import { initSocket } from '../src/socket/socket.config.js';
 
 
 import '../src/users/user.model.js';
@@ -88,8 +90,12 @@ const routes = (app) => {
 
 export const initServer = async () => {
   const app = express();
-  const PORT = process.env.PORT;
+  const server = http.createServer(app);
+  const PORT = process.env.PORT || 3000;
   app.set('trust proxy', 1);
+
+  // Inicializar Socket.io
+  initSocket(server);
 
   try {
     await dbConnection();
@@ -107,7 +113,7 @@ export const initServer = async () => {
 
     app.use(errorHandler);
 
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Gestion Restaurantes Server running on port ${PORT}`);
       console.log(`Health check: http://localhost:${PORT}${BASE_PATH}/health`);
     });

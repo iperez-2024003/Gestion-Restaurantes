@@ -5,6 +5,8 @@ import { OrderItem } from './order-item.model.js';
 import { Restaurant } from '../restaurant/restaurant.model.js';
 import { MenuItem } from '../menu/menu-item.model.js';
 import { User } from '../users/user.model.js';
+import { sequelize } from '../../configs/db.js';
+import { getIo } from '../socket/socket.config.js';
 import { Op } from 'sequelize';
 
 const TAX_RATE = 0.12; // 12% IVA
@@ -53,6 +55,7 @@ const calculateTotals = (subtotal, discount = 0, deliveryFee = 0, tip = 0) => {
  * @route POST /api/v1/orders
  */
 export const createOrder = async (req, res) => {
+  const transaction = await sequelize.transaction();
   try {
     const {
       restaurant_id,
@@ -66,52 +69,58 @@ export const createOrder = async (req, res) => {
     } = req.body;
 
     // Verificar restaurante
-    const restaurant = await Restaurant.findByPk(restaurant_id);
+    const restaurant = await Restaurant.findByPk(restaurant_id, { transaction });
     if (!restaurant || !restaurant.is_active) {
+      await transaction.rollback();
       return res.status(404).json({
         ok: false,
-        message: 'Restaurant not found',
+        message: 'Restaurante no encontrado',
       });
     }
 
     // Verificar usuario
-    const user = await User.findByPk(user_id);
+    const user = await User.findByPk(user_id, { transaction });
     if (!user) {
+      await transaction.rollback();
       return res.status(404).json({
         ok: false,
-        message: 'User not found',
+        message: 'Usuario no encontrado',
       });
     }
 
     // Validar items
     if (!items || items.length === 0) {
+      await transaction.rollback();
       return res.status(400).json({
         ok: false,
-        message: 'Order must contain at least one item',
+        message: 'La orden debe contener al menos un artículo',
       });
     }
 
     // Validar delivery
     if (order_type === 'delivery') {
       if (!restaurant.accepts_delivery) {
+        await transaction.rollback();
         return res.status(400).json({
           ok: false,
-          message: 'This restaurant does not offer delivery',
+          message: 'Este restaurante no ofrece servicio a domicilio',
         });
       }
       if (!delivery_address) {
+        await transaction.rollback();
         return res.status(400).json({
           ok: false,
-          message: 'Delivery address is required for delivery orders',
+          message: 'Se requiere dirección de entrega',
         });
       }
     }
 
     // Validar takeout
     if (order_type === 'takeout' && !restaurant.accepts_takeout) {
+      await transaction.rollback();
       return res.status(400).json({
         ok: false,
-        message: 'This restaurant does not offer takeout',
+        message: 'Este restaurante no ofrece para llevar',
       });
     }
 
@@ -129,9 +138,11 @@ export const createOrder = async (req, res) => {
           restaurant_id,
           is_active: true,
         },
+        transaction
       });
 
       if (!menuItem) {
+        await transaction.rollback();
         return res.status(404).json({
           ok: false,
           message: `Menu item ${item.menu_item_id} not found or not available`,
@@ -139,11 +150,24 @@ export const createOrder = async (req, res) => {
       }
 
       if (!menuItem.is_available) {
+        await transaction.rollback();
         return res.status(400).json({
           ok: false,
-          message: `Menu item "${menuItem.name}" is currently unavailable`,
+          message: `Menu item "${menuItem.name}" no está disponible actualmente`,
         });
       }
+
+      if (menuItem.stock_quantity < item.quantity) {
+        await transaction.rollback();
+        return res.status(400).json({
+          ok: false,
+          message: `Inventario insuficiente para "${menuItem.name}". Solo quedan ${menuItem.stock_quantity} en stock.`,
+        });
+      }
+
+      // Descontar inventario
+      menuItem.stock_quantity -= item.quantity;
+      await menuItem.save({ transaction });
 
       const itemSubtotal = parseFloat(menuItem.price) * item.quantity;
       subtotal += itemSubtotal;
@@ -183,7 +207,7 @@ export const createOrder = async (req, res) => {
       notes,
       delivery_address: order_type === 'delivery' ? delivery_address : null,
       delivery_fee: order_type === 'delivery' ? (delivery_fee || 0) : 0,
-    });
+    }, { transaction });
 
     // Crear items de la orden
     const itemsToCreate = orderItems.map((item) => ({
@@ -191,9 +215,11 @@ export const createOrder = async (req, res) => {
       order_id: order.id,
     }));
 
-    await OrderItem.bulkCreate(itemsToCreate);
+    await OrderItem.bulkCreate(itemsToCreate, { transaction });
 
-    // Obtener orden completa con items
+    await transaction.commit();
+
+    // Obtener orden completa con items para retornar
     const completeOrder = await Order.findByPk(order.id, {
       include: [
         {
@@ -210,16 +236,27 @@ export const createOrder = async (req, res) => {
       ],
     });
 
+    // Emitir socket event de nueva orden para la sucursal
+    try {
+      const io = getIo();
+      io.to(`restaurant_${restaurant_id}`).emit('new_order', completeOrder);
+    } catch (socketErr) {
+      console.warn('Socket notification failed, but order was created:', socketErr);
+    }
+
     return res.status(201).json({
       ok: true,
-      message: 'Order created successfully',
+      message: 'Orden creada exitosamente (inventory deducted)',
       order: completeOrder,
     });
   } catch (error) {
+    if (!transaction.finished) {
+      await transaction.rollback();
+    }
     console.error('Error creating order:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while creating order',
+      message: 'Error interno al crear la orden',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -282,7 +319,7 @@ export const getAllOrders = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Orders retrieved successfully',
+      message: 'Órdenes obtenidas exitosamente',
       pagination: {
         total: count,
         page: parseInt(page),
@@ -295,7 +332,7 @@ export const getAllOrders = async (req, res) => {
     console.error('Error getting orders:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving orders',
+      message: 'Error interno del servidor while retrieving orders',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -337,20 +374,20 @@ export const getOrderById = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         ok: false,
-        message: 'Order not found',
+        message: 'Orden no encontrada',
       });
     }
 
     return res.status(200).json({
       ok: true,
-      message: 'Order retrieved successfully',
+      message: 'Orden obtenida exitosamente',
       order,
     });
   } catch (error) {
     console.error('Error getting order:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving order',
+      message: 'Error interno del servidor while retrieving order',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -370,7 +407,7 @@ export const updateOrderStatus = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         ok: false,
-        message: 'Order not found',
+        message: 'Orden no encontrada',
       });
     }
 
@@ -414,7 +451,7 @@ export const updateOrderStatus = async (req, res) => {
     console.error('Error updating order status:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while updating order status',
+      message: 'Error interno del servidor while updating order status',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -428,33 +465,52 @@ export const cancelOrder = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const order = await Order.findByPk(id);
+    const order = await Order.findByPk(id, {
+      include: [{ model: OrderItem, as: 'items' }]
+    });
 
     if (!order) {
       return res.status(404).json({
         ok: false,
-        message: 'Order not found',
+        message: 'Orden no encontrada',
       });
     }
 
     if (['paid', 'cancelled'].includes(order.status)) {
       return res.status(400).json({
         ok: false,
-        message: `Cannot cancel order with status: ${order.status}`,
+        message: `No se puede cancelar orden con estado: ${order.status}`,
       });
     }
 
-    await order.update({ status: 'cancelled' });
+    const transaction = await sequelize.transaction();
+    try {
+      await order.update({ status: 'cancelled' }, { transaction });
+
+      // Return stock to inventory
+      for (const item of order.items) {
+        const menuItem = await MenuItem.findByPk(item.menu_item_id, { transaction });
+        if (menuItem) {
+          menuItem.stock_quantity += item.quantity;
+          await menuItem.save({ transaction });
+        }
+      }
+
+      await transaction.commit();
+    } catch (err) {
+      await transaction.rollback();
+      throw err;
+    }
 
     return res.status(200).json({
       ok: true,
-      message: 'Order cancelled successfully',
+      message: 'Orden cancelada exitosamente and stock returned',
     });
   } catch (error) {
     console.error('Error cancelling order:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while cancelling order',
+      message: 'Error interno del servidor while cancelling order',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -474,7 +530,7 @@ export const addItemToOrder = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         ok: false,
-        message: 'Order not found',
+        message: 'Orden no encontrada',
       });
     }
 
@@ -498,7 +554,7 @@ export const addItemToOrder = async (req, res) => {
     if (!menuItem) {
       return res.status(404).json({
         ok: false,
-        message: 'Menu item not found or not available',
+        message: 'Platillo no encontrado o no disponible',
       });
     }
 
@@ -538,7 +594,7 @@ export const addItemToOrder = async (req, res) => {
     console.error('Error adding item to order:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while adding item',
+      message: 'Error interno del servidor while adding item',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -557,7 +613,7 @@ export const removeItemFromOrder = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         ok: false,
-        message: 'Order not found',
+        message: 'Orden no encontrada',
       });
     }
 
@@ -575,7 +631,7 @@ export const removeItemFromOrder = async (req, res) => {
     if (!orderItem) {
       return res.status(404).json({
         ok: false,
-        message: 'Order item not found',
+        message: 'Order No encontrado',
       });
     }
 
@@ -606,7 +662,7 @@ export const removeItemFromOrder = async (req, res) => {
     console.error('Error removing item from order:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while removing item',
+      message: 'Error interno del servidor while removing item',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }

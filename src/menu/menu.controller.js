@@ -20,7 +20,7 @@ export const createMenu = async (req, res) => {
     if (!restaurant) {
       return res.status(404).json({
         ok: false,
-        message: 'Restaurant not found',
+        message: 'Restaurante no encontrado',
       });
     }
 
@@ -49,14 +49,14 @@ export const createMenu = async (req, res) => {
 
     return res.status(201).json({
       ok: true,
-      message: 'Menu category created successfully',
+      message: 'Menu Creado exitosamente',
       menu,
     });
   } catch (error) {
     console.error('Error creating menu:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while creating menu category',
+      message: 'Error interno del servidor while creating menu category',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -91,7 +91,7 @@ export const getAllMenus = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Menu categories retrieved successfully',
+      message: 'Menu Datos obtenidos exitosamente',
       pagination: {
         total: count,
         page: parseInt(page),
@@ -104,7 +104,7 @@ export const getAllMenus = async (req, res) => {
     console.error('Error getting menus:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving menu categories',
+      message: 'Error interno del servidor while retrieving menu categories',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -139,20 +139,20 @@ export const getMenuById = async (req, res) => {
     if (!menu) {
       return res.status(404).json({
         ok: false,
-        message: 'Menu category not found',
+        message: 'Menu No encontrado',
       });
     }
 
     return res.status(200).json({
       ok: true,
-      message: 'Menu category retrieved successfully',
+      message: 'Menu Datos obtenidos exitosamente',
       menu,
     });
   } catch (error) {
     console.error('Error getting menu:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving menu category',
+      message: 'Error interno del servidor while retrieving menu category',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -174,7 +174,7 @@ export const updateMenu = async (req, res) => {
     if (!menu) {
       return res.status(404).json({
         ok: false,
-        message: 'Menu category not found',
+        message: 'Menu No encontrado',
       });
     }
 
@@ -205,14 +205,14 @@ export const updateMenu = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Menu category updated successfully',
+      message: 'Menu Actualizado exitosamente',
       menu,
     });
   } catch (error) {
     console.error('Error updating menu:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while updating menu category',
+      message: 'Error interno del servidor while updating menu category',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -233,7 +233,7 @@ export const deleteMenu = async (req, res) => {
     if (!menu) {
       return res.status(404).json({
         ok: false,
-        message: 'Menu category not found',
+        message: 'Menu No encontrado',
       });
     }
 
@@ -247,13 +247,13 @@ export const deleteMenu = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Menu category deleted successfully',
+      message: 'Menu Eliminado exitosamente',
     });
   } catch (error) {
     console.error('Error deleting menu:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while deleting menu category',
+      message: 'Error interno del servidor while deleting menu category',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -290,7 +290,7 @@ export const createMenuItem = async (req, res) => {
     if (!restaurant) {
       return res.status(404).json({
         ok: false,
-        message: 'Restaurant not found',
+        message: 'Restaurante no encontrado',
       });
     }
 
@@ -302,7 +302,7 @@ export const createMenuItem = async (req, res) => {
     if (!menu) {
       return res.status(404).json({
         ok: false,
-        message: 'Menu category not found',
+        message: 'Menu No encontrado',
       });
     }
 
@@ -351,14 +351,14 @@ export const createMenuItem = async (req, res) => {
 
     return res.status(201).json({
       ok: true,
-      message: 'Menu item created successfully',
+      message: 'Menu Creado exitosamente',
       menuItem,
     });
   } catch (error) {
     console.error('Error creating menu item:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while creating menu item',
+      message: 'Error interno del servidor while creating menu item',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -418,7 +418,7 @@ export const getAllMenuItems = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Menu items retrieved successfully',
+      message: 'Menu Datos obtenidos exitosamente',
       pagination: {
         total: count,
         page: parseInt(page),
@@ -431,7 +431,7 @@ export const getAllMenuItems = async (req, res) => {
     console.error('Error getting menu items:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving menu items',
+      message: 'Error interno del servidor while retrieving menu items',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -464,20 +464,20 @@ export const getMenuItemById = async (req, res) => {
     if (!menuItem) {
       return res.status(404).json({
         ok: false,
-        message: 'Menu item not found',
+        message: 'Menu No encontrado',
       });
     }
 
     return res.status(200).json({
       ok: true,
-      message: 'Menu item retrieved successfully',
+      message: 'Menu Datos obtenidos exitosamente',
       menuItem,
     });
   } catch (error) {
     console.error('Error getting menu item:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving menu item',
+      message: 'Error interno del servidor while retrieving menu item',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -499,7 +499,7 @@ export const updateMenuItem = async (req, res) => {
     if (!menuItem) {
       return res.status(404).json({
         ok: false,
-        message: 'Menu item not found',
+        message: 'Menu No encontrado',
       });
     }
 
@@ -530,14 +530,14 @@ export const updateMenuItem = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Menu item updated successfully',
+      message: 'Menu Actualizado exitosamente',
       menuItem,
     });
   } catch (error) {
     console.error('Error updating menu item:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while updating menu item',
+      message: 'Error interno del servidor while updating menu item',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -558,7 +558,7 @@ export const deleteMenuItem = async (req, res) => {
     if (!menuItem) {
       return res.status(404).json({
         ok: false,
-        message: 'Menu item not found',
+        message: 'Menu No encontrado',
       });
     }
 
@@ -566,13 +566,13 @@ export const deleteMenuItem = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Menu item deleted successfully',
+      message: 'Menu Eliminado exitosamente',
     });
   } catch (error) {
     console.error('Error deleting menu item:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while deleting menu item',
+      message: 'Error interno del servidor while deleting menu item',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -593,7 +593,7 @@ export const toggleMenuItemAvailability = async (req, res) => {
     if (!menuItem) {
       return res.status(404).json({
         ok: false,
-        message: 'Menu item not found',
+        message: 'Menu No encontrado',
       });
     }
 
@@ -614,7 +614,7 @@ export const toggleMenuItemAvailability = async (req, res) => {
     console.error('Error toggling menu item availability:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while toggling availability',
+      message: 'Error interno del servidor while toggling availability',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }

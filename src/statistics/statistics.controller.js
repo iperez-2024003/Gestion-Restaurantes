@@ -6,6 +6,7 @@ import { OrderItem } from '../order/order-item.model.js';
 import { Reservation } from '../reservation/reservation.model.js';
 import { Event } from '../event/event.model.js';
 import { MenuItem } from '../menu/menu-item.model.js';
+import { User } from '../users/user.model.js';
 import { sequelize } from '../../configs/db.js';
 import { Op } from 'sequelize';
 
@@ -14,7 +15,7 @@ export const getRestaurantOverview = async (req, res) => {
     const { id } = req.params;
     const restaurant = await Restaurant.findByPk(id);
     if (!restaurant) {
-      return res.status(404).json({ ok: false, message: 'Restaurant not found' });
+      return res.status(404).json({ ok: false, message: 'Restaurante no encontrado' });
     }
     
     const today = new Date().toISOString().slice(0, 10);
@@ -37,7 +38,7 @@ export const getRestaurantOverview = async (req, res) => {
     
     return res.status(200).json({
       ok: true,
-      message: 'Restaurant overview retrieved successfully',
+      message: 'Restaurant Datos obtenidos exitosamente',
       overview: {
         restaurant_info: { id: restaurant.id, name: restaurant.name, rating: restaurant.rating },
         today: { orders: todayOrders, revenue: parseFloat(todayRevenue.toFixed(2)), reservations: todayReservations },
@@ -46,7 +47,7 @@ export const getRestaurantOverview = async (req, res) => {
     });
   } catch (error) {
     console.error('Error:', error);
-    return res.status(500).json({ ok: false, message: 'Internal server error' });
+    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -77,13 +78,13 @@ export const getOrdersStats = async (req, res) => {
     
     return res.status(200).json({
       ok: true,
-      message: 'Orders statistics retrieved successfully',
+      message: 'Orders Datos obtenidos exitosamente',
       period,
       data: orders,
     });
   } catch (error) {
     console.error('Error:', error);
-    return res.status(500).json({ ok: false, message: 'Internal server error' });
+    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -114,12 +115,12 @@ export const getPopularDishes = async (req, res) => {
     
     return res.status(200).json({
       ok: true,
-      message: 'Popular dishes retrieved successfully',
+      message: 'Popular Datos obtenidos exitosamente',
       dishes: popularDishes,
     });
   } catch (error) {
     console.error('Error:', error);
-    return res.status(500).json({ ok: false, message: 'Internal server error' });
+    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -140,7 +141,7 @@ export const getPlatformSummary = async (req, res) => {
     
     return res.status(200).json({
       ok: true,
-      message: 'Platform summary retrieved successfully',
+      message: 'Platform Datos obtenidos exitosamente',
       summary: {
         total_restaurants: totalRestaurants,
         total_orders: totalOrders,
@@ -152,6 +153,71 @@ export const getPlatformSummary = async (req, res) => {
     });
   } catch (error) {
     console.error('Error:', error);
-    return res.status(500).json({ ok: false, message: 'Internal server error' });
+    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+  }
+};
+
+export const getPeakHours = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const peakHours = await Order.findAll({
+      where: { restaurant_id: id },
+      attributes: [
+        [sequelize.fn('EXTRACT', sequelize.literal('HOUR FROM created_at')), 'hour'],
+        [sequelize.fn('COUNT', sequelize.col('id')), 'order_count'],
+      ],
+      group: [sequelize.fn('EXTRACT', sequelize.literal('HOUR FROM created_at'))],
+      order: [[sequelize.fn('COUNT', sequelize.col('id')), 'DESC']],
+      raw: true
+    });
+    
+    return res.status(200).json({
+      ok: true,
+      message: 'Horas pico obtenidas exitosamente',
+      data: peakHours
+    });
+  } catch (error) {
+    console.error('Error in getPeakHours:', error);
+    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+  }
+};
+
+export const getFrequentCustomers = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Filtramos para asegurar que user_id no sea nulo si hay invitados manuales
+    const customers = await Order.findAll({
+      where: { 
+        restaurant_id: id, 
+        status: { [Op.ne]: 'cancelled' },
+        user_id: { [Op.not]: null } 
+      },
+      attributes: [
+        'user_id',
+        [sequelize.fn('COUNT', sequelize.col('order.id')), 'total_orders'],
+        [sequelize.fn('SUM', sequelize.col('total')), 'total_spent']
+      ],
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username', 'email']
+        }
+      ],
+      group: ['user_id', 'user.id', 'user.username', 'user.email'],
+      order: [[sequelize.fn('COUNT', sequelize.col('order.id')), 'DESC']],
+      limit: 10
+    });
+    
+    return res.status(200).json({
+      ok: true,
+      message: 'Clientes frecuentes obtenidos exitosamente',
+      customers
+    });
+  } catch (error) {
+    console.error('Error in getFrequentCustomers:', error);
+    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
   }
 };
