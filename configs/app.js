@@ -10,20 +10,8 @@ import { dbConnection } from './db.js';
 import '../src/users/user.model.js';
 import '../src/auth/role.model.js';
 import '../src/restaurant/restaurant.model.js';
-import '../src/menu/menu.model.js';          
+import '../src/menu/menu.model.js';
 import '../src/menu/menu-item.model.js';
-<<<<<<< HEAD
-import '../src/table/table.model.js';
-import '../src/order/order.model.js';
-import '../src/order/order-item.model.js'; 
-import '../src/reservation/reservation.model.js';
-import '../src/event/event.model.js';
-import '../src/event/event-participant.model.js';
-
-
-
-=======
->>>>>>> a861ce4450457dceb4ae922c84fe629dc3b6f748
 
 
 import { requestLimit } from '../middlewares/request-limit.js';
@@ -39,15 +27,6 @@ import authRoutes from '../src/auth/auth.routes.js';
 import userRoutes from '../src/users/user.routes.js';
 import restaurantRoutes from '../src/restaurant/restaurant.routes.js';
 import menuRoutes from '../src/menu/menu.routes.js';
-<<<<<<< HEAD
-import orderRoutes from '../src/order/order.routes.js';
-import reservationRoutes from '../src/reservation/reservation.routes.js';
-import eventRoutes from '../src/event/event.routes.js';
-import statisticsRoutes from '../src/statistics/statistics.routes.js';
-import  tableRoutes  from '../src/table/table.routes.js';
-
-=======
->>>>>>> a861ce4450457dceb4ae922c84fe629dc3b6f748
 
 
 
@@ -56,6 +35,7 @@ const BASE_PATH = '/api/v1';
 const middlewares = (app) => {
   app.use(express.urlencoded({ extended: false, limit: '10mb' }));
   app.use(express.json({ limit: '10mb' }));
+  app.use('/uploads', express.static('uploads'));
   app.use(cors(corsOptions));
   app.use(helmet(helmetConfiguration));
   app.use(requestLimit);
@@ -67,20 +47,9 @@ const routes = (app) => {
   app.use(`${BASE_PATH}/users`, userRoutes);
   app.use(`${BASE_PATH}/restaurants`, restaurantRoutes);
   app.use(`${BASE_PATH}/menus`, menuRoutes);
-<<<<<<< HEAD
-  app.use(`${BASE_PATH}/tables`, tableRoutes);
-  app.use(`${BASE_PATH}/orders`, orderRoutes);
-  app.use(`${BASE_PATH}/reservations`, reservationRoutes);
-  app.use(`${BASE_PATH}/events`, eventRoutes);
-  app.use(`${BASE_PATH}/statistics`, statisticsRoutes);
 
- 
-  
-=======
 
-  
 
->>>>>>> a861ce4450457dceb4ae922c84fe629dc3b6f748
 
   app.get(`${BASE_PATH}/health`, (req, res) => {
     res.status(200).json({

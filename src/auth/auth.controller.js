@@ -17,6 +17,20 @@ export const register = asyncHandler(async (req, res) => {
       profilePicture: req.file ? req.file.path : null,
     };
 
+    // Seguridad de Roles: Solo Super Admin puede asignar roles distintos a CLIENT_ROLE
+    const roleToAssign = req.body.role || 'CLIENT_ROLE';
+    
+    if (roleToAssign !== 'CLIENT_ROLE') {
+      // Si el usuario no está logueado o no es Super Admin, denegar asignación de rol especial
+      const isSuperAdmin = req.userRoleNames?.includes('SUPER_ADMIN_ROLE');
+      if (!isSuperAdmin) {
+        return res.status(403).json({
+          success: false,
+          message: 'No tienes permisos para asignar roles administrativos. Se asignará CLIENT_ROLE por defecto o la operación será denegada.',
+        });
+      }
+    }
+
     const result = await registerUserHelper(userData);
 
     res.status(201).json(result);
@@ -42,9 +56,24 @@ export const register = asyncHandler(async (req, res) => {
 
 export const login = asyncHandler(async (req, res) => {
   try {
+<<<<<<< Updated upstream
     const { emailOrUsername, password } = req.body;
     const result = await loginUserHelper(emailOrUsername, password);
 
+=======
+    // Aceptamos tanto emailOrUsername como simplemente email/username en minúsculas
+    const { emailOrUsername, email, username, password } = req.body;
+    const identifier = emailOrUsername || email || username;
+
+    if (!identifier || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email/Username y contraseña son requeridos'
+      });
+    }
+
+    const result = await loginUserHelper(identifier, password);
+>>>>>>> Stashed changes
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in login controller:', error);

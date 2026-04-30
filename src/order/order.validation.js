@@ -68,6 +68,7 @@ export const validateOrderCreation = [
         .isFloat({ min: 0 })
         .withMessage('Delivery fee must be a positive number'),
 
+<<<<<<< Updated upstream
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -82,6 +83,23 @@ export const validateOrderCreation = [
         }
         next();
     },
+=======
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log('Order Validation Errors:', errors.array());
+      return res.status(400).json({
+        ok: false,
+        message: 'Validation errors',
+        errors: errors.array().map((error) => ({
+          field: error.path,
+          message: error.msg,
+        })),
+      });
+    }
+    next();
+  },
+>>>>>>> Stashed changes
 ];
 
 /**

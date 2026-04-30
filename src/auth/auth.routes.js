@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import * as authController from './auth.controller.js';
+<<<<<<< Updated upstream
 import { validateJWT } from '../../middlewares/validate-JWT.js';
+=======
+import { validateJWT, optionalValidateJWT } from '../../middlewares/validate-JWT.js';
+import { validateProfileByIdBody } from '../../middlewares/validate-params.js';
+>>>>>>> Stashed changes
 import {
   authRateLimit,
   requestLimit,
@@ -72,6 +77,7 @@ const router = Router();
 router.post(
   '/register',
   authRateLimit,
+  optionalValidateJWT,
   upload.single('profilePicture'),
   handleUploadError,
   validateRegister,

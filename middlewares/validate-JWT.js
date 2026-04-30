@@ -9,8 +9,8 @@ export const validateJWT = async (req, res, next) => {
     let token =
       req.header('x-token') ||
       req.header('authorization') ||
-      req.body.token ||
-      req.query.token;
+      req.body?.token ||
+      req.query?.token;
 
     if (!token) {
       return res.status(401).json({
@@ -64,5 +64,36 @@ export const validateJWT = async (req, res, next) => {
       message,
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
+  }
+};
+/**
+ * Middleware para validar JWT opcionalmente (no bloquea si no hay token)
+ */
+export const optionalValidateJWT = async (req, res, next) => {
+  try {
+    let token =
+      req.header('x-token') ||
+      req.header('authorization') ||
+      req.body.token ||
+      req.query.token;
+
+    if (!token) {
+      return next();
+    }
+
+    token = token.replace(/^Bearer\s+/, '');
+    const decoded = await verifyJWT(token);
+    const user = await findUserById(decoded.sub);
+
+    if (user && user.Status) {
+      req.user = user;
+      req.userId = user.Id.toString();
+      req.userRoleNames = user.UserRoles?.map((ur) => ur?.Role?.Name).filter(Boolean) ?? [];
+    }
+
+    next();
+  } catch (error) {
+    // Si el token es inválido o expiró, simplemente seguimos sin usuario (comportamiento opcional)
+    next();
   }
 };

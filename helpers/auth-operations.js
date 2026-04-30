@@ -43,7 +43,7 @@ const getExpirationTime = (timeString) => {
 
 export const registerUserHelper = async (userData) => {
   try {
-    const { email, username, password, name, surname, phone, profilePicture } =
+    const { email, username, password, name, surname, phone, profilePicture, role, restaurant_id } =
       userData;
 
     // Validation is now handled by express-validator middleware in routes
@@ -112,6 +112,8 @@ export const registerUserHelper = async (userData) => {
       password,
       phone,
       profilePicture: profilePictureToStore,
+      role,
+      restaurant_id,
     });
 
     // Generar token de verificación de email
@@ -195,6 +197,7 @@ export const loginUserHelper = async (emailOrUsername, password) => {
       username: fullUser.username,
       profilePicture: fullUser.profilePicture,
       role: fullUser.role,
+      restaurantId: fullUser.restaurantId,
     };
 
     // AuthResponseDto equivalent structure

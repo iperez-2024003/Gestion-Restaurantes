@@ -7,7 +7,8 @@ import { Reservation } from '../reservation/reservation.model.js';
 import { Event } from '../event/event.model.js';
 import { MenuItem } from '../menu/menu-item.model.js';
 import { sequelize } from '../../configs/db.js';
-import { Op } from 'sequelize';
+import { Op, fn, col, literal } from 'sequelize';
+import ExcelJS from 'exceljs';
 
 export const getRestaurantOverview = async (req, res) => {
   try {
@@ -66,12 +67,12 @@ export const getOrdersStats = async (req, res) => {
         created_at: { [Op.gte]: dateFilter },
       },
       attributes: [
-        [sequelize.fn('DATE', sequelize.col('created_at')), 'date'],
+        [sequelize.literal('created_at::date'), 'date'],
         [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
         [sequelize.fn('SUM', sequelize.col('total')), 'revenue'],
       ],
-      group: [sequelize.fn('DATE', sequelize.col('created_at'))],
-      order: [[sequelize.fn('DATE', sequelize.col('created_at')), 'ASC']],
+      group: [sequelize.literal('created_at::date')],
+      order: [[sequelize.literal('created_at::date'), 'ASC']],
       raw: true,
     });
     
@@ -153,5 +154,143 @@ export const getPlatformSummary = async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     return res.status(500).json({ ok: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Generate Excel Report of Orders
+ * @route GET /api/v1/statistics/restaurant/:id/export-excel
+ */
+export const exportOrdersToExcel = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Traer todas las ordenes del restaurante (limitamos a 1000 para no reventar la memoria en un demo)
+    const orders = await Order.findAll({
+      where: { restaurant_id: id },
+      order: [['created_at', 'DESC']],
+      limit: 1000,
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Ventas');
+
+    // Definir columnas
+    worksheet.columns = [
+      { header: 'Fecha', key: 'date', width: 20 },
+      { header: 'Número de Orden', key: 'orderNumber', width: 25 },
+      { header: 'Cliente', key: 'customer', width: 25 },
+      { header: 'Tipo', key: 'type', width: 15 },
+      { header: 'Estado', key: 'status', width: 15 },
+      { header: 'Subtotal (Q)', key: 'subtotal', width: 15 },
+      { header: 'Total (Q)', key: 'total', width: 15 },
+    ];
+
+    // Estilo a la cabecera
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE6B8' } // Amber claro
+    };
+
+    // Llenar filas
+    orders.forEach((order) => {
+      worksheet.addRow({
+        date: new Date(order.created_at).toLocaleString(),
+        orderNumber: order.order_number,
+        customer: order.customer_name,
+        type: order.order_type,
+        status: order.status,
+        subtotal: parseFloat(order.subtotal),
+        total: parseFloat(order.total),
+      });
+    });
+
+    // Enviar archivo
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=Reporte_Ventas_${id}.xlsx`);
+
+    await workbook.xlsx.write(res);
+    res.end();
+
+  } catch (error) {
+    console.error('Error generating Excel:', error);
+    if (!res.headersSent) {
+      return res.status(500).json({ ok: false, message: 'Error interno generando Excel' });
+    }
+  }
+};
+
+/**
+ * Get global platform statistics (SuperAdmin only)
+ */
+export const getGlobalStats = async (req, res) => {
+  try {
+    const totalRestaurants = await Restaurant.count({ where: { is_active: true } });
+    const totalUsers = await User.count({ where: { Status: true } });
+    const totalOrders = await Order.count();
+    
+    const totalRevenue = await Order.sum('total', { 
+      where: { payment_status: 'paid' } 
+    }) || 0;
+
+    const topRestaurants = await Order.findAll({
+      attributes: [
+        'restaurant_id',
+        [fn('SUM', col('total')), 'revenue'],
+        [fn('COUNT', col('order.id')), 'orders_count']
+      ],
+      include: [{ model: Restaurant, as: 'restaurant', attributes: ['name'] }],
+      where: { payment_status: 'paid' },
+      group: ['restaurant_id', 'restaurant.id'],
+      order: [[literal('revenue'), 'DESC']],
+      limit: 5
+    });
+
+    return res.status(200).json({
+      ok: true,
+      stats: {
+        totalRestaurants,
+        totalUsers,
+        totalOrders,
+        totalRevenue: parseFloat(totalRevenue.toFixed(2)),
+        topRestaurants
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching global stats:', error);
+    return res.status(500).json({ ok: false, message: 'Error fetching global stats' });
+  }
+};
+
+/**
+ * Get VIP clients across the whole platform
+ */
+export const getGlobalVipClients = async (req, res) => {
+  try {
+    const vipClients = await Order.findAll({
+      attributes: [
+        'user_id',
+        [fn('COUNT', col('order.id')), 'orders_count'],
+        [fn('SUM', col('total')), 'total_spent']
+      ],
+      include: [{ 
+        model: User, 
+        as: 'user',
+        attributes: ['Id', 'Name', 'Surname', 'Username', 'Email'] 
+      }],
+      group: ['user_id', 'user.id'],
+      order: [[literal('total_spent'), 'DESC']],
+      limit: 10
+    });
+
+    return res.status(200).json({
+      ok: true,
+      clients: vipClients
+    });
+  } catch (error) {
+    console.error('Error fetching VIP clients:', error);
+    return res.status(500).json({ ok: false, message: 'Error fetching VIP clients' });
   }
 };

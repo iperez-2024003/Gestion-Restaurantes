@@ -4,6 +4,7 @@ import { Event } from './event.model.js';
 import { EventParticipant } from './event-participant.model.js';
 import { Restaurant } from '../restaurant/restaurant.model.js';
 import { User } from '../users/user.model.js';
+import { sequelize } from '../../configs/db.js';
 import { Op } from 'sequelize';
 
 /**
@@ -308,6 +309,7 @@ export const cancelEvent = async (req, res) => {
  * @route POST /api/v1/events/:id/register
  */
 export const registerParticipant = async (req, res) => {
+  const transaction = await sequelize.transaction();
   try {
     const { id } = req.params;
     const {
@@ -318,11 +320,15 @@ export const registerParticipant = async (req, res) => {
       special_notes,
     } = req.body;
 
+    // Lock de fila para evitar sobreventa de cupos
     const event = await Event.findOne({
       where: { id, is_active: true },
+      transaction,
+      lock: transaction.LOCK.UPDATE,
     });
 
     if (!event) {
+      await transaction.rollback();
       return res.status(404).json({
         ok: false,
         message: 'Event not found',
@@ -331,14 +337,16 @@ export const registerParticipant = async (req, res) => {
 
     // Validar que el evento esté programado
     if (event.status !== 'scheduled') {
+      await transaction.rollback();
       return res.status(400).json({
         ok: false,
         message: `Cannot register for event with status: ${event.status}`,
       });
     }
 
-    // Validar cupos disponibles
+    // Validar cupos disponibles (ahora protegido por lock)
     if (event.current_participants >= event.max_participants) {
+      await transaction.rollback();
       return res.status(400).json({
         ok: false,
         message: 'Event is full, no spots available',
@@ -351,9 +359,11 @@ export const registerParticipant = async (req, res) => {
         event_id: id,
         participant_email,
       },
+      transaction,
     });
 
     if (existingParticipant) {
+      await transaction.rollback();
       return res.status(409).json({
         ok: false,
         message: 'This email is already registered for this event',
@@ -362,8 +372,9 @@ export const registerParticipant = async (req, res) => {
 
     // Verificar usuario si se proporciona
     if (user_id) {
-      const user = await User.findByPk(user_id);
+      const user = await User.findByPk(user_id, { transaction });
       if (!user) {
+        await transaction.rollback();
         return res.status(404).json({
           ok: false,
           message: 'User not found',
@@ -380,12 +391,14 @@ export const registerParticipant = async (req, res) => {
       special_notes,
       payment_status: 'pending',
       attendance_status: 'registered',
-    });
+    }, { transaction });
 
-    // Actualizar contador de participantes
+    // Actualizar contador de participantes (protegido por lock)
     await event.update({
       current_participants: event.current_participants + 1,
-    });
+    }, { transaction });
+
+    await transaction.commit();
 
     return res.status(201).json({
       ok: true,
@@ -404,6 +417,9 @@ export const registerParticipant = async (req, res) => {
       },
     });
   } catch (error) {
+    if (!transaction.finished) {
+      await transaction.rollback();
+    }
     console.error('Error registering participant:', error);
     return res.status(500).json({
       ok: false,
