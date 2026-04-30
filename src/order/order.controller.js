@@ -8,6 +8,7 @@ import { User } from '../users/user.model.js';
 import { sequelize } from '../../configs/db.js';
 import { getIo } from '../socket/socket.config.js';
 import { Op } from 'sequelize';
+import PDFDocument from 'pdfkit';
 
 const TAX_RATE = 0.12; // 12% IVA
 
@@ -138,7 +139,8 @@ export const createOrder = async (req, res) => {
           restaurant_id,
           is_active: true,
         },
-        transaction
+        transaction,
+        lock: transaction.LOCK.UPDATE, // Bloqueo a nivel de fila para evitar stock negativo
       });
 
       if (!menuItem) {
@@ -412,11 +414,12 @@ export const updateOrderStatus = async (req, res) => {
     }
 
     // Validar transiciones de estado
+    // pending → preparing (Kanban directo) o pending → confirmed → preparing (flujo formal)
     const validTransitions = {
-      pending: ['confirmed', 'cancelled'],
+      pending: ['confirmed', 'preparing', 'cancelled'],
       confirmed: ['preparing', 'cancelled'],
       preparing: ['ready', 'cancelled'],
-      ready: ['served'],
+      ready: ['served', 'cancelled'],
       served: ['paid'],
       paid: [],
       cancelled: [],
@@ -434,9 +437,32 @@ export const updateOrderStatus = async (req, res) => {
     if (status === 'paid') {
       updateData.completed_at = new Date();
       updateData.payment_status = 'paid';
+
+      // Lógica de Puntos: 1 punto por cada Q10 gastados
+      if (order.user_id) {
+        const pointsEarned = Math.floor(parseFloat(order.total) / 10);
+        if (pointsEarned > 0) {
+          const user = await User.findByPk(order.user_id);
+          if (user) {
+            await user.increment('Points', { by: pointsEarned });
+          }
+        }
+      }
     }
 
     await order.update(updateData);
+
+    // Emitir socket event de actualización de estado
+    try {
+      const io = getIo();
+      io.to(`restaurant_${order.restaurant_id}`).emit('order_status_updated', {
+        id: order.id,
+        status: order.status,
+        order_number: order.order_number
+      });
+    } catch (socketErr) {
+      console.warn('Socket notification failed for status update:', socketErr);
+    }
 
     return res.status(200).json({
       ok: true,
@@ -664,6 +690,161 @@ export const removeItemFromOrder = async (req, res) => {
       ok: false,
       message: 'Error interno del servidor while removing item',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * Generate PDF Invoice for an order
+ * @route GET /api/v1/orders/:id/invoice
+ */
+export const generateOrderPDF = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await Order.findByPk(id, {
+      include: [
+        {
+          model: OrderItem,
+          as: 'items',
+          include: [{ model: MenuItem, as: 'menu_item', attributes: ['name', 'price'] }],
+        },
+        {
+          model: Restaurant,
+          as: 'restaurant',
+          attributes: ['name', 'address', 'phone'],
+        },
+      ],
+    });
+
+    if (!order) {
+      return res.status(404).json({ ok: false, message: 'Orden no encontrada' });
+    }
+
+    // Set headers for PDF download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=Factura_${order.order_number}.pdf`);
+
+    const doc = new PDFDocument({ margin: 50 });
+    doc.pipe(res);
+
+    // Header
+    doc.fontSize(20).font('Helvetica-Bold').text(order.restaurant?.name || 'Restaurante', { align: 'center' });
+    doc.fontSize(10).font('Helvetica').text(order.restaurant?.address || '', { align: 'center' });
+    doc.text(`Tel: ${order.restaurant?.phone || ''}`, { align: 'center' });
+    doc.moveDown();
+
+    // Factura Info
+    doc.fontSize(14).font('Helvetica-Bold').text('FACTURA', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(10).font('Helvetica').text(`Orden: ${order.order_number}`);
+    doc.text(`Fecha: ${new Date(order.created_at).toLocaleString()}`);
+    doc.text(`Cliente: ${order.customer_name}`);
+    doc.text(`Tipo: ${order.order_type === 'dine_in' ? 'Salón' : order.order_type === 'delivery' ? 'Domicilio' : 'Para llevar'}`);
+    if (order.order_type === 'delivery' && order.delivery_address) {
+      doc.text(`Dirección de entrega: ${order.delivery_address}`);
+    }
+    doc.moveDown();
+
+    // Divider
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc.moveDown();
+
+    // Table Header
+    doc.font('Helvetica-Bold');
+    doc.text('Cant', 50, doc.y, { continued: true, width: 50 });
+    doc.text('Descripción', 100, doc.y, { continued: true, width: 250 });
+    doc.text('Precio', 350, doc.y, { continued: true, width: 100, align: 'right' });
+    doc.text('Subtotal', 450, doc.y, { width: 100, align: 'right' });
+    doc.moveDown(0.5);
+
+    // Divider
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc.moveDown(0.5);
+
+    // Items
+    doc.font('Helvetica');
+    order.items.forEach(item => {
+      const y = doc.y;
+      doc.text(item.quantity.toString(), 50, y, { width: 50 });
+      doc.text(item.menu_item?.name || 'Item', 100, y, { width: 250 });
+      doc.text(`Q${item.price}`, 350, y, { width: 100, align: 'right' });
+      doc.text(`Q${item.subtotal}`, 450, y, { width: 100, align: 'right' });
+    });
+    doc.moveDown();
+
+    // Divider
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc.moveDown();
+
+    // Totals
+    const rightAlignOpts = { width: 200, align: 'right' };
+    const labelX = 250;
+    const valueX = 450;
+    
+    doc.font('Helvetica');
+    doc.text('Subtotal:', labelX, doc.y, { continued: true, width: 100, align: 'right' });
+    doc.text(`Q${order.subtotal}`, valueX, doc.y, { width: 100, align: 'right' });
+    
+    if (parseFloat(order.discount) > 0) {
+      doc.text('Descuento:', labelX, doc.y, { continued: true, width: 100, align: 'right' });
+      doc.text(`-Q${order.discount}`, valueX, doc.y, { width: 100, align: 'right' });
+    }
+    
+    if (parseFloat(order.delivery_fee) > 0) {
+      doc.text('Envío:', labelX, doc.y, { continued: true, width: 100, align: 'right' });
+      doc.text(`Q${order.delivery_fee}`, valueX, doc.y, { width: 100, align: 'right' });
+    }
+
+    doc.moveDown();
+    doc.font('Helvetica-Bold').fontSize(14);
+    doc.text('TOTAL:', labelX, doc.y, { continued: true, width: 100, align: 'right' });
+    doc.text(`Q${order.total}`, valueX, doc.y, { width: 100, align: 'right' });
+    
+    doc.moveDown(2);
+    doc.fontSize(10).font('Helvetica-Oblique').text('¡Gracias por su preferencia!', { align: 'center' });
+
+    doc.end();
+
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    if (!res.headersSent) {
+      return res.status(500).json({ ok: false, message: 'Error interno del servidor generando el PDF' });
+    }
+  }
+};
+
+/**
+ * Get active orders for Kitchen Display System (KDS)
+ * @route GET /api/v1/orders/kitchen/:restaurantId
+ */
+export const getKitchenOrders = async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+
+    const orders = await Order.findAll({
+      where: {
+        restaurant_id: restaurantId,
+        status: { [Op.in]: ['pending', 'preparing'] },
+      },
+      include: [
+        {
+          model: OrderItem,
+          as: 'items',
+          include: [{ model: MenuItem, as: 'menu_item', attributes: ['name', 'description'] }],
+        },
+      ],
+      order: [['created_at', 'ASC']], // First in, first out
+    });
+
+    return res.status(200).json({
+      ok: true,
+      orders,
+    });
+  } catch (error) {
+    console.error('Error fetching kitchen orders:', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Error fetching kitchen orders',
     });
   }
 };

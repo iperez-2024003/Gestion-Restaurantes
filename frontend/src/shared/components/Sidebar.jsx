@@ -1,136 +1,144 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { useAuthStore } from '../../features/auth/store/useAuthStore';
 import { 
-  HomeIcon, 
-  ChartBarIcon, 
-  UserGroupIcon, 
-  DocumentTextIcon, 
-  Cog6ToothIcon,
-  Squares2X2Icon,
-  ArrowLeftOnRectangleIcon
-} from '@heroicons/react/24/outline';
+  LayoutDashboard, 
+  ChefHat, 
+  Users, 
+  Utensils, 
+  ClipboardList, 
+  Calendar, 
+  BarChart3, 
+  UserCircle, 
+  LogOut,
+  Flame,
+  Settings,
+  Star
+} from 'lucide-react';
 
 export const Sidebar = () => {
   const { role, user, logout } = useAuthStore();
   const location = useLocation();
+  const { id: urlId } = useParams();
+  const id = urlId || user?.restaurantId;
 
   const handleLogout = () => {
     logout();
   };
 
   const roleMapper = {
-    'SUPER_ADMIN_ROLE': 'Administrador Global',
-    'RESTAURANT_ADMIN_ROLE': 'Gerente de Restaurante',
-    'STAFF_ROLE': 'Mesero / Staff',
+    'SUPER_ADMIN_ROLE': 'Admin Global',
+    'RESTAURANT_ADMIN_ROLE': 'Gerente',
+    'STAFF_ROLE': 'Staff',
     'CLIENT_ROLE': 'Cliente'
   };
 
   const friendlyRole = roleMapper[role] || 'Usuario';
 
-  // Helper para pintar el background si estamos en la ruta actual
-  const isActive = (path) => location.pathname.includes(path) ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-100';
+  const isActive = (path) => {
+    if (path === '/dashboard' && location.pathname === '/dashboard') return true;
+    if (path !== '/dashboard' && location.pathname.includes(path)) return true;
+    return false;
+  };
+
+  const NavLink = ({ to, icon: Icon, children }) => {
+    const active = isActive(to);
+    return (
+      <Link 
+        to={to} 
+        className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 group font-black uppercase tracking-widest text-[10px] ${
+          active 
+            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/20' 
+            : 'text-zinc-500 hover:text-purple-400 hover:bg-purple-500/5'
+        }`}
+      >
+        <Icon className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${active ? 'text-white' : 'text-zinc-600 group-hover:text-purple-500'}`} />
+        <span>{children}</span>
+      </Link>
+    );
+  };
 
   return (
-    <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col">
-      <div className="h-16 flex items-center px-6 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-indigo-600">RestauManager</h1>
+    <aside className="w-72 h-screen bg-black border-r border-purple-500/10 flex flex-col relative z-30">
+      <div className="h-20 flex items-center px-8 border-b border-purple-500/10 bg-zinc-900/40 backdrop-blur-3xl">
+        <div className="flex items-center gap-3">
+           <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/30">
+              <ChefHat className="w-5 h-5 text-white" />
+           </div>
+           <h1 className="text-lg font-black text-white tracking-tighter uppercase">RestauManager</h1>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        {/* Siempre visible para el Dashboard en general */}
-        <Link to="/dashboard" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive('/dashboard') && location.pathname === '/dashboard' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-100'}`}>
-          <HomeIcon className="w-5 h-5" />
-          <span className="font-medium">Inicio</span>
-        </Link>
+      <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2 scrollbar-hide">
+        <NavLink to="/dashboard" icon={LayoutDashboard}>Inicio</NavLink>
 
         {/* --- SUPER ADMIN --- */}
         {role === 'SUPER_ADMIN_ROLE' && (
-          <>
-            <div className="pt-4 pb-1">
-              <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Plataforma (Global)
-              </p>
-            </div>
-            <Link to="/dashboard/global-stats" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive('global-stats')}`}>
-              <ChartBarIcon className="w-5 h-5" />
-              <span className="font-medium">Estadísticas Globales</span>
-            </Link>
-            <Link to="/dashboard/restaurants" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive('restaurants')}`}>
-              <Squares2X2Icon className="w-5 h-5" />
-              <span className="font-medium">Restaurantes</span>
-            </Link>
-            <Link to="/dashboard/vip-customers" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive('vip-customers')}`}>
-              <UserGroupIcon className="w-5 h-5" />
-              <span className="font-medium">Clientes VIP</span>
-            </Link>
-          </>
+          <div className="space-y-1 mt-6">
+            <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Plataforma</p>
+            <NavLink to="/dashboard/analytics" icon={BarChart3}>Estadísticas</NavLink>
+            <NavLink to="/dashboard/restaurants" icon={Utensils}>Restaurantes</NavLink>
+            <NavLink to="/dashboard/users" icon={Users}>Usuarios</NavLink>
+            <NavLink to="/dashboard/vip-clients" icon={Star}>Clientes VIP</NavLink>
+          </div>
         )}
 
         {/* --- RESTAURANT ADMIN --- */}
-        {role === 'RESTAURANT_ADMIN_ROLE' && (
-          <>
-            <div className="pt-4 pb-1">
-              <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Mi Restaurante
-              </p>
-            </div>
-            <Link to="/dashboard/menu" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive('menu')}`}>
-              <Squares2X2Icon className="w-5 h-5" />
-              <span className="font-medium">Mi Menú (Inventario)</span>
-            </Link>
-            <Link to="/dashboard/staff" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive('staff')}`}>
-              <UserGroupIcon className="w-5 h-5" />
-              <span className="font-medium">Mis Empleados</span>
-            </Link>
-            <Link to="/dashboard/reports" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive('reports')}`}>
-              <DocumentTextIcon className="w-5 h-5" />
-              <span className="font-medium">Reportes y Excel</span>
-            </Link>
-          </>
+        {role === 'RESTAURANT_ADMIN_ROLE' && id && (
+          <div className="space-y-1 mt-6">
+            <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Mi Restaurante</p>
+            <NavLink to={`/dashboard/restaurants/${id}`} icon={LayoutDashboard}>Resumen</NavLink>
+            <NavLink to={`/dashboard/restaurants/${id}/menu`} icon={Utensils}>Menú</NavLink>
+            <NavLink to={`/dashboard/restaurants/${id}/staff`} icon={Users}>Empleados</NavLink>
+            <NavLink to={`/dashboard/restaurants/${id}/orders`} icon={ClipboardList}>Órdenes</NavLink>
+            <NavLink to={`/dashboard/restaurants/${id}/kitchen`} icon={Flame}>Cocina</NavLink>
+            <NavLink to={`/dashboard/restaurants/${id}/tables`} icon={LayoutDashboard}>Mesas</NavLink>
+            <NavLink to={`/dashboard/restaurants/${id}/events`} icon={Calendar}>Eventos</NavLink>
+            <NavLink to={`/dashboard/restaurants/${id}/analytics`} icon={BarChart3}>Reportes</NavLink>
+          </div>
         )}
 
-        {/* --- STAFF (Meseros) --- */}
-        {role === 'STAFF_ROLE' && (
-          <>
-            <div className="pt-4 pb-1">
-              <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Operaciones
-              </p>
-            </div>
-            <Link to="/dashboard/orders" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive('orders')}`}>
-              <DocumentTextIcon className="w-5 h-5" />
-              <span className="font-medium">Órdenes Activas</span>
-            </Link>
-            <Link to="/dashboard/tables" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive('tables')}`}>
-              <Squares2X2Icon className="w-5 h-5" />
-              <span className="font-medium">Estado de Mesas</span>
-            </Link>
-          </>
+        {/* --- STAFF --- */}
+        {role === 'STAFF_ROLE' && id && (
+          <div className="space-y-1 mt-6">
+            <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Operaciones</p>
+            <NavLink to={`/dashboard/restaurants/${id}`} icon={LayoutDashboard}>Resumen</NavLink>
+            <NavLink to={`/dashboard/restaurants/${id}/orders`} icon={ClipboardList}>Órdenes</NavLink>
+            <NavLink to={`/dashboard/restaurants/${id}/kitchen`} icon={Flame}>Monitor Cocina</NavLink>
+            <NavLink to={`/dashboard/restaurants/${id}/tables`} icon={LayoutDashboard}>Estado Mesas</NavLink>
+          </div>
         )}
 
+        {/* --- CLIENT --- */}
+        {role === 'CLIENT_ROLE' && (
+          <div className="space-y-1 mt-6">
+            <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Mi Experiencia</p>
+            <NavLink to="/dashboard/history" icon={ClipboardList}>Historial</NavLink>
+            <NavLink to="/dashboard/events" icon={Calendar}>Eventos</NavLink>
+          </div>
+        )}
       </div>
 
-      <div className="p-4 border-t border-gray-200">
-        <Link to="/dashboard/profile" className="flex items-center gap-3 mb-4 p-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer border border-transparent hover:border-gray-200">
-          <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold group-hover:bg-indigo-200 transition-colors overflow-hidden">
+      <div className="p-4 border-t border-purple-500/10 bg-zinc-900/20 backdrop-blur-xl">
+        <Link to="/dashboard/profile" className="flex items-center gap-3 mb-4 p-3 rounded-2xl hover:bg-purple-500/5 transition-all group border border-transparent hover:border-purple-500/20">
+          <div className="w-10 h-10 rounded-xl bg-purple-600/20 flex items-center justify-center text-purple-400 font-black border border-purple-500/30 overflow-hidden">
             {user?.profilePicture ? (
               <img src={user.profilePicture} alt="Perfil" className="w-full h-full object-cover" />
             ) : (
-              <>{user?.name?.charAt(0) || user?.username?.charAt(0) || 'U'}</>
+              <span className="text-lg">{user?.name?.charAt(0) || 'U'}</span>
             )}
           </div>
-          <div className="overflow-hidden flex-1">
-            <p className="text-sm font-medium text-gray-900 truncate group-hover:text-indigo-600 transition-colors">{user?.name || user?.username}</p>
-            <p className="text-xs text-indigo-500 font-semibold truncate">{friendlyRole}</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-black text-white truncate uppercase tracking-tighter">{user?.name || user?.username}</p>
+            <p className="text-[10px] text-purple-500 font-black uppercase tracking-widest">{friendlyRole}</p>
           </div>
-          <Cog6ToothIcon className="w-5 h-5 text-gray-400 group-hover:text-indigo-600" />
+          <Settings className="w-4 h-4 text-zinc-600 group-hover:text-purple-400" />
         </Link>
         <button 
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all font-black uppercase tracking-widest text-[10px]"
         >
-          <ArrowLeftOnRectangleIcon className="w-5 h-5" />
-          <span className="font-medium">Cerrar Sesión</span>
+          <LogOut className="w-5 h-5" />
+          <span>Cerrar Sesión</span>
         </button>
       </div>
     </aside>

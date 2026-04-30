@@ -142,10 +142,11 @@ export const updateTable = async (req, res) => {
     delete updateData.created_at;
     
     await table.update(updateData);
+    await table.reload();
     
     return res.status(200).json({
       ok: true,
-      message: 'Actualizado exitosamente',
+      message: 'Mesa actualizada exitosamente',
       table,
     });
   } catch (error) {
@@ -163,11 +164,12 @@ export const deleteTable = async (req, res) => {
       return res.status(404).json({ ok: false, message: 'No encontrado' });
     }
     
-    await table.update({ is_active: false });
+    // Real hard delete
+    await table.destroy();
     
     return res.status(200).json({
       ok: true,
-      message: 'Eliminado exitosamente',
+      message: 'Mesa eliminada permanentemente',
     });
   } catch (error) {
     console.error('Error deleting table:', error);
@@ -186,11 +188,12 @@ export const updateTableStatus = async (req, res) => {
     }
     
     await table.update({ status });
+    await table.reload();
     
     return res.status(200).json({
       ok: true,
-      message: `Table status updated to ${status}`,
-      table: { id: table.id, table_number: table.table_number, status: table.status },
+      message: `Estado de la mesa actualizado a ${status}`,
+      table,
     });
   } catch (error) {
     console.error('Error updating status:', error);

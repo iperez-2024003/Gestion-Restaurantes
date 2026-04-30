@@ -39,6 +39,14 @@ export const dbConnection = async () => {
     if (process.env.NODE_ENV === 'development') {
       const syncLogging = process.env.DB_SQL_LOGGING === 'true' ? console.log : false;
       await sequelize.sync({ force: false, logging: syncLogging });
+      
+      // ✨ Manual Migration: Asegurar que la columna 'points' exista
+      try {
+        await sequelize.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS points INTEGER DEFAULT 0;');
+      } catch (e) {
+        console.warn('PostgreSQL | Could not add points column (it might already exist)');
+      }
+
       console.log('PostgreSQL | Models synchronized with database');
     }
   } catch (error) {

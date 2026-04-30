@@ -1,4 +1,4 @@
-﻿import { DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
 import { generateUserId } from '../../helpers/uuid-generator.js';
 
@@ -92,6 +92,16 @@ export const User = sequelize.define(
       allowNull: false,
       defaultValue: DataTypes.NOW,
       field: 'updated_at',
+    },
+    RestaurantId: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      field: 'restaurant_id',
+    },
+    Points: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      field: 'points',
     },
   },
   {

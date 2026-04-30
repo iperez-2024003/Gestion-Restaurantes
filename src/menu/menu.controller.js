@@ -4,6 +4,7 @@ import { Menu } from './menu.model.js';
 import { MenuItem } from './menu-item.model.js';
 import { Restaurant } from '../restaurant/restaurant.model.js';
 import { Op } from 'sequelize';
+import { uploadImage, deleteImage } from '../../helpers/cloudinary-service.js';
 
 // ==================== MENU CATEGORIES ====================
 
@@ -237,17 +238,12 @@ export const deleteMenu = async (req, res) => {
       });
     }
 
-    await menu.update({ is_active: false });
-
-    // También desactivar todos los items de esta categoría
-    await MenuItem.update(
-      { is_active: false },
-      { where: { menu_id: id } }
-    );
+    // Real hard delete (limpieza física de la BD)
+    await menu.destroy();
 
     return res.status(200).json({
       ok: true,
-      message: 'Menu Eliminado exitosamente',
+      message: 'Categoría de menú eliminada permanentemente',
     });
   } catch (error) {
     console.error('Error deleting menu:', error);
@@ -283,6 +279,7 @@ export const createMenuItem = async (req, res) => {
       is_gluten_free,
       spice_level,
       portion_size,
+      stock_quantity,
     } = req.body;
 
     // Verificar que el restaurante existe
@@ -330,13 +327,23 @@ export const createMenuItem = async (req, res) => {
       });
     }
 
+    // Subir imagen a Cloudinary si existe
+    let imageUrl = image_url;
+    if (req.file) {
+      try {
+        imageUrl = await uploadImage(req.file.path, `dish-${Date.now()}`);
+      } catch (uploadError) {
+        console.error('Error uploading dish image:', uploadError);
+      }
+    }
+
     const menuItem = await MenuItem.create({
       name,
       description,
       price,
       menu_id,
       restaurant_id,
-      image_url,
+      image_url: imageUrl,
       ingredients: ingredients || [],
       allergens: allergens || [],
       preparation_time,
@@ -346,12 +353,13 @@ export const createMenuItem = async (req, res) => {
       is_gluten_free: is_gluten_free || false,
       spice_level: spice_level || 'none',
       portion_size,
+      stock_quantity: stock_quantity !== undefined ? parseInt(stock_quantity, 10) : 10,
       is_available: true,
     });
 
     return res.status(201).json({
       ok: true,
-      message: 'Menu Creado exitosamente',
+      message: 'Platillo creado exitosamente',
       menuItem,
     });
   } catch (error) {
@@ -522,15 +530,29 @@ export const updateMenuItem = async (req, res) => {
       }
     }
 
+    // Manejo de imagen nueva
+    if (req.file) {
+      try {
+        // Borrar anterior si existe
+        if (menuItem.image_url) {
+          await deleteImage(menuItem.image_url);
+        }
+        updateData.image_url = await uploadImage(req.file.path, `dish-${Date.now()}`);
+      } catch (uploadError) {
+        console.error('Error updating dish image:', uploadError);
+      }
+    }
+
     delete updateData.id;
     delete updateData.restaurant_id;
     delete updateData.created_at;
 
     await menuItem.update(updateData);
+    await menuItem.reload();
 
     return res.status(200).json({
       ok: true,
-      message: 'Menu Actualizado exitosamente',
+      message: 'Platillo actualizado exitosamente',
       menuItem,
     });
   } catch (error) {
@@ -562,11 +584,17 @@ export const deleteMenuItem = async (req, res) => {
       });
     }
 
-    await menuItem.update({ is_active: false });
+    // Borrar imagen de Cloudinary si existe
+    if (menuItem.image_url) {
+      await deleteImage(menuItem.image_url).catch(e => console.error('Error deleting dish image:', e));
+    }
+
+    // Real hard delete
+    await menuItem.destroy();
 
     return res.status(200).json({
       ok: true,
-      message: 'Menu Eliminado exitosamente',
+      message: 'Platillo eliminado permanentemente',
     });
   } catch (error) {
     console.error('Error deleting menu item:', error);

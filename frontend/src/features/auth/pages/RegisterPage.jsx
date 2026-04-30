@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { motion } from 'framer-motion';
+import { User, Mail, Lock, Phone, Upload, Sparkles, ChefHat, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
+import { Antigravity } from '../../../shared/components/ui/Antigravity';
 
 export const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -29,7 +32,6 @@ export const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Armar el FormData
     const data = new FormData();
     data.append('name', formData.name);
     data.append('surname', formData.surname);
@@ -49,109 +51,176 @@ export const RegisterPage = () => {
     } else {
       toast.error(result.error);
       if (result.details && result.details.length > 0) {
-        // Mostrar el primer error de validación específico
         toast.error(result.details[0].message);
       }
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8 rounded-xl bg-white p-10 shadow-lg">
-        <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Crear una Cuenta
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Únete y comienza a pedir en los mejores restaurantes
-          </p>
+    <div className="relative min-h-screen bg-black flex items-center justify-center overflow-hidden font-inter py-12 px-6">
+      {/* Background Effect */}
+      <Antigravity 
+        count={200} 
+        color="#A855F7" 
+        magnetRadius={15} 
+        ringRadius={8} 
+        particleSize={1.2}
+      />
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-stretch justify-center gap-12">
+        
+        {/* Form Section */}
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="w-full lg:w-[600px]"
+        >
+          <div className="bg-zinc-900/40 backdrop-blur-3xl rounded-[3rem] border border-purple-500/20 shadow-2xl p-8 lg:p-12 h-full">
+            <div className="mb-10">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+                  <ChefHat className="w-7 h-7 text-white" />
+                </div>
+                <h2 className="text-3xl font-black text-white tracking-tight">Crear Cuenta</h2>
+              </div>
+              <p className="text-zinc-400 font-medium">Únete a la plataforma de gestión gastronómica líder.</p>
+            </div>
+
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="group">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Nombre</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <input
+                      name="name" type="text" required
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      placeholder="Tu nombre"
+                      value={formData.name} onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="group">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Apellido</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <input
+                      name="surname" type="text" required
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      placeholder="Tu apellido"
+                      value={formData.surname} onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="group">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Usuario</label>
+                  <div className="relative">
+                    <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <input
+                      name="username" type="text" required
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      placeholder="usuario_123"
+                      value={formData.username} onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="group">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Teléfono</label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <input
+                      name="phone" type="text" required pattern="\d{8}"
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      placeholder="12345678"
+                      value={formData.phone} onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="group md:col-span-2">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Email Corporativo</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <input
+                      name="email" type="email" required
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      placeholder="tu@email.com"
+                      value={formData.email} onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="group md:col-span-2">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Contraseña de Acceso</label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <input
+                      name="password" type="password" required minLength="8"
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      placeholder="••••••••"
+                      value={formData.password} onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="group md:col-span-2">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Foto de Perfil (Opcional)</label>
+                  <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-800 rounded-3xl cursor-pointer bg-black/20 hover:bg-black/40 hover:border-purple-500/50 transition-all">
+                    <Upload className="w-6 h-6 text-zinc-700 mb-1" />
+                    <p className="text-[10px] text-zinc-600 font-bold uppercase">Subir Imagen</p>
+                    <input name="profilePicture" type="file" className="hidden" onChange={handleChange} />
+                  </label>
+                </div>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.01, boxShadow: "0 0 20px rgba(168,85,247,0.3)" }}
+                whileTap={{ scale: 0.98 }}
+                type="submit" disabled={isLoading}
+                className="w-full py-5 bg-purple-600 text-white font-black rounded-2xl flex items-center justify-center gap-3 transition-all"
+              >
+                {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
+                  <>
+                    <span>Registrarse</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </>
+                )}
+              </motion.button>
+              
+              <div className="text-center">
+                <p className="text-zinc-500 text-sm font-medium">
+                  ¿Ya tienes cuenta?{' '}
+                  <Link to="/login" className="text-purple-400 font-black hover:text-purple-300">
+                    Inicia Sesión
+                  </Link>
+                </p>
+              </div>
+            </form>
+          </div>
+        </motion.div>
+
+        {/* Right Section (Visual) */}
+        <div className="hidden lg:flex flex-1 flex-col justify-center items-start text-white">
+          <div className="p-8 bg-zinc-900/40 backdrop-blur-3xl rounded-[3rem] border border-purple-500/10 max-w-md">
+            <ShieldCheck className="w-12 h-12 text-purple-500 mb-6" />
+            <h3 className="text-4xl font-black mb-6 leading-tight">Seguridad y Control <br /> en un solo <span className="text-purple-500 italic">Lugar</span></h3>
+            <ul className="space-y-6">
+              {[
+                "Protección de datos AES-256",
+                "Gestión multi-restaurante",
+                "Analítica avanzada en tiempo real"
+              ].map((text, i) => (
+                <li key={i} className="flex items-center gap-4">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full" />
+                  <span className="text-zinc-300 font-medium">{text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700" htmlFor="name">Nombre</label>
-              <input
-                id="name" name="name" type="text" required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                value={formData.name} onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700" htmlFor="surname">Apellido</label>
-              <input
-                id="surname" name="surname" type="text" required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                value={formData.surname} onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700" htmlFor="username">Usuario</label>
-            <input
-              id="username" name="username" type="text" required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              value={formData.username} onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700" htmlFor="email">Email</label>
-            <input
-              id="email" name="email" type="email" required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              value={formData.email} onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700" htmlFor="password">Contraseña</label>
-            <input
-              id="password" name="password" type="password" required minLength="8"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              value={formData.password} onChange={handleChange}
-            />
-            <p className="mt-1 text-xs text-gray-500">Mínimo 8 caracteres, 1 mayúscula, 1 número.</p>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700" htmlFor="phone">Teléfono</label>
-            <input
-              id="phone" name="phone" type="text" required pattern="\d{8}"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              placeholder="12345678"
-              value={formData.phone} onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700" htmlFor="profilePicture">Foto de Perfil (Opcional)</label>
-            <input
-              id="profilePicture" name="profilePicture" type="file" accept="image/jpeg, image/png, image/webp"
-              className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="pt-2">
-            <button
-              type="submit" disabled={isLoading}
-              className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-70"
-            >
-              {isLoading ? 'Registrando...' : 'Registrarse'}
-            </button>
-          </div>
-          
-          <div className="text-center mt-4">
-            <p className="text-sm text-gray-600">
-              ¿Ya tienes cuenta?{' '}
-              <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-                Inicia sesión
-              </Link>
-            </p>
-          </div>
-        </form>
       </div>
     </div>
   );

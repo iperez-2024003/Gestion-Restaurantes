@@ -55,6 +55,7 @@ const BASE_PATH = '/api/v1';
 const middlewares = (app) => {
   app.use(express.urlencoded({ extended: false, limit: '10mb' }));
   app.use(express.json({ limit: '10mb' }));
+  app.use('/uploads', express.static('uploads'));
   app.use(cors(corsOptions));
   app.use(helmet(helmetConfiguration));
   app.use(requestLimit);

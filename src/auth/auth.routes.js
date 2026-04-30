@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as authController from './auth.controller.js';
-import { validateJWT } from '../../middlewares/validate-JWT.js';
+import { validateJWT, optionalValidateJWT } from '../../middlewares/validate-JWT.js';
 import { validateProfileByIdBody } from '../../middlewares/validate-params.js';
 import {
   authRateLimit,
@@ -82,6 +82,7 @@ const validateChangePassword = [
 router.post(
   '/register',
   authRateLimit,
+  optionalValidateJWT,
   upload.single('profilePicture'),
   handleUploadError,
   validateRegister,

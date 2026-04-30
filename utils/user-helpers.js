@@ -20,6 +20,8 @@ export const buildUserResponse = (user) => {
       user.UserProfile && user.UserProfile.Phone ? user.UserProfile.Phone : '',
     profilePicture: profilePictureUrl,
     role: user.UserRoles?.[0]?.Role?.Name ?? 'CLIENT_ROLE',
+    restaurantId: user.RestaurantId,
+    points: user.Points || 0,
     status: user.Status,
     isEmailVerified: user.UserEmail ? user.UserEmail.EmailVerified : false,
     createdAt: user.CreatedAt,

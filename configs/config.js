@@ -58,7 +58,7 @@ export const config = {
     maxRequests: 20,
     // Auth endpoints rate limiting (aligned with .NET AuthPolicy: 5 requests per minute)
     authWindowMs: 1 * 60 * 1000, // 1 minute
-    authMaxRequests: 5,
+    authMaxRequests: 50, // Aumentado para desarrollo para evitar 429 constantes
     // Email endpoints rate limiting (more restrictive for security)
     emailWindowMs: 15 * 60 * 1000, // 15 minutes
     emailMaxRequests: 3,
