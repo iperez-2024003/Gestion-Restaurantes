@@ -90,7 +90,15 @@ export const TableModal = ({ isOpen, onClose, table = null, restaurantId }) => {
           <div className="relative z-10">
             <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-1 block">Gestión de Aforo</span>
             <h2 className="text-3xl font-black text-white tracking-tighter uppercase">
-              {table ? `Mesa <span className="text-zinc-600">${table.table_number}</span>` : 'Nueva <span className="text-purple-500">Mesa</span>'}
+              {table ? (
+                <>
+                  Mesa <span className="text-zinc-600">{table.table_number}</span>
+                </>
+              ) : (
+                <>
+                  Nueva <span className="text-purple-500">Mesa</span>
+                </>
+              )}
             </h2>
           </div>
           <button 

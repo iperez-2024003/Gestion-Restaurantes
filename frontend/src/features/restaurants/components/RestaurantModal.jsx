@@ -25,6 +25,7 @@ import {
   CheckCircle2,
   Utensils,
   Sparkles
+  , Loader2
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -194,7 +195,15 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
             <div>
               <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-2 block">Administración Central</span>
               <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">
-                {restaurant ? 'Modificar <span className="text-zinc-600">Sede</span>' : 'Nueva <span className="text-purple-500">Sede</span>'}
+                {restaurant ? (
+                  <>
+                    Modificar <span className="text-zinc-600">Sede</span>
+                  </>
+                ) : (
+                  <>
+                    Nueva <span className="text-purple-500">Sede</span>
+                  </>
+                )}
               </h2>
             </div>
             <button 

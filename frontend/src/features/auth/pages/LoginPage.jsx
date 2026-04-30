@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChefHat, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, Sparkles, ShieldCheck } from 'lucide-react';
-import { Antigravity } from '../../../shared/components/ui/Antigravity';
 import Restaurante1 from '../../../assets/img/Restaurante1.webp';
 import Restaurante2 from '../../../assets/img/Restaurante2.webp';
 import Restaurante3 from '../../../assets/img/Restaurante3.webp';
+import Grainient from '../../../shared/components/ui/Grainient';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -72,13 +72,28 @@ export const LoginPage = () => {
   return (
     <div className="relative min-h-screen bg-black flex items-center justify-center overflow-hidden font-inter">
       {/* Background Effect */}
-      <Antigravity 
-        count={200} 
-        color="#A855F7" 
-        magnetRadius={15} 
-        ringRadius={8} 
-        particleSize={1.2}
-      />
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <Grainient
+          timeSpeed={0.25}
+          colorBalance={0.0}
+          warpStrength={1.0}
+          warpFrequency={5.0}
+          warpSpeed={2.0}
+          warpAmplitude={50.0}
+          blendAngle={0.0}
+          blendSoftness={0.05}
+          rotationAmount={500.0}
+          noiseScale={2.0}
+          grainAmount={0.1}
+          grainScale={2.0}
+          contrast={1.5}
+          gamma={1.0}
+          saturation={1.0}
+          color1="#4B1F4B"
+          color2="#2F0F6F"
+          color3="#3A243A"
+        />
+      </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between h-screen p-6 lg:p-12 gap-12">
         
