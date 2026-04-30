@@ -5,6 +5,9 @@ import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChefHat, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, Sparkles, ShieldCheck } from 'lucide-react';
 import { Antigravity } from '../../../shared/components/ui/Antigravity';
+import Restaurante1 from '../../../assets/img/Restaurante1.webp';
+import Restaurante2 from '../../../assets/img/Restaurante2.webp';
+import Restaurante3 from '../../../assets/img/Restaurante3.webp';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -16,10 +19,9 @@ export const LoginPage = () => {
 
   const [currentImage, setCurrentImage] = useState(0);
   const uploadImages = [
-    'http://localhost:3005/uploads/Ronald.jpg',
-    'http://localhost:3005/uploads/0d7e9bfe-6c51-44ae-809d-445fdf709fba.jpg',
-    'http://localhost:3005/uploads/65ff65eb-c877-479a-8d3a-9cb581d4f2c8.jpg',
-    'http://localhost:3005/uploads/a4b8d190-7fed-4ec6-b174-4877c7a96c33.jpg'
+    Restaurante1,
+    Restaurante2,
+    Restaurante3,
   ];
 
   useEffect(() => {
