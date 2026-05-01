@@ -41,7 +41,7 @@ export const getRestaurantOverview = async (req, res) => {
     const restaurant = await Restaurant.findById(id).lean();
 
     if (!restaurant) {
-      return res.status(404).json({ ok: false, message: 'Restaurante no encontrado' });
+      return res.status(404).json({ success: false, message: 'Restaurante no encontrado' });
     }
 
     const { start, end } = getTodayBounds();
@@ -66,13 +66,21 @@ export const getRestaurantOverview = async (req, res) => {
     ]);
 
     return res.status(200).json({
-      ok: true,
+      success: true,
       message: 'Datos del restaurante obtenidos exitosamente',
-      overview: {
-        restaurant_info: {
+      data: {
+        basic_info: {
           id: restaurant._id,
           name: restaurant.name,
           rating: restaurant.rating,
+          category: restaurant.category,
+        },
+        summary: {
+          tables: todayReservations, // Usando reservaciones como proxy o mesas totales si existiera el modelo
+          dishes: 0, // Esto se podría contar del menú
+          staff: 0, // Esto se podría contar de los empleados
+          today_revenue: roundMoney(paidToday[0]?.total),
+          today_orders: todayOrders,
         },
         today: {
           orders: todayOrders,
@@ -87,7 +95,7 @@ export const getRestaurantOverview = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in getRestaurantOverview:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -116,14 +124,16 @@ export const getOrdersStats = async (req, res) => {
     ]);
 
     return res.status(200).json({
-      ok: true,
+      success: true,
       message: 'Estadísticas de órdenes obtenidas exitosamente',
-      period,
-      data,
+      data: {
+        period,
+        stats: data,
+      },
     });
   } catch (error) {
     console.error('Error in getOrdersStats:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -168,13 +178,13 @@ export const getPopularDishes = async (req, res) => {
     ]);
 
     return res.status(200).json({
-      ok: true,
+      success: true,
       message: 'Platos populares obtenidos exitosamente',
-      dishes: popularDishes,
+      data: popularDishes,
     });
   } catch (error) {
     console.error('Error in getPopularDishes:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -190,9 +200,9 @@ export const getPlatformSummary = async (req, res) => {
     ]);
 
     return res.status(200).json({
-      ok: true,
+      success: true,
       message: 'Resumen de plataforma obtenido exitosamente',
-      summary: {
+      data: {
         total_restaurants: totalRestaurants,
         total_orders: totalOrders,
         total_revenue: roundMoney(totalRevenueAgg[0]?.total),
@@ -209,7 +219,7 @@ export const getPlatformSummary = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in getPlatformSummary:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -217,7 +227,7 @@ export const getGlobalStats = async (req, res) => {
   try {
     const [totalRestaurants, totalUsers, totalOrdersAgg, totalRevenueAgg, topRestaurantsAgg] = await Promise.all([
       Restaurant.countDocuments(),
-      User.count(), // Sequelize method for Postgres
+      User.count().catch(() => 0), // Fallback if Postgres is down
       Order.countDocuments(),
       Order.aggregate([{ $match: { payment_status: 'paid' } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
       Order.aggregate([
@@ -250,9 +260,9 @@ export const getGlobalStats = async (req, res) => {
     );
 
     return res.status(200).json({
-      ok: true,
+      success: true,
       message: 'Estadísticas globales obtenidas exitosamente',
-      stats: {
+      data: {
         totalRestaurants,
         totalUsers,
         totalOrders: totalOrdersAgg,
@@ -262,7 +272,7 @@ export const getGlobalStats = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in getGlobalStats:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 export const getPeakHours = async (req, res) => {
@@ -286,13 +296,13 @@ export const getPeakHours = async (req, res) => {
     ]);
 
     return res.status(200).json({
-      ok: true,
+      success: true,
       message: 'Horas pico obtenidas exitosamente',
       data: peakHours.map((entry) => ({ hour: entry._id, order_count: entry.order_count })),
     });
   } catch (error) {
     console.error('Error in getPeakHours:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -332,13 +342,13 @@ export const getFrequentCustomers = async (req, res) => {
     );
 
     return res.status(200).json({
-      ok: true,
+      success: true,
       message: 'Clientes frecuentes obtenidos exitosamente',
-      customers: enrichedCustomers,
+      data: enrichedCustomers,
     });
   } catch (error) {
     console.error('Error in getFrequentCustomers:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -394,7 +404,7 @@ export const exportOrdersToExcel = async (req, res) => {
     return res.end();
   } catch (error) {
     console.error('Error in exportOrdersToExcel:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -432,12 +442,12 @@ export const getGlobalVipClients = async (req, res) => {
     );
 
     return res.status(200).json({
-      ok: true,
+      success: true,
       message: 'Clientes VIP globales obtenidos exitosamente',
-      customers: enrichedVipClients,
+      data: enrichedVipClients,
     });
   } catch (error) {
     console.error('Error in getGlobalVipClients:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
