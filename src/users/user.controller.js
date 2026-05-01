@@ -36,7 +36,11 @@ export const updateUserRole = [
       sequelize
     );
 
-    return res.status(200).json(buildUserResponse(updatedUser));
+    return res.status(200).json({
+      success: true,
+      message: 'Rol actualizado exitosamente',
+      data: buildUserResponse(updatedUser),
+    });
   }),
 ];
 
@@ -55,7 +59,11 @@ export const getUserRoles = [
       }
     }
     const roles = await getUserRoleNames(userId);
-    return res.status(200).json(roles);
+    return res.status(200).json({
+      success: true,
+      message: 'Roles obtenidos exitosamente',
+      data: roles,
+    });
   }),
 ];
 
@@ -72,6 +80,10 @@ export const getUsersByRole = [
 
     const users = await repoGetUsersByRole(normalized);
     const payload = users.map(buildUserResponse);
-    return res.status(200).json(payload);
+    return res.status(200).json({
+      success: true,
+      message: `Usuarios con el rol ${normalized} obtenidos exitosamente`,
+      data: payload,
+    });
   }),
 ];

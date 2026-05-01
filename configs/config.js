@@ -26,7 +26,7 @@ export const config = {
   // File Upload Configuration (aligned with .NET FileValidator)
   upload: {
     maxSize: 5 * 1024 * 1024, // 5MB (aligned with .NET)
-    allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'], // aligned with .NET
+    allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'], // aligned with .NET
     uploadPath: process.env.UPLOAD_PATH,
   },
 
