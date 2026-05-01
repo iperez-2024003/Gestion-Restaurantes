@@ -10,7 +10,12 @@ export const useTableStore = create((set, get) => ({
     try {
       set({ loading: true });
       const response = await tableApi.getTables(restaurantId);
-      set({ tables: response.data.tables, loading: false });
+      // El backend devuelve { success: true, data: { tables: [], pagination: {} } }
+      const tablesData = response.data.data;
+      set({ 
+        tables: Array.isArray(tablesData) ? tablesData : (tablesData?.tables || []), 
+        loading: false 
+      });
     } catch (error) {
       set({ error: 'Error al cargar mesas', loading: false });
     }
