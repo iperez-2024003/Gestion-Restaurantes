@@ -128,26 +128,43 @@ export const verifyRestaurant = async (req, res) => {
 
 export const getRestaurantStats = async (req, res) => {
   try {
-    const restaurant = await Restaurant.findById(req.params.id);
+    const { id } = req.params;
+    const restaurant = await Restaurant.findById(id);
 
     if (!restaurant) {
       return res.status(404).json({ success: false, message: 'Restaurante no encontrado' });
     }
 
-    const restaurantsTotal = await Restaurant.countDocuments({ isActive: true });
+    const [todayOrders, todayRevenue, totalTables, totalDishes, totalStaff] = await Promise.all([
+      Order.countDocuments({ 
+        restaurant_id: id, 
+        createdAt: { $gte: new Date().setHours(0,0,0,0) } 
+      }),
+      Order.aggregate([
+        { $match: { 
+          restaurant_id: id, 
+          payment_status: 'paid', 
+          createdAt: { $gte: new Date().setHours(0,0,0,0) } 
+        } },
+        { $group: { _id: null, total: { $sum: '$total' } } }
+      ]),
+      Table.countDocuments({ restaurant_id: id }),
+      MenuItem.countDocuments({ restaurant_id: id }),
+      // Asumiendo que hay una forma de contar staff, si no, 0
+      0
+    ]);
 
     res.status(200).json({
       success: true,
       data: {
         summary: {
-          restaurants: restaurantsTotal,
-          tables: 0,
-          dishes: 0,
-          staff: 0,
-          today_orders: 0,
-          today_revenue: 0,
+          tables: totalTables,
+          dishes: totalDishes,
+          staff: totalStaff,
+          today_orders: todayOrders,
+          today_revenue: todayRevenue[0]?.total || 0,
         },
-        restaurant: serializeRestaurant(restaurant),
+        basic_info: serializeRestaurant(restaurant),
       },
     });
   } catch (error) {

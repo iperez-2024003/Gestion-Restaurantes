@@ -21,7 +21,7 @@ import {
 import { validateJWT } from '../../middlewares/validate-JWT.js';
 import { requireSuperAdmin, requireRole } from '../../middlewares/require-role.js';
 import { validateUuidParam, validateUserIdParam } from '../../middlewares/validate-params.js';
-import { upload } from '../../helpers/file-upload.js';
+import { upload, handleUploadError } from '../../helpers/file-upload.js';
 
 const router = Router();
 const requireAdminOrRestaurantAdmin = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
@@ -73,8 +73,8 @@ router.post('/:id/staff', [validateJWT, requireAdminOrRestaurantAdmin, validateU
 router.put('/:id/staff/:staff_id', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], updateStaffRole);
 
 router.get('/:id', validateUuidParam('id'), getRestaurantById);
-router.post('/', [validateJWT, requireSuperAdmin, upload.single('logo'), parseRestaurantFormData], createRestaurant);
-router.put('/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id'), upload.single('logo'), parseRestaurantFormData], updateRestaurant);
+router.post('/', [validateJWT, requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE'), upload.single('logo'), handleUploadError, parseRestaurantFormData], createRestaurant);
+router.put('/:id', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id'), upload.single('logo'), handleUploadError, parseRestaurantFormData], updateRestaurant);
 router.delete('/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id')], deleteRestaurant);
 
 export default router;

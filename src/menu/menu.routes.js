@@ -15,9 +15,9 @@ import {
   toggleMenuItemAvailability,
 } from './menu.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
-import { requireSuperAdmin } from '../../middlewares/require-role.js';
+import { requireSuperAdmin, requireRole } from '../../middlewares/require-role.js';
 import { validateUuidParam } from '../../middlewares/validate-params.js';
-import { upload } from '../../helpers/file-upload.js';
+import { upload, handleUploadError } from '../../helpers/file-upload.js';
 import {
   validateMenuCreation,
   validateMenuUpdate,
@@ -26,6 +26,7 @@ import {
 } from './menu.validation.js';
 
 const router = Router();
+const requireAdminOrRestaurantAdmin = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE');
 
 const parseMenuItemFormData = (req, res, next) => {
   if (req.body.price) req.body.price = parseFloat(req.body.price);
@@ -49,15 +50,15 @@ const parseMenuItemFormData = (req, res, next) => {
 
 router.get('/items/all', getAllMenuItems);
 router.get('/items/:id', validateUuidParam('id'), getMenuItemById);
-router.post('/items', [validateJWT, requireSuperAdmin, upload.single('image'), parseMenuItemFormData, validateMenuItemCreation], createMenuItem);
-router.put('/items/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id'), upload.single('image'), parseMenuItemFormData, validateMenuItemUpdate], updateMenuItem);
-router.delete('/items/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id')], deleteMenuItem);
-router.patch('/items/:id/toggle', [validateJWT, requireSuperAdmin, validateUuidParam('id')], toggleMenuItemAvailability);
+router.post('/items', [validateJWT, requireAdminOrRestaurantAdmin, upload.single('image'), handleUploadError, parseMenuItemFormData, validateMenuItemCreation], createMenuItem);
+router.put('/items/:id', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id'), upload.single('image'), handleUploadError, parseMenuItemFormData, validateMenuItemUpdate], updateMenuItem);
+router.delete('/items/:id', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], deleteMenuItem);
+router.patch('/items/:id/toggle', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], toggleMenuItemAvailability);
 
 router.get('/', getAllMenus);
 router.get('/:id', validateUuidParam('id'), getMenuById);
-router.post('/', [validateJWT, requireSuperAdmin, validateMenuCreation], createMenu);
-router.put('/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id'), validateMenuUpdate], updateMenu);
-router.delete('/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id')], deleteMenu);
+router.post('/', [validateJWT, requireAdminOrRestaurantAdmin, validateMenuCreation], createMenu);
+router.put('/:id', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id'), validateMenuUpdate], updateMenu);
+router.delete('/:id', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], deleteMenu);
 
 export default router;
