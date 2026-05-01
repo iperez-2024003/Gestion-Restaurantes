@@ -198,13 +198,17 @@ router.put(
  *     tags: [Profile]
  *     summary: Edita el perfil (name, surname, username, phone, foto)
  */
+/**
+ * @swagger
+ * /api/v1/auth/profile/sync-restaurant:
+ *   put:
+ *     tags: [Profile]
+ *     summary: Sincroniza el ID del restaurante del usuario (auto-reparación)
+ */
 router.put(
-  '/profile',
+  '/profile/sync-restaurant',
   validateJWT,
-  upload.single('profilePicture'),
-  handleUploadError,
-  validateUpdateProfile,
-  authController.updateProfile
+  authController.syncRestaurant
 );
 
 export default router;
