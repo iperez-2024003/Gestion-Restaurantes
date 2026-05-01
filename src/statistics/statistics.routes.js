@@ -19,8 +19,9 @@ import { validateUuidParam, validateQueryPeriod, validateQueryLimit } from '../.
 const router = Router();
 
 const requireAdminOrRestaurantAdmin = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE');
+const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
 
-router.get('/restaurant/:id/overview', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], getRestaurantOverview);
+router.get('/restaurant/:id/overview', [validateJWT, requireOperationalStaff, validateUuidParam('id')], getRestaurantOverview);
 router.get('/restaurant/:id/orders', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id'), validateQueryPeriod], getOrdersStats);
 router.get('/restaurant/:id/popular-dishes', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id'), validateQueryLimit], getPopularDishes);
 router.get('/restaurant/:id/peak-hours', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], getPeakHours);
