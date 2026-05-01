@@ -152,7 +152,22 @@ export const createOrderRecord = async (payload) => {
   });
 
   const createdItems = await OrderItem.insertMany(orderItems.map((item) => ({ ...item, order_id: String(order._id) })));
-  return serializeOrder(order, createdItems.map(serializeOrderItem));
+  
+  // Enriquecer los items con detalles del MenuItem para el retorno inmediato
+  const enrichedItems = await Promise.all(createdItems.map(async (item) => {
+    const menuItem = await MenuItem.findById(item.menu_item_id).lean();
+    return {
+      ...serializeOrderItem(item),
+      MenuItem: menuItem ? {
+        id: menuItem._id.toString(),
+        name: menuItem.name,
+        price: menuItem.price,
+        image_url: menuItem.image_url
+      } : null
+    };
+  }));
+
+  return serializeOrder(order, enrichedItems);
 };
 
 export const fetchOrders = async ({ restaurant_id, user_id, status, order_type, payment_status, page = 1, limit = 20 }) => {
@@ -166,7 +181,22 @@ export const fetchOrders = async ({ restaurant_id, user_id, status, order_type, 
   const skip = (page - 1) * limit;
   const orders = await Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit);
   const total = await Order.countDocuments(filter);
-  const withItems = await Promise.all(orders.map(async (order) => serializeOrder(order, (await OrderItem.find({ order_id: String(order._id) })).map(serializeOrderItem))));
+  const withItems = await Promise.all(orders.map(async (order) => {
+    const items = await OrderItem.find({ order_id: String(order._id) });
+    const enrichedItems = await Promise.all(items.map(async (item) => {
+      const menuItem = await MenuItem.findById(item.menu_item_id).lean();
+      return {
+        ...serializeOrderItem(item),
+        MenuItem: menuItem ? {
+          id: menuItem._id.toString(),
+          name: menuItem.name,
+          price: menuItem.price,
+          image_url: menuItem.image_url
+        } : null
+      };
+    }));
+    return serializeOrder(order, enrichedItems);
+  }));
 
   return {
     orders: withItems,
@@ -282,8 +312,26 @@ export const removeItemFromOrderRecord = async ({ orderId, itemId }) => {
 };
 
 export const fetchKitchenOrders = async (restaurantId) => {
-  const orders = await Order.find({ restaurant_id: restaurantId, status: { $in: ['pending', 'confirmed', 'preparing', 'ready'] } }).sort({ createdAt: 1 });
-  const withItems = await Promise.all(orders.map(async (order) => serializeOrder(order, (await OrderItem.find({ order_id: String(order._id) })).map(serializeOrderItem))));
+  const orders = await Order.find({ 
+    restaurant_id: restaurantId, 
+    status: { $in: ['pending', 'confirmed', 'preparing', 'ready'] } 
+  }).sort({ createdAt: 1 });
+
+  const withItems = await Promise.all(orders.map(async (order) => {
+    const items = await OrderItem.find({ order_id: String(order._id) });
+    const enrichedItems = await Promise.all(items.map(async (item) => {
+      const menuItem = await MenuItem.findById(item.menu_item_id).lean();
+      return {
+        ...serializeOrderItem(item),
+        MenuItem: menuItem ? {
+          id: menuItem._id.toString(),
+          name: menuItem.name,
+          price: menuItem.price
+        } : null
+      };
+    }));
+    return serializeOrder(order, enrichedItems);
+  }));
   return withItems;
 };
 

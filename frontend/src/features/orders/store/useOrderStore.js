@@ -75,7 +75,11 @@ export const useOrderStore = create(
         try {
           // Asumiendo que el endpoint GET /orders permite filtrar por restaurante (o trae los del admin logueado)
           const res = await api.get(`/orders?restaurant_id=${resId}`);
-          set({ orders: res.data.orders || [], loading: false });
+          const orderData = res.data.data;
+          set({ 
+            orders: Array.isArray(orderData) ? orderData : (orderData?.orders || []), 
+            loading: false 
+          });
         } catch (error) {
           set({ loading: false });
           console.error('Error fetching orders:', error);
