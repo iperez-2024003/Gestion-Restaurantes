@@ -26,7 +26,7 @@ export const useMenuStore = create((set, get) => ({
         restaurant_id: restaurantId,
         ...(menuId && { menu_id: menuId })
       });
-      set({ items: response.data.menuItems, loading: false });
+      set({ items: response.data.items || [], loading: false });
     } catch (error) {
       set({ error: 'Error al cargar platillos', loading: false });
     }

@@ -4,7 +4,9 @@ import { useMenuStore } from '../store/useMenuStore';
 import { useRestaurantStore } from '../store/useRestaurantStore';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { MenuItemModal } from './MenuItemModal';
+import { CategoryModal } from './CategoryModal';
 import { showSuccess, showError } from '../../../shared/utils/toast';
+import { getImageUrl } from '../../../shared/utils/getImageUrl';
 import { MenuFlipCard } from '../../../shared/components/ui/MenuFlipCard';
 import { ActionButton } from '../../../shared/components/ui/ActionButton';
 import { 
@@ -30,6 +32,7 @@ export const RestaurantMenu = () => {
   const { restaurants, getRestaurants } = useRestaurantStore();
   
   const [modalOpen, setModalOpen] = useState(false);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
 
@@ -60,15 +63,8 @@ export const RestaurantMenu = () => {
     setModalOpen(true);
   };
 
-  const handleNewCategory = async () => {
-    const name = window.prompt('Nombre de la nueva categoría (ej: Entradas, Bebidas):');
-    if (!name) return;
-    const result = await useMenuStore.getState().createCategory({
-      name,
-      restaurant_id: id
-    });
-    if (result.success) showSuccess('Categoría creada');
-    else showError(result.error);
+  const handleNewCategory = () => {
+    setCategoryModalOpen(true);
   };
 
   const filteredItems = activeCategory 
@@ -177,7 +173,7 @@ export const RestaurantMenu = () => {
                     price={`Q${item.price}`}
                     time="15-20 Min"
                     servings="1 Persona"
-                    image={item.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c'}
+                    image={getImageUrl(item.image_url) || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c'}
                   />
                   
                   {canManage && (
@@ -209,6 +205,12 @@ export const RestaurantMenu = () => {
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); setSelectedItem(null); }}
         item={selectedItem}
+        restaurantId={id}
+      />
+
+      <CategoryModal
+        isOpen={categoryModalOpen}
+        onClose={() => setCategoryModalOpen(false)}
         restaurantId={id}
       />
     </div>

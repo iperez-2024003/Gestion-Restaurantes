@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMenuStore } from '../store/useMenuStore';
 import { showSuccess, showError } from '../../../shared/utils/toast';
+import { getImageUrl } from '../../../shared/utils/getImageUrl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Utensils, 
@@ -46,7 +47,7 @@ export const MenuItemModal = ({ isOpen, onClose, item = null, restaurantId }) =>
         stock_quantity: item.stock_quantity ?? 10,
         image: null,
       });
-      setPreview(item.image_url);
+      setPreview(getImageUrl(item.image_url));
     } else {
       setFormData({
         name: '',

@@ -5,6 +5,7 @@ import { useAuthStore } from '../../auth/store/useAuthStore';
 import { RestaurantModal } from './RestaurantModal';
 import { showSuccess, showError } from '../../../shared/utils/toast';
 import { ActionButton } from '../../../shared/components/ui/ActionButton';
+import { getImageUrl } from '../../../shared/utils/getImageUrl';
 import { PlusCircle, Search, MapPin, Phone, Clock, Utensils, Star, Trash2, Edit3, CheckCircle2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -151,7 +152,7 @@ export const RestaurantsPage = () => {
                   {/* Image/Cover */}
                   <div className="h-44 bg-zinc-800 relative overflow-hidden">
                     <img
-                      src={r.cover_image_url || r.logo_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80'}
+                      src={getImageUrl(r.cover_image_url) || getImageUrl(r.logo_url) || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80'}
                       alt={r.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />

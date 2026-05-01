@@ -21,7 +21,7 @@ export const createStaff = asyncHandler(async (req, res) => {
     const { name, surname, username, email, password, phone, role } = req.body;
 
     // Validar que el restaurante existe
-    const restaurant = await Restaurant.findByPk(restaurantId);
+    const restaurant = await Restaurant.findById(restaurantId);
     if (!restaurant) {
       await transaction.rollback();
       return res.status(404).json({ success: false, message: 'Restaurante no encontrado' });

@@ -1,14 +1,13 @@
-'use strict';
+ 'use strict';
 
-import { Order } from '../order/order.model.js';
-import { OrderItem } from '../order/order-item.model.js';
-import { MenuItem } from '../menu/menu-item.model.js';
-import { Restaurant } from '../restaurant/restaurant.model.js';
+import Order from '../order/order.model.js';
+import OrderItem from '../order/order-item.model.js';
+import MenuItem from '../menu/menu-item.model.js';
+import Restaurant from '../restaurant/restaurant.model.js';
 import { User } from '../users/user.model.js';
 import { generateInvoiceHTML, generateDailySummaryHTML } from './report.service.js';
 import { sendHtmlEmail } from '../../helpers/email-service.js';
 import { asyncHandler } from '../../middlewares/server-genericError-handler.js';
-import { Op } from 'sequelize';
 import ExcelJS from 'exceljs';
 
 /**
@@ -17,35 +16,26 @@ import ExcelJS from 'exceljs';
 export const sendOrderInvoice = asyncHandler(async (req, res) => {
     const { orderId } = req.params;
 
-    const order = await Order.findByPk(orderId, {
-        include: [
-            {
-                model: OrderItem,
-                as: 'items',
-                include: [{ model: MenuItem, as: 'menu_item' }]
-            },
-            { model: Restaurant, as: 'restaurant' },
-            { model: User, as: 'user' }
-        ]
-    });
+    const order = await Order.findById(orderId).lean();
+    if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' });
 
-    if (!order) {
-        return res.status(404).json({ success: false, message: 'Orden no encontrada' });
+    const items = await OrderItem.find({ order_id: orderId }).lean();
+    // attach menu items
+    const itemsWithMenu = await Promise.all(items.map(async (it) => {
+        const menu = await MenuItem.findById(it.menu_item_id).lean();
+        return { ...it, menu_item: menu };
+    }));
+
+    const restaurant = await Restaurant.findById(order.restaurant_id).lean();
+    const user = order.user_id ? await User.findByPk(order.user_id) : null;
+    const html = generateInvoiceHTML({ ...order, items: itemsWithMenu }, restaurant, user);
+    const emailToSend = (user && (user.Email || user.email)) || order.customer_email;
+
+    if (emailToSend) {
+        await sendHtmlEmail(emailToSend, `Factura de tu pedido ${order.order_number} - ${restaurant ? restaurant.name : ''}`, html);
     }
 
-    const html = generateInvoiceHTML(order, order.restaurant, order.user);
-    const emailToSend = order.user.email; // Se asume que el usuario tiene email
-
-    await sendHtmlEmail(
-        emailToSend,
-        `Factura de tu pedido ${order.order_number} - ${order.restaurant.name}`,
-        html
-    );
-
-    return res.status(200).json({
-        success: true,
-        message: `Factura enviada exitosamente a ${emailToSend}`
-    });
+    return res.status(200).json({ success: true, message: `Factura enviada exitosamente a ${emailToSend || 'N/A'}` });
 });
 
 /**
@@ -56,46 +46,25 @@ export const getDailyReport = asyncHandler(async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const restaurant = await Restaurant.findByPk(restaurantId);
-    if (!restaurant) {
-        return res.status(404).json({ success: false, message: 'Restaurante no encontrado' });
-    }
+    const restaurant = await Restaurant.findById(restaurantId).lean();
+    if (!restaurant) return res.status(404).json({ success: false, message: 'Restaurante no encontrado' });
 
-    // Obtener estadísticas del día
-    const orders = await Order.findAll({
-        where: {
-            restaurant_id: restaurantId,
-            created_at: { [Op.gte]: today },
-            status: { [Op.ne]: 'cancelled' }
-        }
-    });
+    const orders = await Order.find({ restaurant_id: restaurantId, createdAt: { $gte: today }, status: { $ne: 'cancelled' } }).lean();
 
     const stats = {
         totalOrders: orders.length,
-        totalSales: orders.reduce((sum, o) => sum + parseFloat(o.total), 0),
+        totalSales: orders.reduce((sum, o) => sum + (parseFloat(o.total) || 0), 0),
         dineInCount: orders.filter(o => o.order_type === 'dine_in').length,
         takeoutCount: orders.filter(o => o.order_type === 'takeout').length,
         deliveryCount: orders.filter(o => o.order_type === 'delivery').length
     };
 
     const html = generateDailySummaryHTML(restaurant, stats);
-
-    // Aquí podríamos enviarlo al correo del admin que hace la petición
-    // Por ahora lo devolvemos en el JSON y opcionalmente lo enviamos si hay correo
     const user = await User.findByPk(req.userId);
-    if (user && user.email) {
-        await sendHtmlEmail(
-            user.email,
-            `Reporte Diario de Ventas - ${restaurant.name}`,
-            html
-        );
-    }
+    const userEmail = user && (user.Email || user.email);
+    if (userEmail) await sendHtmlEmail(userEmail, `Reporte Diario de Ventas - ${restaurant.name}`, html);
 
-    return res.status(200).json({
-        success: true,
-        message: 'Reporte generado y enviado exitosamente',
-        data: stats
-    });
+    return res.status(200).json({ success: true, message: 'Reporte generado y enviado exitosamente', data: stats });
 });
 
 /**
@@ -106,19 +75,10 @@ export const downloadDailyExcelReport = asyncHandler(async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const restaurant = await Restaurant.findByPk(restaurantId);
-    if (!restaurant) {
-        return res.status(404).json({ success: false, message: 'Restaurante no encontrado' });
-    }
+    const restaurant = await Restaurant.findById(restaurantId).lean();
+    if (!restaurant) return res.status(404).json({ success: false, message: 'Restaurante no encontrado' });
 
-    const orders = await Order.findAll({
-        where: {
-            restaurant_id: restaurantId,
-            created_at: { [Op.gte]: today },
-            status: { [Op.ne]: 'cancelled' }
-        },
-        include: [{ model: User, as: 'user', attributes: ['username'] }]
-    });
+    const orders = await Order.find({ restaurant_id: restaurantId, createdAt: { $gte: today }, status: { $ne: 'cancelled' } }).lean();
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Reporte Diario');
@@ -133,17 +93,18 @@ export const downloadDailyExcelReport = asyncHandler(async (req, res) => {
         { header: 'Fecha', key: 'date', width: 25 }
     ];
 
-    orders.forEach(o => {
+    for (const o of orders) {
+        const user = o.user_id ? await User.findByPk(o.user_id) : null;
         worksheet.addRow({
             order_number: o.order_number,
-            customer: o.customer_name || (o.user ? o.user.username : 'N/A'),
+            customer: o.customer_name || (user ? (user.Username || user.username) : 'N/A'),
             type: o.order_type,
             status: o.status,
             subtotal: o.subtotal,
             total: o.total,
-            date: new Date(o.created_at).toLocaleString()
+            date: new Date(o.createdAt || o.created_at).toLocaleString()
         });
-    });
+    }
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename=Reporte_${restaurant.name}_${new Date().toISOString().slice(0, 10)}.xlsx`);
