@@ -86,7 +86,7 @@ export const createNewUser = async (userData) => {
   const transaction = await User.sequelize.transaction();
 
   try {
-    const { name, surname, username, email, password, phone, profilePicture } =
+    const { name, surname, username, email, password, phone, profilePicture, role, restaurant_id } =
       userData;
 
     const hashedPassword = await hashPassword(password);
@@ -100,6 +100,7 @@ export const createNewUser = async (userData) => {
         Email: email.toLowerCase(),
         Password: hashedPassword,
         Status: false, // Empieza desactivado hasta que verifique el email
+        restaurant_id: restaurant_id || null,
       },
       { transaction }
     );
@@ -136,9 +137,16 @@ export const createNewUser = async (userData) => {
       { transaction }
     );
 
+<<<<<<< Updated upstream
     // Asignar rol USER_ROLE por defecto (matching .NET DataSeeder)
     const userRole = await Role.findOne(
       { where: { Name: USER_ROLE } },
+=======
+    // Asignar rol. Si no viene, CLIENT_ROLE por defecto.
+    const roleToAssign = role || CLIENT_ROLE;
+    const userRole = await Role.findOne(
+      { where: { Name: roleToAssign } },
+>>>>>>> Stashed changes
       { transaction }
     );
     if (userRole) {

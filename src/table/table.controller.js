@@ -10,7 +10,7 @@ export const createTable = async (req, res) => {
     
     const restaurant = await Restaurant.findByPk(restaurant_id);
     if (!restaurant || !restaurant.is_active) {
-      return res.status(404).json({ ok: false, message: 'Restaurante no encontrado' });
+      return res.status(404).json({ ok: false, message: 'Restaurant not found' });
     }
     
     const existingTable = await Table.findOne({
@@ -35,14 +35,14 @@ export const createTable = async (req, res) => {
     
     return res.status(201).json({
       ok: true,
-      message: 'Creado exitosamente',
+      message: 'Table created successfully',
       table,
     });
   } catch (error) {
     console.error('Error creating table:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Error interno del servidor',
+      message: 'Internal server error',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -71,7 +71,7 @@ export const getAllTables = async (req, res) => {
     
     return res.status(200).json({
       ok: true,
-      message: 'Datos obtenidos exitosamente',
+      message: 'Tables retrieved successfully',
       pagination: {
         total: count,
         page: parseInt(page),
@@ -82,7 +82,7 @@ export const getAllTables = async (req, res) => {
     });
   } catch (error) {
     console.error('Error getting tables:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ ok: false, message: 'Internal server error' });
   }
 };
 
@@ -98,17 +98,17 @@ export const getTableById = async (req, res) => {
     });
     
     if (!table) {
-      return res.status(404).json({ ok: false, message: 'No encontrado' });
+      return res.status(404).json({ ok: false, message: 'Table not found' });
     }
     
     return res.status(200).json({
       ok: true,
-      message: 'Datos obtenidos exitosamente',
+      message: 'Table retrieved successfully',
       table,
     });
   } catch (error) {
     console.error('Error getting table:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ ok: false, message: 'Internal server error' });
   }
 };
 
@@ -119,7 +119,7 @@ export const updateTable = async (req, res) => {
     
     const table = await Table.findOne({ where: { id, is_active: true } });
     if (!table) {
-      return res.status(404).json({ ok: false, message: 'No encontrado' });
+      return res.status(404).json({ ok: false, message: 'Table not found' });
     }
     
     if (updateData.table_number && updateData.table_number !== table.table_number) {
@@ -142,15 +142,20 @@ export const updateTable = async (req, res) => {
     delete updateData.created_at;
     
     await table.update(updateData);
+    await table.reload();
     
     return res.status(200).json({
       ok: true,
-      message: 'Actualizado exitosamente',
+<<<<<<< Updated upstream
+      message: 'Table updated successfully',
+=======
+      message: 'Mesa actualizada exitosamente',
+>>>>>>> Stashed changes
       table,
     });
   } catch (error) {
     console.error('Error updating table:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ ok: false, message: 'Internal server error' });
   }
 };
 
@@ -160,18 +165,23 @@ export const deleteTable = async (req, res) => {
     
     const table = await Table.findOne({ where: { id, is_active: true } });
     if (!table) {
-      return res.status(404).json({ ok: false, message: 'No encontrado' });
+      return res.status(404).json({ ok: false, message: 'Table not found' });
     }
     
-    await table.update({ is_active: false });
+    // Real hard delete
+    await table.destroy();
     
     return res.status(200).json({
       ok: true,
-      message: 'Eliminado exitosamente',
+<<<<<<< Updated upstream
+      message: 'Table deleted successfully',
+=======
+      message: 'Mesa eliminada permanentemente',
+>>>>>>> Stashed changes
     });
   } catch (error) {
     console.error('Error deleting table:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ ok: false, message: 'Internal server error' });
   }
 };
 
@@ -182,19 +192,20 @@ export const updateTableStatus = async (req, res) => {
     
     const table = await Table.findOne({ where: { id, is_active: true } });
     if (!table) {
-      return res.status(404).json({ ok: false, message: 'No encontrado' });
+      return res.status(404).json({ ok: false, message: 'Table not found' });
     }
     
     await table.update({ status });
+    await table.reload();
     
     return res.status(200).json({
       ok: true,
-      message: `Table status updated to ${status}`,
-      table: { id: table.id, table_number: table.table_number, status: table.status },
+      message: `Estado de la mesa actualizado a ${status}`,
+      table,
     });
   } catch (error) {
     console.error('Error updating status:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ ok: false, message: 'Internal server error' });
   }
 };
 
@@ -222,12 +233,12 @@ export const getAvailableTables = async (req, res) => {
     
     return res.status(200).json({
       ok: true,
-      message: 'Available Datos obtenidos exitosamente',
+      message: 'Available tables retrieved successfully',
       count: tables.length,
       tables,
     });
   } catch (error) {
     console.error('Error getting available tables:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ ok: false, message: 'Internal server error' });
   }
 };

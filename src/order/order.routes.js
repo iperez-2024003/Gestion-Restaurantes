@@ -1,7 +1,18 @@
-﻿'use strict';
+'use strict';
 
 import { Router } from 'express';
 import {
+<<<<<<< Updated upstream
+    createOrder,
+    getAllOrders,
+    getOrderById,
+    updateOrderStatus,
+    cancelOrder,
+    addItemToOrder,
+    removeItemFromOrder,
+} from './order.controller.js';
+import { validateJWT } from '../../middlewares/validate-JWT.js';
+=======
   createOrder,
   getAllOrders,
   getOrderById,
@@ -9,27 +20,64 @@ import {
   cancelOrder,
   addItemToOrder,
   removeItemFromOrder,
+  generateOrderPDF,
+  getKitchenOrders,
 } from './order.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
-import { requireSuperAdmin } from '../../middlewares/require-role.js';
+import { requireRole } from '../../middlewares/require-role.js';
 import { validateUuidParam, validateUuidParams } from '../../middlewares/validate-params.js';
+>>>>>>> Stashed changes
 import {
-  validateOrderCreation,
-  validateAddItem,
-  validateOrderStatusUpdate,
+    validateOrderCreation,
+    validateAddItem,
 } from './order.validation.js';
 
 const router = Router();
 
+<<<<<<< Updated upstream
+/**
+ * All routes require authentication
+ */
+
+// Create order
+=======
+// Permite modificar el estado al personal
+const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
+
 /** Rutas para usuario autenticado (USER_ROLE puede crear/ver/cancelar sus pedidos) */
+>>>>>>> Stashed changes
 router.post('/', [validateJWT, validateOrderCreation], createOrder);
+
+// Get all orders
 router.get('/', validateJWT, getAllOrders);
+<<<<<<< Updated upstream
+
+// Get order by ID
+router.get('/:id', validateJWT, getOrderById);
+=======
 router.get('/:id', validateJWT, validateUuidParam('id'), getOrderById);
+router.get('/:id/invoice', validateJWT, validateUuidParam('id'), generateOrderPDF);
 router.delete('/:id', validateJWT, validateUuidParam('id'), cancelOrder);
 router.post('/:id/items', [validateJWT, validateUuidParam('id'), validateAddItem], addItemToOrder);
 router.delete('/:id/items/:itemId', validateJWT, validateUuidParams('id', 'itemId'), removeItemFromOrder);
 
-/** Solo ADMIN_ROLE puede actualizar estado del pedido */
-router.patch('/:id/status', [validateJWT, requireSuperAdmin, validateUuidParam('id'), validateOrderStatusUpdate], updateOrderStatus);
+/** Rutas para Cocina (KDS) */
+router.get('/kitchen/:restaurantId', [validateJWT, requireOperationalStaff, validateUuidParam('restaurantId')], getKitchenOrders);
+
+/** El personal puede actualizar estado del pedido */
+router.patch('/:id/status', [validateJWT, requireOperationalStaff, validateUuidParam('id'), validateOrderStatusUpdate], updateOrderStatus);
+>>>>>>> Stashed changes
+
+// Update order status
+router.patch('/:id/status', validateJWT, updateOrderStatus);
+
+// Cancel order
+router.delete('/:id', validateJWT, cancelOrder);
+
+// Add item to order
+router.post('/:id/items', [validateJWT, validateAddItem], addItemToOrder);
+
+// Remove item from order
+router.delete('/:id/items/:itemId', validateJWT, removeItemFromOrder);
 
 export default router;

@@ -19,7 +19,13 @@ export const buildUserResponse = (user) => {
     phone:
       user.UserProfile && user.UserProfile.Phone ? user.UserProfile.Phone : '',
     profilePicture: profilePictureUrl,
+<<<<<<< Updated upstream
+    role: user.UserRoles?.[0]?.Role?.Name ?? 'USER_ROLE',
+=======
     role: user.UserRoles?.[0]?.Role?.Name ?? 'CLIENT_ROLE',
+    restaurantId: user.RestaurantId,
+    points: user.Points || 0,
+>>>>>>> Stashed changes
     status: user.Status,
     isEmailVerified: user.UserEmail ? user.UserEmail.EmailVerified : false,
     createdAt: user.CreatedAt,

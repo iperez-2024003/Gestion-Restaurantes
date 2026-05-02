@@ -1,8 +1,15 @@
 'use strict';
 
+import os from 'os';
 import { Restaurant } from './restaurant.model.js';
 import { User } from '../users/user.model.js';
+import { Table } from '../table/table.model.js';
+import { MenuItem } from '../menu/menu-item.model.js';
+import { Order } from '../order/order.model.js';
 import { Op } from 'sequelize';
+import { uploadImage } from '../../helpers/cloudinary-service.js';
+import path from 'path';
+import crypto from 'crypto';
 
 /**
  * Create a new restaurant
@@ -25,8 +32,6 @@ export const createRestaurant = async (req, res) => {
       opening_time,
       closing_time,
       operating_days,
-      logo_url,
-      cover_image_url,
       accepts_reservations,
       accepts_takeout,
       accepts_delivery,
@@ -44,6 +49,54 @@ export const createRestaurant = async (req, res) => {
       admin_id,
       parent_restaurant_id,
     } = req.body;
+
+    // Normalizar booleanos de FormData (llegan como strings)
+    const toBool = (val) => val === 'true' || val === true;
+    const final_accepts_reservations = toBool(req.body.accepts_reservations);
+    const final_accepts_takeout = toBool(req.body.accepts_takeout);
+    const final_accepts_delivery = toBool(req.body.accepts_delivery);
+    const final_parking_available = toBool(req.body.parking_available);
+    const final_wifi_available = toBool(req.body.wifi_available);
+    const final_outdoor_seating = toBool(req.body.outdoor_seating);
+    const final_pet_friendly = toBool(req.body.pet_friendly);
+    const final_wheelchair_accessible = toBool(req.body.wheelchair_accessible);
+
+    // Parsear campos complejos que vienen como string desde FormData
+    let final_operating_days = operating_days;
+    if (typeof operating_days === 'string') {
+      try { final_operating_days = JSON.parse(operating_days); } catch (e) { final_operating_days = operating_days.split(','); }
+    }
+
+    let final_social_media = req.body.social_media;
+    if (typeof final_social_media === 'string') {
+      try { final_social_media = JSON.parse(final_social_media); } catch (e) { final_social_media = {}; }
+    }
+
+    let final_payment_methods = req.body.payment_methods;
+    if (typeof final_payment_methods === 'string') {
+      try { final_payment_methods = JSON.parse(final_payment_methods); } catch (e) { final_payment_methods = final_payment_methods.split(','); }
+    }
+
+    let final_special_features = req.body.special_features;
+    if (typeof final_special_features === 'string') {
+      try { final_special_features = JSON.parse(final_special_features); } catch (e) { final_special_features = final_special_features.split(','); }
+    }
+
+    let logo_url = req.body.logo_url;
+
+    // Procesar archivo de logo si existe (Multer + Cloudinary)
+    if (req.file) {
+      try {
+        const ext = path.extname(req.file.originalname);
+        const randomHex = crypto.randomBytes(6).toString('hex');
+        const cloudinaryFileName = `logo-${randomHex}${ext}`;
+        logo_url = await uploadImage(req.file.path, cloudinaryFileName);
+      } catch (err) {
+        console.error('Error uploading logo to Cloudinary:', err);
+        // Fallback: usar ruta relativa si Cloudinary falla
+        logo_url = req.file.path;
+      }
+    }
 
     // Check if restaurant name already exists
     const existingRestaurant = await Restaurant.findOne({
@@ -95,11 +148,11 @@ export const createRestaurant = async (req, res) => {
       category,
       cuisine_type,
       price_range,
-      average_price,
-      capacity,
+      average_price: average_price ? parseFloat(average_price) : null,
+      capacity: parseInt(capacity),
       opening_time,
       closing_time,
-      operating_days: operating_days || [
+      operating_days: final_operating_days || [
         'monday',
         'tuesday',
         'wednesday',
@@ -109,21 +162,20 @@ export const createRestaurant = async (req, res) => {
         'sunday',
       ],
       logo_url,
-      cover_image_url,
-      accepts_reservations: accepts_reservations ?? true,
-      accepts_takeout: accepts_takeout ?? true,
-      accepts_delivery: accepts_delivery ?? false,
-      parking_available: parking_available ?? false,
-      wifi_available: wifi_available ?? false,
-      outdoor_seating: outdoor_seating ?? false,
-      pet_friendly: pet_friendly ?? false,
-      wheelchair_accessible: wheelchair_accessible ?? false,
+      accepts_reservations: final_accepts_reservations,
+      accepts_takeout: final_accepts_takeout,
+      accepts_delivery: final_accepts_delivery,
+      parking_available: final_parking_available,
+      wifi_available: final_wifi_available,
+      outdoor_seating: final_outdoor_seating,
+      pet_friendly: final_pet_friendly,
+      wheelchair_accessible: final_wheelchair_accessible,
       latitude,
       longitude,
       website_url,
-      social_media: social_media || {},
-      payment_methods: payment_methods || ['cash', 'credit_card', 'debit_card'],
-      special_features: special_features || [],
+      social_media: final_social_media || {},
+      payment_methods: final_payment_methods || ['cash', 'credit_card', 'debit_card'],
+      special_features: final_special_features || [],
       admin_id,
       parent_restaurant_id,
       is_active: true,
@@ -186,7 +238,13 @@ export const getAllRestaurants = async (req, res) => {
       is_verified,
     } = req.query;
 
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    let pageNum = parseInt(page);
+    let limitNum = parseInt(limit);
+    
+    if (isNaN(pageNum) || pageNum < 1) pageNum = 1;
+    if (isNaN(limitNum) || limitNum < 1) limitNum = 10;
+
+    const offset = (pageNum - 1) * limitNum;
 
     // Build where clause
     const where = { is_active: true };
@@ -211,7 +269,7 @@ export const getAllRestaurants = async (req, res) => {
     // Get restaurants with pagination
     const { count, rows: restaurants } = await Restaurant.findAndCountAll({
       where,
-      limit: parseInt(limit),
+      limit: limitNum,
       offset,
       order: [[sort_by, order.toUpperCase()]],
       include: [
@@ -227,15 +285,18 @@ export const getAllRestaurants = async (req, res) => {
         },
       ],
     });
+    
+    // Calcular total_pages de forma segura
+    const totalPages = Math.ceil(count / limitNum);
 
     return res.status(200).json({
       ok: true,
       message: 'Datos obtenidos exitosamente',
       pagination: {
         total: count,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total_pages: Math.ceil(count / parseInt(limit)),
+        page: pageNum,
+        limit: limitNum,
+        total_pages: totalPages,
       },
       restaurants,
     });
@@ -426,12 +487,12 @@ export const deleteRestaurant = async (req, res) => {
       });
     }
 
-    // Soft delete
-    await restaurant.update({ is_active: false });
+    // Real hard delete (limpieza completa de la base de datos)
+    await restaurant.destroy();
 
     return res.status(200).json({
       ok: true,
-      message: 'Restaurant deactivated successfully',
+      message: 'Restaurante eliminado permanentemente de la base de datos',
     });
   } catch (error) {
     console.error('Error deleting restaurant:', error);
@@ -507,9 +568,12 @@ export const verifyRestaurant = async (req, res) => {
       verification_date: new Date(),
     });
 
+    // Recargar para obtener los datos frescos de la BD
+    await restaurant.reload();
+
     return res.status(200).json({
       ok: true,
-      message: 'Restaurant verified successfully',
+      message: 'Restaurante verificado exitosamente. El estado ha sido guardado.',
       restaurant: {
         id: restaurant.id,
         name: restaurant.name,
@@ -535,6 +599,7 @@ export const verifyRestaurant = async (req, res) => {
 export const getRestaurantStats = async (req, res) => {
   try {
     const { id } = req.params;
+    const todayStr = new Date().toISOString().slice(0, 10);
 
     const restaurant = await Restaurant.findOne({
       where: { id, is_active: true },
@@ -547,8 +612,40 @@ export const getRestaurantStats = async (req, res) => {
       });
     }
 
+    // Conteo de mesas
+    const tableCount = await Table.count({ where: { restaurant_id: id } });
+    
+    // Conteo de platos (MenuItems)
+    const menuItemCount = await MenuItem.count({ where: { restaurant_id: id } });
+
+    // Conteo de staff (Usuarios vinculados al restaurante)
+    const staffCount = await User.count({ where: { restaurant_id: id } });
+
+    // Ingresos y Órdenes de hoy
+    const todayOrders = await Order.count({
+      where: { 
+        restaurant_id: id, 
+        created_at: { [Op.gte]: todayStr } 
+      }
+    });
+
+    const todayRevenue = await Order.sum('total', {
+      where: { 
+        restaurant_id: id, 
+        payment_status: 'paid',
+        created_at: { [Op.gte]: todayStr } 
+      }
+    }) || 0;
+
     // Basic statistics from restaurant model
     const stats = {
+      summary: {
+        tables: tableCount,
+        dishes: menuItemCount,
+        staff: staffCount,
+        today_orders: todayOrders,
+        today_revenue: parseFloat(todayRevenue.toFixed(2))
+      },
       basic_info: {
         name: restaurant.name,
         category: restaurant.category,
@@ -581,6 +678,38 @@ export const getRestaurantStats = async (req, res) => {
       ok: false,
       message: 'Error interno del servidor while retrieving statistics',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * Get the local server IP address for QR generation
+ */
+export const getServerIp = async (req, res) => {
+  try {
+    const interfaces = os.networkInterfaces();
+    let ipAddress = 'localhost';
+
+    for (const interfaceName in interfaces) {
+      const networkInterface = interfaces[interfaceName];
+      for (const iface of networkInterface) {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          ipAddress = iface.address;
+          break;
+        }
+      }
+      if (ipAddress !== 'localhost') break;
+    }
+
+    return res.json({
+      ok: true,
+      ip: ipAddress
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      message: 'Error al detectar IP',
+      error: error.message
     });
   }
 };
