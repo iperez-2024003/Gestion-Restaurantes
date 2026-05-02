@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import path from 'path';
+import Restaurant from '../src/restaurant/restaurant.model.js';
 import {
   checkUserExists,
   createNewUser,
@@ -186,18 +186,38 @@ export const loginUserHelper = async (emailOrUsername, password) => {
     const role = user.UserRoles?.[0]?.Role?.Name || 'CLIENT_ROLE';
     const token = await generateJWT(user.Id.toString(), { role });
 
+    // Build full user response for later use
+    const fullUser = buildUserResponse(user);
+
     // Calcular fecha de expiración basada en la configuración
     const expiresInMs = getExpirationTime(process.env.JWT_EXPIRES_IN || '30m');
     const expiresAt = new Date(Date.now() + expiresInMs);
 
-    // Build compact userDetails object
-    const fullUser = buildUserResponse(user);
+    // Verificar que el restaurante asignado al usuario exista en MongoDB
+    let validRestaurantId = fullUser.restaurantId;
+    if (validRestaurantId) {
+      const exists = await Restaurant.findById(validRestaurantId);
+      if (!exists) {
+        // Si no existe, buscar el primer restaurante activo como fallback
+        const fallback = await Restaurant.findOne({ isActive: true });
+        validRestaurantId = fallback ? fallback._id.toString() : null;
+        // Actualizar el registro del usuario en PostgreSQL
+        await user.update({ RestaurantId: validRestaurantId });
+      }
+    } else {
+      // Si el usuario no tenía restaurantId asignado, asignar uno válido
+      const fallback = await Restaurant.findOne({ isActive: true });
+      validRestaurantId = fallback ? fallback._id.toString() : null;
+      await user.update({ RestaurantId: validRestaurantId });
+    }
+
+    // Reconstruir userDetails con el ID corregido
     const userDetails = {
       id: fullUser.id,
       username: fullUser.username,
       profilePicture: fullUser.profilePicture,
       role: fullUser.role,
-      restaurantId: fullUser.restaurantId,
+      restaurantId: validRestaurantId,
     };
 
     // AuthResponseDto equivalent structure

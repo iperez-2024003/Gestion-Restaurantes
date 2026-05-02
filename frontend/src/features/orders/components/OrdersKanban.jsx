@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { translateStatus } from '../../../shared/utils/i18n';
 import { downloadOrderPdfUrl } from '../../../shared/api/statistics';
 import { useAuthStore } from '../../auth/store/useAuthStore';
-import { useSocket } from '../../../shared/hooks/useSocket';
+import { useSocket, useSocketEvent } from '../../../shared/hooks/useSocket';
 import { showError, showSuccess } from '../../../shared/utils/toast';
 import { 
   ClipboardList, 
@@ -33,16 +33,16 @@ export const OrdersKanban = () => {
   const { token } = useAuthStore();
   const { orders, loading, fetchRestaurantOrders, updateOrderStatus } = useOrderStore();
 
-  const { on } = useSocket(restaurantId);
-
-  on('new_order', (newOrder) => {
+  useSocket(restaurantId);
+  
+  useSocketEvent('new_order', (newOrder) => {
     showSuccess(`🔔 ¡Nueva Orden #${newOrder.order_number}!`);
     const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
     audio.play().catch(() => {});
     fetchRestaurantOrders(restaurantId);
   });
 
-  on('order_status_updated', (data) => {
+  useSocketEvent('order_status_updated', (data) => {
     fetchRestaurantOrders(restaurantId);
   });
 

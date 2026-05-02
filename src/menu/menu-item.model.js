@@ -1,231 +1,96 @@
 'use strict';
 
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../../configs/db.js';
-import { Restaurant } from '../restaurant/restaurant.model.js';
-import { Menu } from './menu.model.js';
+import { Schema, model } from 'mongoose';
 
-export const MenuItem = sequelize.define(
-  'menu_item',
+const menuItemSchema = new Schema(
   {
-    id: {
-      type: DataTypes.STRING(50),
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-      allowNull: false,
-    },
     name: {
-      type: DataTypes.STRING(150),
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Menu item name cannot be empty',
-        },
-        len: {
-          args: [2, 150],
-          msg: 'Menu item name must be between 2 and 150 characters',
-        },
-      },
+      type: String,
+      required: [true, 'Menu item name cannot be empty'],
+      trim: true,
+      minlength: [2, 'Menu item name must be between 2 and 150 characters'],
+      maxlength: [150, 'Menu item name must be between 2 and 150 characters'],
     },
     description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      validate: {
-        len: {
-          args: [0, 1000],
-          msg: 'Description cannot exceed 1000 characters',
-        },
-      },
+      type: String,
+      maxlength: [1000, 'Description cannot exceed 1000 characters'],
+      trim: true,
     },
     price: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-      validate: {
-        min: {
-          args: [0],
-          msg: 'Price must be greater than or equal to 0',
-        },
-        isDecimal: {
-          msg: 'Price must be a valid decimal number',
-        },
-      },
+      type: Number,
+      required: [true, 'Price is required'],
+      min: [0, 'Price must be greater than or equal to 0'],
     },
     menu_id: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      references: {
-        model: 'menu',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
+      type: String,
+      required: [true, 'Menu category ID is required'],
+      index: true,
     },
     restaurant_id: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      references: {
-        model: 'restaurant',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
+      type: String,
+      required: [true, 'Restaurant ID is required'],
+      index: true,
     },
-    image_url: {
-      type: DataTypes.STRING(500),
-      allowNull: true,
-      validate: {
-        isUrl: {
-          msg: 'Image URL must be a valid URL',
-        },
-      },
-    },
+    image_url: String,
     ingredients: {
-      type: DataTypes.JSON,
-      allowNull: true,
-      defaultValue: [],
-      comment: 'Array of ingredients',
+      type: [String],
+      default: [],
     },
     allergens: {
-      type: DataTypes.JSON,
-      allowNull: true,
-      defaultValue: [],
-      comment: 'Array of allergens (gluten, nuts, dairy, etc.)',
+      type: [String],
+      default: [],
     },
     is_available: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
-      comment: 'Item availability status',
+      type: Boolean,
+      default: true,
     },
     stock_quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-      validate: {
-        min: {
-          args: [0],
-          msg: 'Stock quantity cannot be negative',
-        },
-      },
-      comment: 'Current inventory stock quantity',
+      type: Number,
+      default: 0,
+      min: [0, 'Stock quantity cannot be negative'],
     },
     preparation_time: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      validate: {
-        min: {
-          args: [1],
-          msg: 'Preparation time must be at least 1 minute',
-        },
-        max: {
-          args: [180],
-          msg: 'Preparation time cannot exceed 180 minutes',
-        },
-      },
-      comment: 'Preparation time in minutes',
+      type: Number,
+      min: [1, 'Preparation time must be at least 1 minute'],
+      max: [180, 'Preparation time cannot exceed 180 minutes'],
     },
     calories: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      validate: {
-        min: {
-          args: [0],
-          msg: 'Calories cannot be negative',
-        },
-      },
+      type: Number,
+      min: [0, 'Calories cannot be negative'],
     },
     is_vegetarian: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
+      type: Boolean,
+      default: false,
     },
     is_vegan: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
+      type: Boolean,
+      default: false,
     },
     is_gluten_free: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
+      type: Boolean,
+      default: false,
     },
     spice_level: {
-      type: DataTypes.ENUM('none', 'mild', 'medium', 'hot', 'extra_hot'),
-      allowNull: false,
-      defaultValue: 'none',
+      type: String,
+      enum: ['none', 'mild', 'medium', 'hot', 'extra_hot'],
+      default: 'none',
     },
-    portion_size: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      comment: 'Portion size description (e.g., "Individual", "For 2 people")',
-    },
+    portion_size: String,
     is_active: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
-      comment: 'Soft delete flag',
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
+      type: Boolean,
+      default: true,
     },
   },
   {
-    tableName: 'menu_item',
+    collection: 'menu_item',
     timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
-    underscored: true,
-    indexes: [
-      {
-        name: 'idx_menu_item_menu',
-        fields: ['menu_id'],
-      },
-      {
-        name: 'idx_menu_item_restaurant',
-        fields: ['restaurant_id'],
-      },
-      {
-        name: 'idx_menu_item_available',
-        fields: ['is_available'],
-      },
-      {
-        name: 'idx_menu_item_active',
-        fields: ['is_active'],
-      },
-    ],
+    versionKey: false,
   }
 );
 
-// Relaciones
-MenuItem.belongsTo(Menu, {
-  foreignKey: 'menu_id',
-  as: 'menu',
-  onDelete: 'CASCADE',
-});
+menuItemSchema.index({ menu_id: 1, is_active: 1 });
+menuItemSchema.index({ restaurant_id: 1, is_active: 1 });
+menuItemSchema.index({ is_available: 1 });
 
-MenuItem.belongsTo(Restaurant, {
-  foreignKey: 'restaurant_id',
-  as: 'restaurant',
-  onDelete: 'CASCADE',
-});
-
-Menu.hasMany(MenuItem, {
-  foreignKey: 'menu_id',
-  as: 'items',
-  onDelete: 'CASCADE',
-});
-
-Restaurant.hasMany(MenuItem, {
-  foreignKey: 'restaurant_id',
-  as: 'menu_items',
-  onDelete: 'CASCADE',
-});
-
+export const MenuItem = model('MenuItem', menuItemSchema);
 export default MenuItem;

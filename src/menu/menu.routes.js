@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 import { Router } from 'express';
 import {
@@ -15,8 +15,9 @@ import {
   toggleMenuItemAvailability,
 } from './menu.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
-import { requireSuperAdmin } from '../../middlewares/require-role.js';
+import { requireSuperAdmin, requireRole } from '../../middlewares/require-role.js';
 import { validateUuidParam } from '../../middlewares/validate-params.js';
+import { upload, handleUploadError } from '../../helpers/file-upload.js';
 import {
   validateMenuCreation,
   validateMenuUpdate,
@@ -25,22 +26,39 @@ import {
 } from './menu.validation.js';
 
 const router = Router();
+const requireAdminOrRestaurantAdmin = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE');
 
-// ==================== MENU CATEGORIES ROUTES ====================
+const parseMenuItemFormData = (req, res, next) => {
+  if (req.body.price) req.body.price = parseFloat(req.body.price);
+  if (req.body.preparation_time) req.body.preparation_time = parseInt(req.body.preparation_time);
+  if (req.body.calories) req.body.calories = parseInt(req.body.calories);
+  if (req.body.stock_quantity) req.body.stock_quantity = parseInt(req.body.stock_quantity);
+  if (req.body.is_vegetarian) req.body.is_vegetarian = req.body.is_vegetarian === 'true';
+  if (req.body.is_vegan) req.body.is_vegan = req.body.is_vegan === 'true';
+  if (req.body.is_gluten_free) req.body.is_gluten_free = req.body.is_gluten_free === 'true';
+  if (req.body.is_available) req.body.is_available = req.body.is_available === 'true';
 
-router.get('/', getAllMenus);
-router.get('/:id', validateUuidParam('id'), getMenuById);
-router.post('/', [validateJWT, requireSuperAdmin, validateMenuCreation], createMenu);
-router.put('/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id'), validateMenuUpdate], updateMenu);
-router.delete('/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id')], deleteMenu);
+  if (typeof req.body.ingredients === 'string') {
+    try { req.body.ingredients = JSON.parse(req.body.ingredients); } catch (e) { req.body.ingredients = []; }
+  }
+  if (typeof req.body.allergens === 'string') {
+    try { req.body.allergens = JSON.parse(req.body.allergens); } catch (e) { req.body.allergens = []; }
+  }
 
-// ==================== MENU ITEMS ROUTES ====================
+  next();
+};
 
 router.get('/items/all', getAllMenuItems);
 router.get('/items/:id', validateUuidParam('id'), getMenuItemById);
-router.post('/items', [validateJWT, requireSuperAdmin, validateMenuItemCreation], createMenuItem);
-router.put('/items/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id'), validateMenuItemUpdate], updateMenuItem);
-router.delete('/items/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id')], deleteMenuItem);
-router.patch('/items/:id/toggle', [validateJWT, requireSuperAdmin, validateUuidParam('id')], toggleMenuItemAvailability);
+router.post('/items', [validateJWT, requireAdminOrRestaurantAdmin, upload.single('image'), handleUploadError, parseMenuItemFormData, validateMenuItemCreation], createMenuItem);
+router.put('/items/:id', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id'), upload.single('image'), handleUploadError, parseMenuItemFormData, validateMenuItemUpdate], updateMenuItem);
+router.delete('/items/:id', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], deleteMenuItem);
+router.patch('/items/:id/toggle', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], toggleMenuItemAvailability);
+
+router.get('/', getAllMenus);
+router.get('/:id', validateUuidParam('id'), getMenuById);
+router.post('/', [validateJWT, requireAdminOrRestaurantAdmin, validateMenuCreation], createMenu);
+router.put('/:id', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id'), validateMenuUpdate], updateMenu);
+router.delete('/:id', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], deleteMenu);
 
 export default router;
