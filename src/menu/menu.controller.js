@@ -243,11 +243,7 @@ export const deleteMenu = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-<<<<<<< Updated upstream
-      message: 'Menu category deleted successfully',
-=======
       message: 'Categoría de menú eliminada permanentemente',
->>>>>>> Stashed changes
     });
   } catch (error) {
     console.error('Error deleting menu:', error);
@@ -363,11 +359,7 @@ export const createMenuItem = async (req, res) => {
 
     return res.status(201).json({
       ok: true,
-<<<<<<< Updated upstream
-      message: 'Menu item created successfully',
-=======
       message: 'Platillo creado exitosamente',
->>>>>>> Stashed changes
       menuItem,
     });
   } catch (error) {
@@ -560,11 +552,7 @@ export const updateMenuItem = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-<<<<<<< Updated upstream
-      message: 'Menu item updated successfully',
-=======
       message: 'Platillo actualizado exitosamente',
->>>>>>> Stashed changes
       menuItem,
     });
   } catch (error) {
@@ -606,11 +594,7 @@ export const deleteMenuItem = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-<<<<<<< Updated upstream
-      message: 'Menu item deleted successfully',
-=======
       message: 'Platillo eliminado permanentemente',
->>>>>>> Stashed changes
     });
   } catch (error) {
     console.error('Error deleting menu item:', error);

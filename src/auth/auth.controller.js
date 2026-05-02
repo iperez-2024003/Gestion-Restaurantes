@@ -56,11 +56,6 @@ export const register = asyncHandler(async (req, res) => {
 
 export const login = asyncHandler(async (req, res) => {
   try {
-<<<<<<< Updated upstream
-    const { emailOrUsername, password } = req.body;
-    const result = await loginUserHelper(emailOrUsername, password);
-
-=======
     // Aceptamos tanto emailOrUsername como simplemente email/username en minúsculas
     const { emailOrUsername, email, username, password } = req.body;
     const identifier = emailOrUsername || email || username;
@@ -73,7 +68,6 @@ export const login = asyncHandler(async (req, res) => {
     }
 
     const result = await loginUserHelper(identifier, password);
->>>>>>> Stashed changes
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in login controller:', error);

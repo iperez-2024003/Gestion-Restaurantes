@@ -13,11 +13,8 @@ import {
   getServerIp,
 } from './restaurant.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
-<<<<<<< Updated upstream
-=======
 import { requireSuperAdmin, requireRole } from '../../middlewares/require-role.js';
 import { validateUuidParam, validateUserIdParam } from '../../middlewares/validate-params.js';
->>>>>>> Stashed changes
 import { validateRestaurantCreation, validateRestaurantUpdate } from './restaurant.validation.js';
 import { upload } from '../../helpers/file-upload.js';
 
@@ -64,12 +61,6 @@ router.get('/', getAllRestaurants);
 router.get('/:id', getRestaurantById);
 
 /**
-<<<<<<< Updated upstream
- * Protected routes (require authentication)
- */
-// Create new restaurant
-router.post('/', [validateJWT, validateRestaurantCreation], createRestaurant);
-=======
  * Rutas solo SUPER_ADMIN (gestión de restaurantes, verificación, estadísticas globales)
  */
 router.post('/', [validateJWT, requireSuperAdmin, upload.single('logo'), parseRestaurantFormData, validateRestaurantCreation], createRestaurant);
@@ -85,7 +76,6 @@ import { createStaff, getRestaurantStaff, updateStaffRole } from './staff.contro
 router.post('/:id/staff', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], createStaff);
 router.get('/:id/staff', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], getRestaurantStaff);
 router.patch('/:id/staff/:staff_id/role', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], updateStaffRole);
->>>>>>> Stashed changes
 
 // Update restaurant
 router.put('/:id', [validateJWT, validateRestaurantUpdate], updateRestaurant);

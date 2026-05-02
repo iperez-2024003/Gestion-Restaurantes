@@ -137,16 +137,10 @@ export const createNewUser = async (userData) => {
       { transaction }
     );
 
-<<<<<<< Updated upstream
-    // Asignar rol USER_ROLE por defecto (matching .NET DataSeeder)
-    const userRole = await Role.findOne(
-      { where: { Name: USER_ROLE } },
-=======
     // Asignar rol. Si no viene, CLIENT_ROLE por defecto.
     const roleToAssign = role || CLIENT_ROLE;
     const userRole = await Role.findOne(
       { where: { Name: roleToAssign } },
->>>>>>> Stashed changes
       { transaction }
     );
     if (userRole) {

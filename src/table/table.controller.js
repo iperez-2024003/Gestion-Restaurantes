@@ -146,11 +146,7 @@ export const updateTable = async (req, res) => {
     
     return res.status(200).json({
       ok: true,
-<<<<<<< Updated upstream
-      message: 'Table updated successfully',
-=======
       message: 'Mesa actualizada exitosamente',
->>>>>>> Stashed changes
       table,
     });
   } catch (error) {
@@ -173,11 +169,7 @@ export const deleteTable = async (req, res) => {
     
     return res.status(200).json({
       ok: true,
-<<<<<<< Updated upstream
-      message: 'Table deleted successfully',
-=======
       message: 'Mesa eliminada permanentemente',
->>>>>>> Stashed changes
     });
   } catch (error) {
     console.error('Error deleting table:', error);

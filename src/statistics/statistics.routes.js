@@ -6,19 +6,6 @@ import {
   getOrdersStats,
   getPopularDishes,
   getPlatformSummary,
-<<<<<<< Updated upstream
-} from './statistics.controller.js';
-import { validateJWT } from '../../middlewares/validate-JWT.js';
-
-const router = Router();
-
-router.get('/restaurant/:id/overview', validateJWT, getRestaurantOverview);
-router.get('/restaurant/:id/orders', validateJWT, getOrdersStats);
-router.get('/restaurant/:id/popular-dishes', validateJWT, getPopularDishes);
-router.get('/platform/summary', validateJWT, getPlatformSummary);
-
-export default router;
-=======
   getPeakHours,
   getFrequentCustomers,
   exportOrdersToExcel,
@@ -45,4 +32,3 @@ router.get('/global/overview', [validateJWT, requireSuperAdmin], getGlobalStats)
 router.get('/global/vip-clients', [validateJWT, requireSuperAdmin], getGlobalVipClients);
 
 export default router;
->>>>>>> Stashed changes

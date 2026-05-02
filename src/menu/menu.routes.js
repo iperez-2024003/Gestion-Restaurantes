@@ -15,12 +15,9 @@ import {
   toggleMenuItemAvailability,
 } from './menu.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
-<<<<<<< Updated upstream
-=======
 import { requireSuperAdmin } from '../../middlewares/require-role.js';
 import { validateUuidParam } from '../../middlewares/validate-params.js';
 import { upload } from '../../helpers/file-upload.js';
->>>>>>> Stashed changes
 import {
   validateMenuCreation,
   validateMenuUpdate,
@@ -68,8 +65,6 @@ router.delete('/:id', validateJWT, deleteMenu);
 // ==================== MENU ITEMS ROUTES ====================
 
 router.get('/items/all', getAllMenuItems);
-<<<<<<< Updated upstream
-=======
 router.get('/items/:id', validateUuidParam('id'), getMenuItemById);
 
 router.post('/items', [
@@ -91,7 +86,6 @@ router.put('/items/:id', [
 
 router.delete('/items/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id')], deleteMenuItem);
 router.patch('/items/:id/toggle', [validateJWT, requireSuperAdmin, validateUuidParam('id')], toggleMenuItemAvailability);
->>>>>>> Stashed changes
 
 router.get('/items/:id', getMenuItemById);
 
