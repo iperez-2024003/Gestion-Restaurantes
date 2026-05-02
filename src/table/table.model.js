@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
@@ -8,7 +8,7 @@ export const Table = sequelize.define(
   'table',
   {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
@@ -43,7 +43,7 @@ export const Table = sequelize.define(
       defaultValue: 'available',
     },
     restaurant_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       allowNull: false,
       references: { model: 'restaurant', key: 'id' },
       onUpdate: 'CASCADE',

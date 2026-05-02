@@ -26,7 +26,7 @@ export const useRestaurantStore = create((set, get) => ({
 
       const response = await getRestaurants(cleanParams);
       set({
-        restaurants: response.data.restaurants || [],
+        restaurants: response.data.data || [],
         pagination: response.data.pagination || null,
         loading: false,
       });

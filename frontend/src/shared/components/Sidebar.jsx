@@ -14,6 +14,7 @@ import {
   Settings,
   Star
 } from 'lucide-react';
+import { getImageUrl } from '../utils/getImageUrl';
 
 export const Sidebar = () => {
   const { role, user, logout } = useAuthStore();
@@ -122,7 +123,7 @@ export const Sidebar = () => {
         <Link to="/dashboard/profile" className="flex items-center gap-3 mb-4 p-3 rounded-2xl hover:bg-purple-500/5 transition-all group border border-transparent hover:border-purple-500/20">
           <div className="w-10 h-10 rounded-xl bg-purple-600/20 flex items-center justify-center text-purple-400 font-black border border-purple-500/30 overflow-hidden">
             {user?.profilePicture ? (
-              <img src={user.profilePicture} alt="Perfil" className="w-full h-full object-cover" />
+              <img src={getImageUrl(user.profilePicture)} alt="Perfil" className="w-full h-full object-cover" />
             ) : (
               <span className="text-lg">{user?.name?.charAt(0) || 'U'}</span>
             )}

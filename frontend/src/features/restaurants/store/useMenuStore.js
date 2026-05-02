@@ -12,7 +12,13 @@ export const useMenuStore = create((set, get) => ({
     try {
       set({ loading: true });
       const response = await menuApi.getMenus(restaurantId);
-      set({ menus: response.data.menus, loading: false });
+      // El backend devuelve un objeto con { data: { menus: [], pagination: {} } }
+      // O si usamos el controlador estandarizado: { success: true, data: { menus: [], pagination: {} } }
+      const menuData = response.data.data;
+      set({ 
+        menus: Array.isArray(menuData) ? menuData : (menuData?.menus || []), 
+        loading: false 
+      });
     } catch (error) {
       set({ error: 'Error al cargar categorías', loading: false });
     }
@@ -26,7 +32,12 @@ export const useMenuStore = create((set, get) => ({
         restaurant_id: restaurantId,
         ...(menuId && { menu_id: menuId })
       });
-      set({ items: response.data.menuItems, loading: false });
+      // El backend devuelve un objeto con { data: { items: [], pagination: {} } }
+      const itemData = response.data.data;
+      set({ 
+        items: Array.isArray(itemData) ? itemData : (itemData?.items || []), 
+        loading: false 
+      });
     } catch (error) {
       set({ error: 'Error al cargar platillos', loading: false });
     }
@@ -37,7 +48,6 @@ export const useMenuStore = create((set, get) => ({
     try {
       set({ loading: true });
       const response = await menuApi.createMenuItem(formData);
-      // Refrescar lista
       const restaurantId = formData.get('restaurant_id');
       await get().getMenuItems(restaurantId);
       set({ loading: false });

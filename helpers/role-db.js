@@ -42,7 +42,7 @@ export const setUserSingleRole = async (user, roleName, sequelize) => {
   // Normalize
   const normalized = (roleName || '').trim().toUpperCase();
   if (!ALLOWED_ROLES.includes(normalized)) {
-    const err = new Error('Role not allowed. Use ADMIN_ROLE or USER_ROLE');
+    const err = new Error('Role not allowed. Please provide a valid role name.');
     err.status = 400;
     throw err;
   }
@@ -50,10 +50,10 @@ export const setUserSingleRole = async (user, roleName, sequelize) => {
   return sequelize.transaction(async (t) => {
     // If demoting an admin, ensure not the last one
     const isUserAdmin = (user.UserRoles || []).some(
-      (r) => r.Role?.Name === 'ADMIN_ROLE'
+      (r) => r.Role?.Name === 'SUPER_ADMIN_ROLE'
     );
-    if (isUserAdmin && normalized !== 'ADMIN_ROLE') {
-      const adminCount = await countUsersInRole('ADMIN_ROLE');
+    if (isUserAdmin && normalized !== 'SUPER_ADMIN_ROLE') {
+      const adminCount = await countUsersInRole('SUPER_ADMIN_ROLE');
       if (adminCount <= 1) {
         const err = new Error('Cannot remove the last administrator');
         err.status = 409;

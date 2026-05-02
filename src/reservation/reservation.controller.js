@@ -60,7 +60,7 @@ export const createReservation = async (req, res) => {
       await transaction.rollback();
       return res.status(404).json({
         ok: false,
-        message: 'Restaurant not found',
+        message: 'Restaurante no encontrado',
       });
     }
 
@@ -116,7 +116,7 @@ export const createReservation = async (req, res) => {
         await transaction.rollback();
         return res.status(404).json({
           ok: false,
-          message: 'User not found',
+          message: 'Usuario no encontrado',
         });
       }
     }
@@ -173,7 +173,7 @@ export const createReservation = async (req, res) => {
 
     return res.status(201).json({
       ok: true,
-      message: 'Reservation created successfully',
+      message: 'Creado exitosamente',
       reservation: {
         id: reservation.id,
         reservation_number: reservation.reservation_number,
@@ -191,7 +191,7 @@ export const createReservation = async (req, res) => {
     console.error('Error creating reservation:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while creating reservation',
+      message: 'Error interno del servidor while creating reservation',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -242,7 +242,7 @@ export const getAllReservations = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Reservations retrieved successfully',
+      message: 'Datos obtenidos exitosamente',
       pagination: {
         total: count,
         page: parseInt(page),
@@ -255,7 +255,7 @@ export const getAllReservations = async (req, res) => {
     console.error('Error getting reservations:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving reservations',
+      message: 'Error interno del servidor while retrieving reservations',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -288,20 +288,20 @@ export const getReservationById = async (req, res) => {
     if (!reservation) {
       return res.status(404).json({
         ok: false,
-        message: 'Reservation not found',
+        message: 'No encontrado',
       });
     }
 
     return res.status(200).json({
       ok: true,
-      message: 'Reservation retrieved successfully',
+      message: 'Datos obtenidos exitosamente',
       reservation,
     });
   } catch (error) {
     console.error('Error getting reservation:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving reservation',
+      message: 'Error interno del servidor while retrieving reservation',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -321,7 +321,7 @@ export const updateReservation = async (req, res) => {
     if (!reservation) {
       return res.status(404).json({
         ok: false,
-        message: 'Reservation not found',
+        message: 'No encontrado',
       });
     }
 
@@ -357,14 +357,14 @@ export const updateReservation = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Reservation updated successfully',
+      message: 'Actualizado exitosamente',
       reservation,
     });
   } catch (error) {
     console.error('Error updating reservation:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while updating reservation',
+      message: 'Error interno del servidor while updating reservation',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -383,7 +383,7 @@ export const cancelReservation = async (req, res) => {
     if (!reservation) {
       return res.status(404).json({
         ok: false,
-        message: 'Reservation not found',
+        message: 'No encontrado',
       });
     }
 
@@ -407,7 +407,7 @@ export const cancelReservation = async (req, res) => {
     console.error('Error cancelling reservation:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while cancelling reservation',
+      message: 'Error interno del servidor while cancelling reservation',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -426,7 +426,7 @@ export const confirmReservation = async (req, res) => {
     if (!reservation) {
       return res.status(404).json({
         ok: false,
-        message: 'Reservation not found',
+        message: 'No encontrado',
       });
     }
 
@@ -457,7 +457,7 @@ export const confirmReservation = async (req, res) => {
     console.error('Error confirming reservation:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while confirming reservation',
+      message: 'Error interno del servidor while confirming reservation',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -483,7 +483,7 @@ export const checkAvailability = async (req, res) => {
     if (!restaurant || !restaurant.is_active) {
       return res.status(404).json({
         ok: false,
-        message: 'Restaurant not found',
+        message: 'Restaurante no encontrado',
       });
     }
 
@@ -601,7 +601,7 @@ export const checkAvailability = async (req, res) => {
     console.error('Error checking availability:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while checking availability',
+      message: 'Error interno del servidor while checking availability',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -645,7 +645,7 @@ export const getTodayReservations = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: "Today's reservations retrieved successfully",
+      message: "Today's Datos obtenidos exitosamente",
       count: reservations.length,
       reservations,
     });
@@ -653,7 +653,7 @@ export const getTodayReservations = async (req, res) => {
     console.error('Error getting today reservations:', error);
     return res.status(500).json({
       ok: false,
-      message: "Internal server error while retrieving today's reservations",
+      message: "Error interno del servidor while retrieving today's reservations",
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }

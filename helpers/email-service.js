@@ -148,3 +148,26 @@ export const sendPasswordChangedEmail = async (email, name) => {
     throw error;
   }
 };
+
+/**
+ * Función genérica para enviar correos con HTML personalizado (Facturas, Reportes)
+ */
+export const sendHtmlEmail = async (email, subject, html) => {
+  if (!transporter) {
+    throw new Error('SMTP transporter not configured');
+  }
+
+  try {
+    const mailOptions = {
+      from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+      to: email,
+      subject: subject,
+      html: html,
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending HTML email:', error);
+    throw error;
+  }
+};

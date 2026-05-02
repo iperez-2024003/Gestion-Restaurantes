@@ -1,31 +1,17 @@
 import { asyncHandler } from '../../middlewares/server-genericError-handler.js';
-import { validateJWT } from '../../middlewares/validate-JWT.js';
 import { findUserById } from '../../helpers/user-db.js';
 import {
   getUserRoleNames,
   getUsersByRole as repoGetUsersByRole,
   setUserSingleRole,
 } from '../../helpers/role-db.js';
-import { ALLOWED_ROLES, ADMIN_ROLE } from '../../helpers/role-constants.js';
+import { getRequestUserRoleNames } from '../../middlewares/require-role.js';
+import { ALLOWED_ROLES, SUPER_ADMIN_ROLE } from '../../helpers/role-constants.js';
 import { buildUserResponse } from '../../utils/user-helpers.js';
 import { sequelize } from '../../configs/db.js';
 
-const ensureAdmin = async (req) => {
-  const currentUserId = req.userId;
-  if (!currentUserId) return false;
-  const roles =
-    req.user?.UserRoles?.map((ur) => ur.Role?.Name).filter(Boolean) ??
-    (await getUserRoleNames(currentUserId));
-  return roles.includes(ADMIN_ROLE);
-};
-
 export const updateUserRole = [
-  validateJWT,
   asyncHandler(async (req, res) => {
-    if (!(await ensureAdmin(req))) {
-      return res.status(403).json({ success: false, message: 'Forbidden' });
-    }
-
     const { userId } = req.params;
     const { roleName } = req.body || {};
 
@@ -33,7 +19,7 @@ export const updateUserRole = [
     if (!ALLOWED_ROLES.includes(normalized)) {
       return res.status(400).json({
         success: false,
-        message: 'Role not allowed. Use ADMIN_ROLE or USER_ROLE',
+        message: 'Role not allowed. Please provide a valid role',
       });
     }
 
@@ -41,7 +27,7 @@ export const updateUserRole = [
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: 'User not found' });
+        .json({ success: false, message: 'Usuario no encontrado' });
     }
 
     const { updatedUser } = await setUserSingleRole(
@@ -55,27 +41,32 @@ export const updateUserRole = [
 ];
 
 export const getUserRoles = [
-  validateJWT,
   asyncHandler(async (req, res) => {
     const { userId } = req.params;
+    const currentUserId = req.userId;
+    // Solo puede ver sus propios roles o ser SUPER_ADMIN_ROLE para ver cualquier usuario
+    if (userId !== currentUserId) {
+      const userRoles = await getRequestUserRoleNames(req);
+      if (!userRoles.includes(SUPER_ADMIN_ROLE)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Solo el rol SUPER_ADMIN_ROLE puede consultar los roles de otros usuarios.',
+        });
+      }
+    }
     const roles = await getUserRoleNames(userId);
     return res.status(200).json(roles);
   }),
 ];
 
 export const getUsersByRole = [
-  validateJWT,
   asyncHandler(async (req, res) => {
-    if (!(await ensureAdmin(req))) {
-      return res.status(403).json({ success: false, message: 'Forbidden' });
-    }
-
     const { roleName } = req.params;
     const normalized = (roleName || '').trim().toUpperCase();
     if (!ALLOWED_ROLES.includes(normalized)) {
       return res.status(400).json({
         success: false,
-        message: 'Role not allowed. Use ADMIN_ROLE or USER_ROLE',
+        message: 'Role not allowed. Please provide a valid role',
       });
     }
 

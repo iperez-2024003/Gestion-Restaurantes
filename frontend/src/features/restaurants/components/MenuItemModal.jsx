@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMenuStore } from '../store/useMenuStore';
 import { showSuccess, showError } from '../../../shared/utils/toast';
+import { getImageUrl } from '../../../shared/utils/getImageUrl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Utensils, 
@@ -46,7 +47,7 @@ export const MenuItemModal = ({ isOpen, onClose, item = null, restaurantId }) =>
         stock_quantity: item.stock_quantity ?? 10,
         image: null,
       });
-      setPreview(item.image_url);
+      setPreview(getImageUrl(item.image_url));
     } else {
       setFormData({
         name: '',
@@ -124,7 +125,15 @@ export const MenuItemModal = ({ isOpen, onClose, item = null, restaurantId }) =>
           <div className="relative z-10">
             <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-1 block">Gestión de Menú</span>
             <h2 className="text-3xl font-black text-white tracking-tighter uppercase">
-              {item ? 'Modificar <span className="text-zinc-600">Plato</span>' : 'Nuevo <span className="text-purple-500">Plato</span>'}
+              {item ? (
+                <>
+                  Modificar <span className="text-zinc-600">Plato</span>
+                </>
+              ) : (
+                <>
+                  Nuevo <span className="text-purple-500">Plato</span>
+                </>
+              )}
             </h2>
           </div>
           <button 

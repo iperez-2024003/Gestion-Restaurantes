@@ -10,11 +10,13 @@ export const errorHandler = (err, req, res, _next) => {
   const timestamp = new Date().toISOString();
   const errorCode = err.errorCode || null;
 
-  // Error de validación de Mongoose
-  if (err.name === 'ValidationError') {
+  // Error de validación (Mongoose o Sequelize)
+  if (err.name === 'ValidationError' || err.name === 'SequelizeValidationError') {
+    const errors = err.errors?.map((e) => ({ field: e.path || e.field, message: e.message })) || [];
     return res.status(400).json({
       success: false,
       message: 'Error de validación',
+      errors: errors.length ? errors : undefined,
       errorCode,
       traceId,
       timestamp,
@@ -32,13 +34,36 @@ export const errorHandler = (err, req, res, _next) => {
     });
   }
 
-  // Error de duplicado de Mongoose
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
-    const value = err.keyValue[field];
+  // Sequelize: restricción única (campo duplicado)
+  if (err.name === 'SequelizeUniqueConstraintError') {
+    const field = err.errors?.[0]?.path || 'campo';
+    return res.status(409).json({
+      success: false,
+      message: `El valor de ${field} ya está en uso`,
+      errorCode,
+      traceId,
+      timestamp,
+    });
+  }
+
+  // Sequelize: UUID o formato inválido (p. ej. PostgreSQL "invalid input syntax for type uuid")
+  if (err.name === 'SequelizeDatabaseError' && /invalid|uuid|syntax/i.test(err.message || '')) {
     return res.status(400).json({
       success: false,
-      message: `El ${field} '${value}' ya está en uso`,
+      message: 'ID o parámetro con formato inválido',
+      errorCode,
+      traceId,
+      timestamp,
+    });
+  }
+
+  // Error de duplicado de Mongoose
+  if (err.code === 11000) {
+    const field = Object.keys(err.keyValue || {})[0];
+    const value = err.keyValue?.[field];
+    return res.status(400).json({
+      success: false,
+      message: field && value ? `El ${field} '${value}' ya está en uso` : 'El registro ya existe',
       errorCode,
       traceId,
       timestamp,
@@ -77,8 +102,8 @@ export const errorHandler = (err, req, res, _next) => {
     });
   }
 
-  // Error de conexión a base de datos
-  if (err.name === 'MongoNetworkError') {
+  // Error de conexión a base de datos (Mongo o Sequelize)
+  if (err.name === 'MongoNetworkError' || err.name === 'SequelizeConnectionError') {
     return res.status(503).json({
       success: false,
       message: 'Error de conexión a la base de datos',

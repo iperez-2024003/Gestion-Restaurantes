@@ -115,7 +115,7 @@ export const createRestaurant = async (req, res) => {
     if (!admin) {
       return res.status(404).json({
         ok: false,
-        message: 'Administrator user not found',
+        message: 'Administrator No encontrado',
       });
     }
 
@@ -125,7 +125,7 @@ export const createRestaurant = async (req, res) => {
       if (!parentRestaurant) {
         return res.status(404).json({
           ok: false,
-          message: 'Parent restaurant not found',
+          message: 'Parent No encontrado',
         });
       }
     }
@@ -184,7 +184,7 @@ export const createRestaurant = async (req, res) => {
 
     return res.status(201).json({
       ok: true,
-      message: 'Restaurant created successfully',
+      message: 'Creado exitosamente',
       restaurant: {
         id: restaurant.id,
         name: restaurant.name,
@@ -211,7 +211,7 @@ export const createRestaurant = async (req, res) => {
 
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while creating restaurant',
+      message: 'Error interno del servidor while creating restaurant',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -291,7 +291,7 @@ export const getAllRestaurants = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Restaurants retrieved successfully',
+      message: 'Datos obtenidos exitosamente',
       pagination: {
         total: count,
         page: pageNum,
@@ -304,7 +304,7 @@ export const getAllRestaurants = async (req, res) => {
     console.error('Error getting restaurants:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving restaurants',
+      message: 'Error interno del servidor while retrieving restaurants',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -345,20 +345,20 @@ export const getRestaurantById = async (req, res) => {
     if (!restaurant) {
       return res.status(404).json({
         ok: false,
-        message: 'Restaurant not found',
+        message: 'Restaurante no encontrado',
       });
     }
 
     return res.status(200).json({
       ok: true,
-      message: 'Restaurant retrieved successfully',
+      message: 'Datos obtenidos exitosamente',
       restaurant,
     });
   } catch (error) {
     console.error('Error getting restaurant:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving restaurant',
+      message: 'Error interno del servidor while retrieving restaurant',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -381,7 +381,7 @@ export const updateRestaurant = async (req, res) => {
     if (!restaurant) {
       return res.status(404).json({
         ok: false,
-        message: 'Restaurant not found',
+        message: 'Restaurante no encontrado',
       });
     }
 
@@ -420,7 +420,7 @@ export const updateRestaurant = async (req, res) => {
       if (!admin) {
         return res.status(404).json({
           ok: false,
-          message: 'Administrator user not found',
+          message: 'Administrator No encontrado',
         });
       }
     }
@@ -435,7 +435,7 @@ export const updateRestaurant = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Restaurant updated successfully',
+      message: 'Actualizado exitosamente',
       restaurant: {
         id: restaurant.id,
         name: restaurant.name,
@@ -461,7 +461,7 @@ export const updateRestaurant = async (req, res) => {
 
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while updating restaurant',
+      message: 'Error interno del servidor while updating restaurant',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -483,7 +483,7 @@ export const deleteRestaurant = async (req, res) => {
     if (!restaurant) {
       return res.status(404).json({
         ok: false,
-        message: 'Restaurant not found',
+        message: 'Restaurante no encontrado',
       });
     }
 
@@ -498,7 +498,7 @@ export const deleteRestaurant = async (req, res) => {
     console.error('Error deleting restaurant:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while deleting restaurant',
+      message: 'Error interno del servidor while deleting restaurant',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -529,7 +529,7 @@ export const getRestaurantsByAdmin = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Restaurants retrieved successfully',
+      message: 'Datos obtenidos exitosamente',
       count: restaurants.length,
       restaurants,
     });
@@ -537,7 +537,7 @@ export const getRestaurantsByAdmin = async (req, res) => {
     console.error('Error getting admin restaurants:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving admin restaurants',
+      message: 'Error interno del servidor while retrieving admin restaurants',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -559,7 +559,7 @@ export const verifyRestaurant = async (req, res) => {
     if (!restaurant) {
       return res.status(404).json({
         ok: false,
-        message: 'Restaurant not found',
+        message: 'Restaurante no encontrado',
       });
     }
 
@@ -585,7 +585,7 @@ export const verifyRestaurant = async (req, res) => {
     console.error('Error verifying restaurant:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while verifying restaurant',
+      message: 'Error interno del servidor while verifying restaurant',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -608,7 +608,7 @@ export const getRestaurantStats = async (req, res) => {
     if (!restaurant) {
       return res.status(404).json({
         ok: false,
-        message: 'Restaurant not found',
+        message: 'Restaurante no encontrado',
       });
     }
 
@@ -669,14 +669,14 @@ export const getRestaurantStats = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Restaurant statistics retrieved successfully',
+      message: 'Restaurant Datos obtenidos exitosamente',
       stats,
     });
   } catch (error) {
     console.error('Error getting restaurant stats:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving statistics',
+      message: 'Error interno del servidor while retrieving statistics',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }

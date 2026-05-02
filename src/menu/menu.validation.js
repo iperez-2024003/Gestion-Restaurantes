@@ -1,13 +1,9 @@
-'use strict';
+﻿'use strict';
 
 import { body, validationResult } from 'express-validator';
 
 /**
-<<<<<<< HEAD
  * Validation middleware for menu category creation
-=======
- * Validation for creation
->>>>>>> a861ce4450457dceb4ae922c84fe629dc3b6f748
  */
 export const validateMenuCreation = [
   body('name')
@@ -26,8 +22,8 @@ export const validateMenuCreation = [
   body('restaurant_id')
     .notEmpty()
     .withMessage('Restaurant ID is required')
-    .isUUID()
-    .withMessage('Restaurant ID must be a valid UUID'),
+    .isString()
+    .withMessage('Restaurant ID must be a valid String/ID'),
 
   body('display_order')
     .optional()
@@ -51,11 +47,7 @@ export const validateMenuCreation = [
 ];
 
 /**
-<<<<<<< HEAD
  * Validation middleware for menu category update
-=======
- * Validation for update
->>>>>>> a861ce4450457dceb4ae922c84fe629dc3b6f748
  */
 export const validateMenuUpdate = [
   body('name')
@@ -92,11 +84,7 @@ export const validateMenuUpdate = [
 ];
 
 /**
-<<<<<<< HEAD
  * Validation middleware for menu item creation
-=======
- * Validation for menu item creation
->>>>>>> a861ce4450457dceb4ae922c84fe629dc3b6f748
  */
 export const validateMenuItemCreation = [
   body('name')
@@ -121,14 +109,14 @@ export const validateMenuItemCreation = [
   body('menu_id')
     .notEmpty()
     .withMessage('Menu category ID is required')
-    .isUUID()
-    .withMessage('Menu category ID must be a valid UUID'),
+    .isString()
+    .withMessage('Menu category ID must be a valid String/ID'),
 
   body('restaurant_id')
     .notEmpty()
     .withMessage('Restaurant ID is required')
-    .isUUID()
-    .withMessage('Restaurant ID must be a valid UUID'),
+    .isString()
+    .withMessage('Restaurant ID must be a valid String/ID'),
 
   body('image_url')
     .optional()
@@ -199,11 +187,7 @@ export const validateMenuItemCreation = [
 ];
 
 /**
-<<<<<<< HEAD
  * Validation middleware for menu item update
-=======
- * Validation for menu item update
->>>>>>> a861ce4450457dceb4ae922c84fe629dc3b6f748
  */
 export const validateMenuItemUpdate = [
   body('name')
@@ -225,8 +209,8 @@ export const validateMenuItemUpdate = [
 
   body('menu_id')
     .optional()
-    .isUUID()
-    .withMessage('Menu category ID must be a valid UUID'),
+    .isString()
+    .withMessage('Menu category ID must be a valid String/ID'),
 
   body('image_url')
     .optional()

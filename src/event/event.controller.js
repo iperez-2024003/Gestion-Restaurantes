@@ -32,7 +32,7 @@ export const createEvent = async (req, res) => {
     if (!restaurant || !restaurant.is_active) {
       return res.status(404).json({
         ok: false,
-        message: 'Restaurant not found',
+        message: 'Restaurante no encontrado',
       });
     }
 
@@ -71,14 +71,14 @@ export const createEvent = async (req, res) => {
 
     return res.status(201).json({
       ok: true,
-      message: 'Event created successfully',
+      message: 'Creado exitosamente',
       event,
     });
   } catch (error) {
     console.error('Error creating event:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while creating event',
+      message: 'Error interno del servidor while creating event',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -129,7 +129,7 @@ export const getAllEvents = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Events retrieved successfully',
+      message: 'Datos obtenidos exitosamente',
       pagination: {
         total: count,
         page: parseInt(page),
@@ -142,7 +142,7 @@ export const getAllEvents = async (req, res) => {
     console.error('Error getting events:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving events',
+      message: 'Error interno del servidor while retrieving events',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -182,20 +182,20 @@ export const getEventById = async (req, res) => {
     if (!event) {
       return res.status(404).json({
         ok: false,
-        message: 'Event not found',
+        message: 'No encontrado',
       });
     }
 
     return res.status(200).json({
       ok: true,
-      message: 'Event retrieved successfully',
+      message: 'Datos obtenidos exitosamente',
       event,
     });
   } catch (error) {
     console.error('Error getting event:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving event',
+      message: 'Error interno del servidor while retrieving event',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -217,7 +217,7 @@ export const updateEvent = async (req, res) => {
     if (!event) {
       return res.status(404).json({
         ok: false,
-        message: 'Event not found',
+        message: 'No encontrado',
       });
     }
 
@@ -249,14 +249,14 @@ export const updateEvent = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Event updated successfully',
+      message: 'Actualizado exitosamente',
       event,
     });
   } catch (error) {
     console.error('Error updating event:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while updating event',
+      message: 'Error interno del servidor while updating event',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -277,7 +277,7 @@ export const cancelEvent = async (req, res) => {
     if (!event) {
       return res.status(404).json({
         ok: false,
-        message: 'Event not found',
+        message: 'No encontrado',
       });
     }
 
@@ -298,7 +298,7 @@ export const cancelEvent = async (req, res) => {
     console.error('Error cancelling event:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while cancelling event',
+      message: 'Error interno del servidor while cancelling event',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -331,7 +331,7 @@ export const registerParticipant = async (req, res) => {
       await transaction.rollback();
       return res.status(404).json({
         ok: false,
-        message: 'Event not found',
+        message: 'No encontrado',
       });
     }
 
@@ -377,7 +377,7 @@ export const registerParticipant = async (req, res) => {
         await transaction.rollback();
         return res.status(404).json({
           ok: false,
-          message: 'User not found',
+          message: 'Usuario no encontrado',
         });
       }
     }
@@ -423,7 +423,7 @@ export const registerParticipant = async (req, res) => {
     console.error('Error registering participant:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while registering participant',
+      message: 'Error interno del servidor while registering participant',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -445,7 +445,7 @@ export const unregisterParticipant = async (req, res) => {
     if (!event) {
       return res.status(404).json({
         ok: false,
-        message: 'Event not found',
+        message: 'No encontrado',
       });
     }
 
@@ -459,7 +459,7 @@ export const unregisterParticipant = async (req, res) => {
     if (!participant) {
       return res.status(404).json({
         ok: false,
-        message: 'Participant not found in this event',
+        message: 'No encontrado in this event',
       });
     }
 
@@ -478,7 +478,7 @@ export const unregisterParticipant = async (req, res) => {
     console.error('Error unregistering participant:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while unregistering',
+      message: 'Error interno del servidor while unregistering',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -499,7 +499,7 @@ export const getEventParticipants = async (req, res) => {
     if (!event) {
       return res.status(404).json({
         ok: false,
-        message: 'Event not found',
+        message: 'No encontrado',
       });
     }
 
@@ -518,7 +518,7 @@ export const getEventParticipants = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: 'Participants retrieved successfully',
+      message: 'Datos obtenidos exitosamente',
       count: participants.length,
       participants,
     });
@@ -526,7 +526,7 @@ export const getEventParticipants = async (req, res) => {
     console.error('Error getting participants:', error);
     return res.status(500).json({
       ok: false,
-      message: 'Internal server error while retrieving participants',
+      message: 'Error interno del servidor while retrieving participants',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }

@@ -1,4 +1,5 @@
 import { body, validationResult } from 'express-validator';
+import { validatePasswordStrength } from '../utils/password-utils.js';
 
 /**
  * Middleware para procesar resultados de validación
@@ -61,7 +62,14 @@ export const validateRegister = [
     .notEmpty()
     .withMessage('La contraseña es obligatoria')
     .isLength({ min: 8, max: 255 })
-    .withMessage('La contraseña debe tener entre 8 y 255 caracteres'),
+    .withMessage('La contraseña debe tener entre 8 y 255 caracteres')
+    .custom((value) => {
+      const { isValid, errors: strengthErrors } = validatePasswordStrength(value);
+      if (!isValid) {
+        throw new Error(strengthErrors.join('. '));
+      }
+      return true;
+    }),
 
   body('phone')
     .notEmpty()
@@ -141,7 +149,14 @@ export const validateResetPassword = [
     .notEmpty()
     .withMessage('La nueva contraseña es obligatoria')
     .isLength({ min: 8 })
-    .withMessage('La nueva contraseña debe tener al menos 8 caracteres'),
+    .withMessage('La nueva contraseña debe tener al menos 8 caracteres')
+    .custom((value) => {
+      const { isValid, errors: strengthErrors } = validatePasswordStrength(value);
+      if (!isValid) {
+        throw new Error(strengthErrors.join('. '));
+      }
+      return true;
+    }),
 
   handleValidationErrors,
 ];

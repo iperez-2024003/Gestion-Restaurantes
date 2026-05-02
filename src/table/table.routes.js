@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { Router } from 'express';
 import {
@@ -11,10 +11,7 @@ import {
   getAvailableTables,
 } from './table.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
-<<<<<<< Updated upstream
-import { validateTableCreation, validateTableUpdate } from './table.validation.js';
-=======
-import { requireRole } from '../../middlewares/require-role.js';
+import { requireSuperAdmin } from '../../middlewares/require-role.js';
 import { validateUuidParam } from '../../middlewares/validate-params.js';
 import {
   validateTableCreation,
@@ -22,31 +19,17 @@ import {
   validateTableStatusUpdate,
   validateGetAvailableTablesQuery,
 } from './table.validation.js';
->>>>>>> Stashed changes
 
 const router = Router();
 
-// Rutas públicas (lectura)
 router.get('/', getAllTables);
-router.get('/available', getAvailableTables);
-router.get('/:id', getTableById);
-router.post('/', [validateJWT, validateTableCreation], createTable);
-router.put('/:id', [validateJWT, validateTableUpdate], updateTable);
-router.delete('/:id', validateJWT, deleteTable);
-router.patch('/:id/status', validateJWT, updateTableStatus);
+router.get('/available', validateGetAvailableTablesQuery, getAvailableTables);
+router.get('/:id', validateUuidParam('id'), getTableById);
 
-<<<<<<< Updated upstream
-export default router;
-=======
-// Gestión de mesas: solo Restaurant Admin o Super Admin pueden crear/editar/eliminar
-const requireTableAdmin = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE');
-router.post('/', [validateJWT, requireTableAdmin, validateTableCreation], createTable);
-router.put('/:id', [validateJWT, requireTableAdmin, validateUuidParam('id'), validateTableUpdate], updateTable);
-router.delete('/:id', [validateJWT, requireTableAdmin, validateUuidParam('id')], deleteTable);
-
-// Cambio de estado de mesa: permitido para Staff, Restaurant Admin y Super Admin
-const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
-router.patch('/:id/status', [validateJWT, requireOperationalStaff, validateUuidParam('id'), validateTableStatusUpdate], updateTableStatus);
+/** Rutas solo ADMIN_ROLE (gestiÃ³n de mesas) */
+router.post('/', [validateJWT, requireSuperAdmin, validateTableCreation], createTable);
+router.put('/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id'), validateTableUpdate], updateTable);
+router.delete('/:id', [validateJWT, requireSuperAdmin, validateUuidParam('id')], deleteTable);
+router.patch('/:id/status', [validateJWT, requireSuperAdmin, validateUuidParam('id'), validateTableStatusUpdate], updateTableStatus);
 
 export default router;
->>>>>>> Stashed changes

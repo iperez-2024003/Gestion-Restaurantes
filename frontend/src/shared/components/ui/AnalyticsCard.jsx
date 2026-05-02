@@ -26,9 +26,9 @@ export const AnalyticsCard = ({ title, value, percentage, icon: Icon, chartData 
 
         {/* Mini Chart Visualization */}
         <div className="mb-6 h-20 w-full overflow-hidden rounded-2xl bg-black/20 p-4 border border-zinc-800/50">
-          <div className="flex h-full w-full items-end justify-between gap-2">
+          <div className="flex h-16 w-full items-end justify-between gap-2">
             {chartData.map((height, i) => (
-              <div key={i} className="group/bar relative w-full h-full flex items-end">
+              <div key={i} className="group/bar relative flex-1 h-full flex items-end">
                  <div 
                    style={{ height: `${height}%` }}
                    className="w-full rounded-full bg-purple-500/20 group-hover/bar:bg-purple-500/40 transition-all duration-300" 

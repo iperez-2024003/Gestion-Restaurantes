@@ -1,68 +1,72 @@
 import { User, UserProfile, UserEmail } from '../src/users/user.model.js';
 import { Role, UserRole } from '../src/auth/role.model.js';
 import { hashPassword } from '../utils/password-utils.js';
-import { SUPER_ADMIN_ROLE, RESTAURANT_ADMIN_ROLE, STAFF_ROLE } from './role-constants.js';
+import { SUPER_ADMIN_ROLE } from './role-constants.js';
 
 /**
- * Asegura la existencia y contraseñas de los usuarios base (Admin, Gerente, Staff)
+ * Crea un usuario SUPER_ADMIN por defecto si no existe
  */
 export const seedAdminUser = async () => {
   try {
+    const adminEmail = 'admin@restaurantes.com';
+    const existingAdmin = await User.findOne({
+      where: { Email: adminEmail },
+    });
+
+    if (existingAdmin) {
+      console.log('✅ Usuario SUPER_ADMIN por defecto ya existe en el sistema.');
+      return;
+    }
+
+    // 1. Buscar o crear el rol SUPER_ADMIN
+    let adminRole = await Role.findOne({
+      where: { Name: SUPER_ADMIN_ROLE },
+    });
+
+    if (!adminRole) {
+      adminRole = await Role.create({
+        Name: SUPER_ADMIN_ROLE,
+      });
+    }
+
+    // 2. Hashear la contraseña por defecto
     const defaultPassword = 'Admin123!';
     const hashedPassword = await hashPassword(defaultPassword);
 
-    // 1. Asegurar SUPER ADMIN
-    const adminEmail = 'admin@restaurantes.com';
-    let adminUser = await User.findOne({ where: { Email: adminEmail } });
-    if (!adminUser) {
-      const adminRole = await Role.findOne({ where: { Name: SUPER_ADMIN_ROLE } });
-      adminUser = await User.create({
-        Name: 'Administrador', Surname: 'Sistema', Username: 'admin', Email: adminEmail, Password: hashedPassword, Status: true,
-      });
-      await UserProfile.create({ UserId: adminUser.Id, Phone: '00000000' });
-      await UserEmail.create({ UserId: adminUser.Id, EmailVerified: true });
-      await UserRole.create({ UserId: adminUser.Id, RoleId: adminRole.Id });
-      console.log('🎉 SUPER ADMIN creado.');
-    } else {
-      await adminUser.update({ Password: hashedPassword });
-      console.log('✅ SUPER ADMIN sincronizado.');
-    }
+    // 3. Crear el usuario ADMIN
+    const adminUser = await User.create({
+      Name: 'Administrador',
+      Surname: 'Sistema',
+      Username: 'admin',
+      Email: adminEmail,
+      Password: hashedPassword,
+      Status: true,
+    });
 
-    // 2. Asegurar GERENTE
-    const gerenteEmail = 'gerente@kinal.com';
-    let gerenteUser = await User.findOne({ where: { Email: gerenteEmail } });
-    if (!gerenteUser) {
-      const gerenteRole = await Role.findOne({ where: { Name: RESTAURANT_ADMIN_ROLE } });
-      gerenteUser = await User.create({
-        Name: 'Gerente', Surname: 'Kinal', Username: 'gerente', Email: gerenteEmail, Password: hashedPassword, Status: true,
-      });
-      await UserProfile.create({ UserId: gerenteUser.Id, Phone: '88888888' });
-      await UserEmail.create({ UserId: gerenteUser.Id, EmailVerified: true });
-      await UserRole.create({ UserId: gerenteUser.Id, RoleId: gerenteRole.Id });
-      console.log('👤 Gerente creado.');
-    } else {
-      await gerenteUser.update({ Password: hashedPassword });
-      console.log('✅ Gerente sincronizado.');
-    }
+    // 4. Crear el perfil del usuario
+    await UserProfile.create({
+      UserId: adminUser.Id,
+      ProfilePicture: 'https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff',
+      Phone: '00000000',
+    });
 
-    // 3. Asegurar STAFF
-    const staffEmail = 'staff@kinal.com';
-    let staffUser = await User.findOne({ where: { Email: staffEmail } });
-    if (!staffUser) {
-      const staffRole = await Role.findOne({ where: { Name: STAFF_ROLE } });
-      staffUser = await User.create({
-        Name: 'Mesero', Surname: 'Kinal', Username: 'staff', Email: staffEmail, Password: hashedPassword, Status: true,
-      });
-      await UserProfile.create({ UserId: staffUser.Id, Phone: '77777777' });
-      await UserEmail.create({ UserId: staffUser.Id, EmailVerified: true });
-      await UserRole.create({ UserId: staffUser.Id, RoleId: staffRole.Id });
-      console.log('👨‍🍳 Staff creado.');
-    } else {
-      await staffUser.update({ Password: hashedPassword });
-      console.log('✅ Staff sincronizado.');
-    }
+    // 5. Crear el registro de email (ya verificado)
+    await UserEmail.create({
+      UserId: adminUser.Id,
+      EmailVerified: true,
+      EmailVerificationToken: null,
+      EmailVerificationTokenExpiry: null,
+    });
 
+    // 6. Asignar el rol SUPER_ADMIN
+    await UserRole.create({
+      UserId: adminUser.Id,
+      RoleId: adminRole.Id,
+    });
+
+    // Mensaje simple
+    console.log('🎉 SUPER ADMIN creado por defecto: admin@restaurantes.com / Admin123!');
   } catch (error) {
-    console.error('❌ Error en el seeder de usuarios:', error.message);
+    console.error('❌ Error al crear usuario SUPER ADMIN:', error.message);
   }
 };

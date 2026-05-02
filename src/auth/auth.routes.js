@@ -1,11 +1,7 @@
 import { Router } from 'express';
 import * as authController from './auth.controller.js';
-<<<<<<< Updated upstream
 import { validateJWT } from '../../middlewares/validate-JWT.js';
-=======
-import { validateJWT, optionalValidateJWT } from '../../middlewares/validate-JWT.js';
 import { validateProfileByIdBody } from '../../middlewares/validate-params.js';
->>>>>>> Stashed changes
 import {
   authRateLimit,
   requestLimit,
@@ -18,9 +14,63 @@ import {
   validateResendVerification,
   validateForgotPassword,
   validateResetPassword,
+  handleValidationErrors,
 } from '../../middlewares/validation.js';
+import { validatePasswordStrength } from '../../utils/password-utils.js';
+import { body } from 'express-validator';
 
 const router = Router();
+
+// ─── Validaciones para actualizar perfil ──────────────────────────────────────
+const validateUpdateProfile = [
+  body('name')
+    .optional()
+    .trim()
+    .notEmpty().withMessage('El nombre no puede estar vacío')
+    .isLength({ max: 25 }).withMessage('El nombre no puede tener más de 25 caracteres')
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/).withMessage('El nombre solo puede contener letras y espacios'),
+
+  body('surname')
+    .optional()
+    .trim()
+    .notEmpty().withMessage('El apellido no puede estar vacío')
+    .isLength({ max: 25 }).withMessage('El apellido no puede tener más de 25 caracteres')
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/).withMessage('El apellido solo puede contener letras y espacios'),
+
+  body('username')
+    .optional()
+    .trim()
+    .notEmpty().withMessage('El nombre de usuario no puede estar vacío')
+    .isLength({ max: 50 }).withMessage('El nombre de usuario no puede tener más de 50 caracteres'),
+
+  body('phone')
+    .optional()
+    .matches(/^\d{8}$/).withMessage('El teléfono debe tener exactamente 8 dígitos'),
+
+  handleValidationErrors,
+];
+
+// ─── Validaciones para cambiar contraseña ────────────────────────────────────
+const validateChangePassword = [
+  body('currentPassword')
+    .notEmpty().withMessage('La contraseña actual es obligatoria'),
+
+  body('newPassword')
+    .notEmpty().withMessage('La nueva contraseña es obligatoria')
+    .isLength({ min: 8, max: 255 }).withMessage('La nueva contraseña debe tener entre 8 y 255 caracteres')
+    .custom((value) => {
+      const { isValid, errors: strengthErrors } = validatePasswordStrength(value);
+      if (!isValid) throw new Error(strengthErrors.join('. '));
+      return true;
+    }),
+
+  body('confirmPassword')
+    .notEmpty().withMessage('La confirmación de contraseña es obligatoria'),
+
+  handleValidationErrors,
+];
+
+// ─── AUTH ROUTES ──────────────────────────────────────────────────────────────
 
 /**
  * @swagger
@@ -28,56 +78,10 @@ const router = Router();
  *   post:
  *     tags: [Authentication]
  *     summary: Registra un nuevo usuario
- *     description: Crea una nueva cuenta de usuario con validaciones de seguridad
- *     consumes:
- *       - multipart/form-data
- *     parameters:
- *       - name: name
- *         in: formData
- *         required: true
- *         type: string
- *         description: Nombre del usuario
- *       - name: surname
- *         in: formData
- *         required: true
- *         type: string
- *         description: Apellido del usuario
- *       - name: username
- *         in: formData
- *         required: true
- *         type: string
- *         description: Nombre de usuario único
- *       - name: email
- *         in: formData
- *         required: true
- *         type: string
- *         description: Email del usuario
- *       - name: password
- *         in: formData
- *         required: true
- *         type: string
- *         description: Contraseña (mínimo 8 caracteres)
- *       - name: phone
- *         in: formData
- *         required: true
- *         type: string
- *         description: Teléfono (8 dígitos)
- *       - name: profilePicture
- *         in: formData
- *         type: file
- *         description: Imagen de perfil (opcional)
- *     responses:
- *       201:
- *         description: Usuario registrado exitosamente
- *       400:
- *         description: Errores de validación
- *       409:
- *         description: Email o username ya existe
  */
 router.post(
   '/register',
   authRateLimit,
-  optionalValidateJWT,
   upload.single('profilePicture'),
   handleUploadError,
   validateRegister,
@@ -90,30 +94,6 @@ router.post(
  *   post:
  *     tags: [Authentication]
  *     summary: Autentica un usuario
- *     description: Inicia sesión con email/username y contraseña
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - emailOrUsername
- *               - password
- *             properties:
- *               emailOrUsername:
- *                 type: string
- *                 description: Email o nombre de usuario
- *               password:
- *                 type: string
- *                 description: Contraseña del usuario
- *     responses:
- *       200:
- *         description: Login exitoso
- *       401:
- *         description: Credenciales inválidas
- *       423:
- *         description: Cuenta bloqueada
  */
 router.post('/login', authRateLimit, validateLogin, authController.login);
 
@@ -123,28 +103,10 @@ router.post('/login', authRateLimit, validateLogin, authController.login);
  *   post:
  *     tags: [Authentication]
  *     summary: Verifica el email del usuario
- *     description: Confirma la dirección de email usando el token enviado
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - token
- *             properties:
- *               token:
- *                 type: string
- *                 description: Token de verificación de email
- *     responses:
- *       200:
- *         description: Email verificado exitosamente
- *       400:
- *         description: Token inválido o expirado
  */
 router.post(
   '/verify-email',
-  requestLimit, // Match .NET ApiPolicy (20 tokens per minute)
+  requestLimit,
   validateVerifyEmail,
   authController.verifyEmail
 );
@@ -155,28 +117,10 @@ router.post(
  *   post:
  *     tags: [Authentication]
  *     summary: Reenvía el email de verificación
- *     description: Envía nuevamente el email de verificación
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
- *                 description: Email del usuario
- *     responses:
- *       200:
- *         description: Email reenviado exitosamente
- *       404:
- *         description: Usuario no encontrado
  */
 router.post(
   '/resend-verification',
-  authRateLimit, // Match .NET AuthPolicy (5 req/min)
+  authRateLimit,
   validateResendVerification,
   authController.resendVerification
 );
@@ -187,26 +131,10 @@ router.post(
  *   post:
  *     tags: [Authentication]
  *     summary: Inicia recuperación de contraseña
- *     description: Envía email con token para resetear contraseña
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
- *                 description: Email del usuario
- *     responses:
- *       200:
- *         description: Instrucciones enviadas al email
  */
 router.post(
   '/forgot-password',
-  authRateLimit, // Match .NET AuthPolicy (5 req/min)
+  authRateLimit,
   validateForgotPassword,
   authController.forgotPassword
 );
@@ -217,28 +145,6 @@ router.post(
  *   post:
  *     tags: [Authentication]
  *     summary: Resetea la contraseña
- *     description: Cambia la contraseña usando el token de recuperación
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - token
- *               - newPassword
- *             properties:
- *               token:
- *                 type: string
- *                 description: Token de recuperación de contraseña
- *               newPassword:
- *                 type: string
- *                 description: Nueva contraseña
- *     responses:
- *       200:
- *         description: Contraseña actualizada exitosamente
- *       400:
- *         description: Token inválido o expirado
  */
 router.post(
   '/reset-password',
@@ -247,22 +153,14 @@ router.post(
   authController.resetPassword
 );
 
+// ─── PROFILE ROUTES ───────────────────────────────────────────────────────────
+
 /**
  * @swagger
  * /api/v1/auth/profile:
  *   get:
  *     tags: [Profile]
- *     summary: Obtiene el perfil del usuario
- *     description: Devuelve la información del usuario autenticado
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Perfil obtenido exitosamente
- *       401:
- *         description: Token inválido
- *       403:
- *         description: Email no verificado
+ *     summary: Obtiene el perfil del usuario autenticado
  */
 router.get('/profile', validateJWT, authController.getProfile);
 
@@ -272,27 +170,40 @@ router.get('/profile', validateJWT, authController.getProfile);
  *   post:
  *     tags: [Profile]
  *     summary: Obtiene el perfil del usuario por ID
- *     description: Devuelve la información del usuario basándose en el userId proporcionado
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - userId
- *             properties:
- *               userId:
- *                 type: string
- *                 description: ID del usuario
- *     responses:
- *       200:
- *         description: Perfil obtenido exitosamente
- *       400:
- *         description: userId no proporcionado
- *       404:
- *         description: Usuario no encontrado
  */
-router.post('/profile/by-id', requestLimit, authController.getProfileById);
+router.post('/profile/by-id', requestLimit, validateProfileByIdBody, authController.getProfileById);
+
+/**
+ * IMPORTANTE: change-password va ANTES de /profile (PUT)
+ * para que Express no confunda la ruta
+ *
+ * @swagger
+ * /api/v1/auth/profile/change-password:
+ *   put:
+ *     tags: [Profile]
+ *     summary: Cambia la contraseña (requiere la contraseña actual)
+ */
+router.put(
+  '/profile/change-password',
+  validateJWT,
+  validateChangePassword,
+  authController.changePassword
+);
+
+/**
+ * @swagger
+ * /api/v1/auth/profile:
+ *   put:
+ *     tags: [Profile]
+ *     summary: Edita el perfil (name, surname, username, phone, foto)
+ */
+router.put(
+  '/profile',
+  validateJWT,
+  upload.single('profilePicture'),
+  handleUploadError,
+  validateUpdateProfile,
+  authController.updateProfile
+);
 
 export default router;

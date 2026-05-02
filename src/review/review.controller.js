@@ -5,7 +5,6 @@ import { Restaurant } from '../restaurant/restaurant.model.js';
 import { User, UserProfile } from '../users/user.model.js';
 import { SUPER_ADMIN_ROLE } from '../../helpers/role-constants.js';
 import { getRequestUserRoleNames } from '../../middlewares/require-role.js';
-import { sequelize } from '../../configs/db.js';
 
 /**
  * Creates a new review
@@ -78,7 +77,7 @@ export const getRestaurantReviews = async (req, res) => {
                 {
                     model: User,
                     as: 'user',
-                    attributes: ['Id', 'Name', 'Surname', 'Username'],
+                    attributes: ['Id', 'Name', 'Surname'],
                 },
             ],
             order: [['created_at', 'DESC']],

@@ -9,7 +9,7 @@ export const MenuItem = sequelize.define(
   'menu_item',
   {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
@@ -51,7 +51,7 @@ export const MenuItem = sequelize.define(
       },
     },
     menu_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       allowNull: false,
       references: {
         model: 'menu',
@@ -61,7 +61,7 @@ export const MenuItem = sequelize.define(
       onDelete: 'CASCADE',
     },
     restaurant_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       allowNull: false,
       references: {
         model: 'restaurant',
@@ -96,6 +96,18 @@ export const MenuItem = sequelize.define(
       allowNull: false,
       defaultValue: true,
       comment: 'Item availability status',
+    },
+    stock_quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: {
+          args: [0],
+          msg: 'Stock quantity cannot be negative',
+        },
+      },
+      comment: 'Current inventory stock quantity',
     },
     preparation_time: {
       type: DataTypes.INTEGER,

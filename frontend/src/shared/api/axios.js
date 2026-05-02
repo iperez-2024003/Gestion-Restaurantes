@@ -7,13 +7,20 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token || localStorage.getItem('token');
-  
-  // Validar que el token sea un string real y no "undefined" / "null"
-  const isValidToken = token && token !== 'undefined' && token !== 'null';
+  // Rutas públicas que NO requieren token (o donde NO debe enviarse)
+  const publicRoutes = ['/auth/login', '/auth/register', '/auth/resend-verification', '/auth/verify-email', '/auth/forgot-password', '/auth/reset-password'];
+  const isPublicRoute = publicRoutes.some(route => config.url?.includes(route));
 
-  if (isValidToken) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // Solo añadir token si NO es una ruta pública
+  if (!isPublicRoute) {
+    const token = useAuthStore.getState().token || localStorage.getItem('token');
+    
+    // Validar que el token sea un string real y no "undefined" / "null"
+    const isValidToken = token && token !== 'undefined' && token !== 'null';
+
+    if (isValidToken) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
 
   // Solo añadir Content-Type si hay un body, no es FormData y es un método que lo permite

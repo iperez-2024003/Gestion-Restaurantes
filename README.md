@@ -1,661 +1,118 @@
-<<<<<<< Updated upstream
-Sistema de Gestión de Restaurantes - Guía de Uso
-API REST - Proyecto Kinal IN6BM
+# 🍽️ API Gestión de Restaurantes (SaaS)
 
-📖 Descripción
-Sistema completo de gestión para restaurantes que permite administrar restaurantes, menús, mesas, pedidos, reservaciones, eventos y generar estadísticas.
-Tecnologías: Node.js + Express + PostgreSQL + JWT + Sequelize
-Es un proyecto desarrollado con la metodología Scrum hecho por mi Iverson Pérez Maldonado - 2024003 
-El proyecto es funcional pruebas adjundas en trello 
-Cualquier duda comunicarse con mi persona iperez-2024003@kinal.edu.gt 
-
-🚀 Iniciar el Proyecto
-1. Iniciar Base de Datos con Docker
-bash# Iniciar PostgreSQL y pgAdmin
-docker-compose up -d
-
-# Verificar que estén corriendo
-docker ps
-Servicios activos:
-
-🐘 PostgreSQL: localhost:5432
-🖥️ pgAdmin: http://localhost:5050
-
-2. Iniciar el Servidor API
-bash# En la carpeta del proyecto
-pnpm run dev
-
-# O si usas npm
-npm run dev
-Servidor corriendo en: http://localhost:3000
-Health Check: http://localhost:3000/api/v1/health
-
-🔐 Autenticación y Uso
-Paso 1: Registrar Usuario
-Endpoint: POST /api/v1/auth/register
-json{
-  "username": "admin_test",
-  "email": "admin@test.com",
-  "password": "Admin123!",
-  "phone": "12345678"
-}
-Respuesta:
-json{
-  "ok": true,
-  "message": "User registered successfully",
-  "user": {
-    "id": "uuid-generado",
-    "username": "admin_test",
-    "email": "admin@test.com"
-  }
-}
-🔑 Guarda el id del usuario
-
-Paso 2: Iniciar Sesión
-Endpoint: POST /api/v1/auth/login
-json{
-  "email": "admin@test.com",
-  "password": "Admin123!"
-}
-Respuesta:
-json{
-  "ok": true,
-  "message": "Login successful",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": { ... }
-}
-🎫 Copia el token completo - Lo necesitas para todas las demás peticiones
-
-Paso 3: Crear Restaurante
-Endpoint: POST /api/v1/restaurants
-Headers:
-Authorization: Bearer TU_TOKEN_AQUI
-Content-Type: application/json
-Body:
-json{
-  "name": "La Trattoria Italiana",
-  "description": "Auténtica cocina italiana",
-  "address": "5ta Avenida 12-30, Zona 10, Guatemala",
-  "phone": "+502 2345-6789",
-  "email": "contacto@latrattoria.gt",
-  "category": "fine_dining",
-  "cuisine_type": "Italiana",
-  "price_range": "$$$",
-  "capacity": 80,
-  "opening_time": "11:00:00",
-  "closing_time": "23:00:00",
-  "operating_days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
-  "accepts_reservations": true,
-  "admin_id": "TU_USER_ID_AQUI"
-}
-🏪 Guarda el id del restaurante
-
-🐳 Uso de Docker
-Comandos Básicos
-bash# Ver contenedores corriendo
-docker ps
-
-# Ver logs en tiempo real
-docker-compose logs -f
-
-# Ver logs solo de PostgreSQL
-docker-compose logs -f postgres
-
-# Detener servicios
-docker-compose down
-
-# Reiniciar servicios
-docker-compose restart
-
-# Limpiar todo (⚠️ BORRA LA BD)
-docker-compose down -v
-Acceder a PostgreSQL desde terminal
-bashdocker exec -it gestion-restaurantes bash
-psql -U root -d Gestion-Restaurantes
-Comandos útiles en psql:
-sql\l              -- Listar bases de datos
-\c Gestion-Restaurantes  -- Conectar a BD
-\dt             -- Listar tablas
-\d users        -- Ver estructura de tabla
-\q              -- Salir
-
-🖥️ Uso de pgAdmin
-Acceder a pgAdmin
-
-Abre tu navegador
-Ve a: http://localhost:5050
-Login:
-
-Email: admin@admin.com
-Password: admin
-
-
-
-Conectar al Servidor (Primera vez)
-
-Click derecho en "Servers" → "Register" → "Server"
-Tab General:
-
-Name: Gestion Restaurantes
-
-
-Tab Connection:
-
-Host: postgres-restaurantes (nombre del contenedor)
-Port: 5432
-Database: Gestion-Restaurantes
-Username: root
-Password: root
-
-
-Click "Save"
-
-Ver las Tablas
-Servers 
-→ Gestion Restaurantes 
-→ Databases 
-→ Gestion-Restaurantes 
-→ Schemas 
-→ public 
-→ Tables
-Tablas creadas:
-
-📁 users - Usuarios del sistema
-📁 roles - Roles (admin, waiter, customer)
-📁 restaurant - Restaurantes
-📁 menu - Categorías de menú
-📁 menu_item - Platillos
-📁 table - Mesas
-📁 order - Pedidos
-📁 order_item - Items de pedidos
-📁 reservation - Reservaciones
-📁 event - Eventos gastronómicos
-📁 event_participant - Participantes en eventos
-
-Consultas SQL Útiles
-Ver todos los restaurantes:
-sqlSELECT 
-  id, name, category, rating, 
-  is_active, created_at
-FROM restaurant
-WHERE is_active = true
-ORDER BY created_at DESC;
-Ver menú completo de un restaurante:
-sqlSELECT 
-  m.name AS categoria,
-  mi.name AS platillo,
-  mi.price AS precio,
-  mi.is_available AS disponible
-FROM menu m
-JOIN menu_item mi ON mi.menu_id = m.id
-WHERE m.restaurant_id = 'TU_RESTAURANT_ID'
-  AND m.is_active = true
-ORDER BY m.display_order, mi.name;
-Ver pedidos de hoy:
-sqlSELECT 
-  o.order_number,
-  o.customer_name,
-  o.status,
-  o.total,
-  o.created_at
-FROM "order" o
-WHERE DATE(o.created_at) = CURRENT_DATE
-ORDER BY o.created_at DESC;
-Ver reservaciones próximas:
-sqlSELECT 
-  r.reservation_number,
-  r.customer_name,
-  r.reservation_date,
-  r.reservation_time,
-  r.party_size,
-  r.status,
-  rest.name AS restaurante
-FROM reservation r
-JOIN restaurant rest ON rest.id = r.restaurant_id
-WHERE r.reservation_date >= CURRENT_DATE
-  AND r.status IN ('pending', 'confirmed')
-ORDER BY r.reservation_date, r.reservation_time;
-Ejecutar Consultas
-
-Click derecho en Gestion-Restaurantes
-Select "Query Tool"
-Pega tu consulta SQL
-Click en ▶ Execute o presiona F5
-
-Crear Backup
-
-Click derecho en Gestion-Restaurantes
-"Backup..."
-Filename: backup_gestion_restaurantes_2026-02-16.sql
-Format: Plain
-Click "Backup"
-
-
-📋 Endpoints Principales
-Base URL: http://localhost:3000/api/v1
-Autenticación
-
-POST /auth/register - Registrarse
-POST /auth/login - Login
-
-Restaurantes
-
-POST /restaurants - Crear restaurante 🔒
-GET /restaurants - Listar todos
-GET /restaurants/:id - Ver uno
-PUT /restaurants/:id - Actualizar 🔒
-DELETE /restaurants/:id - Eliminar 🔒
-
-Menús
-
-POST /menus - Crear categoría 🔒
-GET /menus - Listar categorías
-POST /menus/items - Crear platillo 🔒
-GET /menus/items/all - Listar platillos
-PATCH /menus/items/:id/toggle - Cambiar disponibilidad 🔒
-
-Mesas
-
-POST /tables - Crear mesa 🔒
-GET /tables - Listar mesas
-GET /tables/available - Mesas disponibles
-PATCH /tables/:id/status - Cambiar estado 🔒
-
-Pedidos
-
-POST /orders - Crear pedido 🔒
-GET /orders - Listar pedidos 🔒
-PATCH /orders/:id/status - Cambiar estado 🔒
-POST /orders/:id/items - Agregar item 🔒
-
-Reservaciones
-
-POST /reservations - Crear reservación 🔒
-GET /reservations - Listar 🔒
-GET /reservations/check-availability - Verificar disponibilidad
-PATCH /reservations/:id/confirm - Confirmar 🔒
-
-Eventos
-
-POST /events - Crear evento 🔒
-GET /events - Listar eventos
-POST /events/:id/register - Registrarse 🔒
-GET /events/:id/participants - Ver participantes 🔒
-
-Estadísticas
-
-GET /statistics/restaurant/:id/overview - Resumen 🔒
-GET /statistics/restaurant/:id/orders - Stats de pedidos 🔒
-GET /statistics/restaurant/:id/popular-dishes - Top platillos 🔒
-GET /statistics/platform/summary - Resumen plataforma 🔒
-
-🔒 = Requiere token JWT en header Authorization: Bearer TOKEN
-Total: ~60 endpoints
-
-📬 Uso de Postman
-Importar Colección
-
-Abre Postman
-Click en "Import"
-Selecciona: Gestion_Restaurantes.postman_collection.json
-Click "Import"
-
-Configurar Environment
-
-Click en el icono del ojo 👁️ (esquina superior derecha)
-Click en "Add" (nuevo environment)
-Nombre: Gestion Restaurantes - Local
-Variables:
-
-VariableValorbase_urlhttp://localhost:3000/api/v1token(vacío - se llena después del login)restaurant_id(vacío - se llena después de crear restaurante)user_id(vacío - se llena después del register)
-
-Click "Save"
-Selecciona el environment en el dropdown superior
-
-Flujo de Prueba
-
-Register → Copia user_id
-Login → Copia token
-Create Restaurant → Copia restaurant_id
-Ahora puedes usar todos los demás endpoints
-
-
-🔧 Solución de Problemas
-Error: Cannot connect to PostgreSQL
-bash# Verifica que Docker esté corriendo
-docker ps
-
-# Si no está, inicia:
-docker-compose up -d
-
-# Ver logs:
-docker-compose logs postgres
-Error: Port 3000 already in use
-bash# Opción 1: Cambiar puerto en .env
-PORT=3001
-
-# Opción 2: Matar proceso
-# Windows:
-netstat -ano | findstr :3000
-taskkill /PID <numero> /F
-
-# Mac/Linux:
-lsof -ti:3000 | xargs kill -9
-Error: JWT token invalid
-
-Verifica que el header tenga: Authorization: Bearer TU_TOKEN
-Genera un nuevo token haciendo login de nuevo
-Asegúrate de copiar el token completo
-
-Reiniciar todo desde cero
-bash# 1. Detener servidor (Ctrl+C)
-# 2. Detener Docker
-docker-compose down -v
-
-# 3. Limpiar node_modules
-rm -rf node_modules
-npm cache clean --force
-
-# 4. Reinstalar
-npm install
-
-# 5. Iniciar Docker
-docker-compose up -d
-
-# 6. Iniciar servidor
-pnpm run dev
-
- Integración Entre Módulos
-Los módulos no funcionan aislados, están conectados entre sí:
-RESTAURANTE
-    ↓
-    ├─→ MENÚS (un restaurante tiene muchos menús)
-    │      ↓
-    │      └─→ PLATILLOS (cada menú tiene muchos platillos)
-    │
-    ├─→ MESAS (un restaurante tiene muchas mesas)
-    │
-    ├─→ PEDIDOS (los pedidos son de un restaurante específico)
-    │      ↓
-    │      └─→ ITEMS DEL PEDIDO (cada pedido tiene platillos del menú)
-    │
-    ├─→ RESERVACIONES (las reservaciones son para un restaurante)
-    │
-    └─→ EVENTOS (los eventos se realizan en un restaurante)
-           ↓
-           └─→ PARTICIPANTES (cada evento tiene participantes registrados)
-Ejemplo de Integración Completa:
-Un cliente hace una reservación para 4 personas → Sistema verifica mesas disponibles con capacidad suficiente → Reserva la Mesa #5 → Cliente llega y confirma → Mesero crea pedido asociado a Mesa #5 → Agrega platillos del menú → Sistema calcula total automáticamente → Pedido va a cocina → Se sirve → Cliente paga → Mesa vuelve a disponible → Toda la información queda registrada para estadísticas.
-
-🛡️ Seguridad y Validaciones
-El sistema implementa múltiples capas de seguridad:
-Autenticación JWT:
-
-Los usuarios deben hacer login para acceder
-Cada petición protegida requiere un token válido
-Los tokens expiran después de 24 horas
-
-Validaciones de Negocio:
-
-No se puede crear un pedido de platillos que no están disponibles
-No se puede reservar en horarios fuera de operación del restaurante
-No se pueden registrar más participantes de los permitidos en un evento
-Los precios deben ser positivos
-Las fechas de reservación deben ser futuras
-
-Soft Delete:
-
-Nada se borra permanentemente de la base de datos
-Los registros se marcan como inactivos
-Se mantiene historial completo para auditoría
-
-Cálculos Automáticos:
-
-El sistema calcula automáticamente IVA (12%)
-Previene errores humanos en cuentas
-Mantiene consistencia en precios
-
-
-🎓 Valor Académico del Proyecto
-Este proyecto demuestra conocimientos en:
-✅ Backend Development: API REST con Node.js y Express
-✅ Bases de Datos: Diseño relacional con PostgreSQL y Sequelize ORM
-✅ Seguridad: Autenticación JWT, encriptación de passwords con Argon2
-✅ Arquitectura: Microservicios, separación de responsabilidades (MVC)
-✅ DevOps: Dockerización, docker-compose, ambientes de desarrollo
-✅ Metodología Ágil: SCRUM con sprints de 7 días
-✅ Trabajo en Equipo: Organización en equipos (Backend A y B)
-✅ Documentación: API documentada, README completo, Postman Collection
-✅ Testing: Validaciones robustas, manejo de errores
-✅ Buenas Prácticas: Código limpio, comentado, modular y escalable
-
-👥 Equipo de Desarrollo
-Scrum Master: Iverson Armando Pérez Maldonado
-Desarrolladores:
-
-1. Iverson Armando Pérez Maldonado - 2024003
-2. Jeremy Jhoel Méndez Palencia - 2021550
-3. Oscar Sebastian Cumatz Lopez - 2021660
-4. Carlos Daniel Chacón Duarte - 2021560
-5. Jorge Eliam Aquino Reyes - 2021159
-6. Jorge Lisandro Magzul Tzuquén - 2024029
-7. Iverson Armando Pérez Maldonado - 2024003
-
-Institución: Centro Educativo Técnico Laboral Kinal
-Curso: IN6BM - Taller de Programación III
-Profesor: Elmer Rodrigo Santos García
-Período: Marzo - Junio 2026
-=======
-# 🍽️ RestauManager — Plataforma Integral de Gestión Gastronómica
-
-**RestauManager** es un ecosistema Full-Stack diseñado para transformar la operación de restaurantes. Conecta a dueños, gerentes, personal y comensales en tiempo real a través de una interfaz premium y una API robusta.
+Bienvenido a la API RESTful de **Gestión de Restaurantes**, una arquitectura Multi-Tenant de alto nivel (Senior-grade) construida con **Node.js, Express, PostgreSQL y Sequelize**. Este sistema permite administrar múltiples restaurantes, controlando de manera transaccional inventarios, facturación, y órdenes en tiempo real mediante WebSockets.
 
 ---
 
-## 🏗️ Stack Tecnológico
+## 🚀 Instalación y Puesta en Marcha
 
-| Capa | Tecnología |
-|---|---|
-| **Runtime** | Node.js v24 + ES Modules |
-| **Framework Backend** | Express.js |
-| **ORM** | Sequelize 6 |
-| **Base de Datos** | PostgreSQL |
-| **Autenticación** | JWT + Argon2 (hashing) |
-| **Tiempo Real** | Socket.io |
-| **Storage** | Cloudinary |
-| **Email** | Nodemailer (Gmail SMTP) |
-| **Frontend** | React 18 + Vite 8 |
-| **Estado Global** | Zustand |
-| **Estilos** | Tailwind CSS |
-| **Animaciones** | Framer Motion + Three.js |
+Sigue estos pasos para levantar el proyecto de forma local:
 
----
-
-## 🚀 Instalación y Arranque
-
-### Prerrequisitos
-- Node.js 20+
-- pnpm
-- PostgreSQL corriendo localmente
-
-### Backend
+### 1. Clonar el Repositorio
+Abre tu terminal y ejecuta:
 ```bash
-# En la raíz del proyecto
-pnpm install
-pnpm run dev         # Puerto 3005
+git clone <url_de_tu_repositorio>
+cd Gestion-Restaurantes
 ```
 
-### Frontend
+### 2. Variables de Entorno
+Asegúrate de que existe el archivo `.env` en la raíz del proyecto. Debe contener la configuración base (puertos, bases de datos y llaves JWT):
+```env
+PORT=3005
+DB_HOST=localhost
+DB_PORT=5436
+DB_NAME=Gestion-Restaurantes
+DB_USERNAME=root
+DB_PASSWORD=admin
+JWT_SECRET=TuSecretoMuySeguro...
+```
+
+### 3. Levantar la Base de Datos (Docker)
+El proyecto usa PostgreSQL. Levanta el contenedor utilizando el archivo `docker-compose.yml` incluido:
 ```bash
-cd frontend
+docker-compose up -d
+```
+
+### 4. Instalar Dependencias
+Se recomienda utilizar `pnpm` (aunque `npm` también funciona):
+```bash
 pnpm install
-pnpm run dev         # Puerto 5173
 ```
 
-### Variables de entorno
-Copia `.env` y configura las siguientes variables clave:
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` — Conexión PostgreSQL
-- `JWT_SECRET`, `JWT_EXPIRES_IN` — Configuración de tokens
-- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — Storage de imágenes
-- `EMAIL_USER`, `EMAIL_PASS` — Cuenta Gmail para envío de correos
-
----
-
-## 🔑 Credenciales por Defecto
-
-Estas cuentas se crean/sincronizan **automáticamente** al iniciar el servidor:
-
-| Rol | Usuario / Email | Contraseña |
-|---|---|---|
-| Super Admin | `admin` / `admin@restaurantes.com` | `Admin123!` |
-| Gerente | `gerente` / `gerente@kinal.com` | `Admin123!` |
-| Staff | `staff` / `staff@kinal.com` | `Admin123!` |
-
-> **Nota:** El cliente debe registrarse manualmente desde la app y verificar su correo de Gmail.
-
----
-
-## 🛡️ Roles y Permisos
-
-| Rol | Acceso |
-|---|---|
-| `SUPER_ADMIN_ROLE` | Gestión global: todos los restaurantes, usuarios y estadísticas |
-| `RESTAURANT_ADMIN_ROLE` | Su restaurante: menú, staff, órdenes, reportes, eventos |
-| `STAFF_ROLE` | Monitor de cocina, órdenes, mesas, reservaciones, menú (lectura) |
-| `CLIENT_ROLE` | Menú público QR, historial de órdenes, reservaciones, eventos |
-
----
-
-## 📡 API — Endpoints Principales
-
-Base URL: `http://localhost:3005/api/v1`
-
-### Autenticación (`/auth`)
-| Método | Ruta | Descripción |
-|---|---|---|
-| POST | `/login` | Login con email o username |
-| POST | `/register` | Registro de nuevo cliente |
-| GET | `/profile` | Perfil del usuario autenticado |
-| POST | `/forgot-password` | Solicitud de reset por correo |
-| POST | `/reset-password` | Reset con token recibido por email |
-| GET | `/verify-email?token=...` | Verificación de correo |
-
-### Restaurantes (`/restaurants`)
-| Método | Ruta | Acceso |
-|---|---|---|
-| GET | `/` | Público |
-| GET | `/:id` | Público |
-| POST | `/` | Super Admin |
-| PUT | `/:id` | Super Admin |
-| PATCH | `/:id/verify` | Super Admin |
-| DELETE | `/:id` | Super Admin |
-| GET | `/:id/stats` | Admin / Gerente / Staff |
-| GET | `/:id/staff` | Admin / Gerente |
-| POST | `/:id/staff` | Admin / Gerente |
-
-### Estadísticas (`/statistics`)
-| Ruta | Acceso |
-|---|---|
-| `/restaurant/:id/overview` | Admin / Gerente |
-| `/restaurant/:id/orders?period=month` | Admin / Gerente |
-| `/restaurant/:id/popular-dishes?limit=5` | Admin / Gerente |
-| `/restaurant/:id/peak-hours` | Admin / Gerente |
-| `/restaurant/:id/export-excel` | Admin / Gerente |
-| `/global/overview` | Super Admin |
-| `/global/vip-clients` | Super Admin |
-
-### Otros módulos
-- `/menus` — Gestión de menús y categorías
-- `/menus/items` — Platos e inventario
-- `/orders` — Órdenes (CRUD + estados)
-- `/orders/kitchen/:restaurantId` — Vista de cocina (KDS)
-- `/tables` — Mesas y QRs
-- `/reservations` — Reservaciones
-- `/events` — Eventos del restaurante
-- `/reviews` — Reseñas de clientes
-
-
-
-## 🌊 Flujo de Trabajo Completo
-
-### 1. Super Admin
-1. Login → Crear Restaurante → Asignar Gerente → **Verificar** el restaurante (activa `is_active`)
-2. Ver estadísticas globales y ranking de clientes VIP
-
-### 2. Gerente (Restaurant Admin)
-1. Configurar Menú → Crear Categorías → Agregar Platos con stock
-2. Crear Mesas → Descargar QRs para impresión
-3. Agregar Staff al restaurante
-4. Ver Analíticas y exportar reportes en Excel
-
-### 3. Staff / Mesero
-1. Monitor de Cocina (KDS) — órdenes entrantes en tiempo real vía WebSocket
-2. Gestionar estado de mesas y reservaciones del día
-3. Consultar el menú actualizado
-
-### 4. Cliente
-1. Registrarse → Verificar correo → Login
-2. Escanear QR de la mesa → Explorar menú → Realizar pedido
-3. Acumular puntos de lealtad por cada compra
-4. Consultar historial de pedidos y reservaciones
-
----
-
-## 📦 Estructura del Proyecto
-
+### 5. Iniciar el Servidor
+Inicia la aplicación en entorno de desarrollo. Sequelize se encargará de crear y sincronizar las tablas de tu base de datos automáticamente.
+```bash
+pnpm run dev
 ```
-Gestion-Restaurantes/
-├── src/                    # Módulos del backend
-│   ├── auth/               # Login, JWT, roles
-│   ├── restaurant/         # CRUD, stats, staff
-│   ├── menu/               # Categorías, ítems, inventario
-│   ├── order/              # Pedidos, estados, ítems
-│   ├── reservation/        # Reservaciones
-│   ├── event/              # Eventos del restaurante
-│   ├── review/             # Reseñas de clientes
-│   ├── statistics/         # Analíticas y reportes Excel
-│   ├── table/              # Mesas y QRs
-│   └── users/              # Perfiles de usuario
-├── helpers/                # Servicios (email, cloudinary, JWT)
-│   └── admin-seed.js       # Auto-provisioning de cuentas base
-├── middlewares/            # Auth, validación, roles
-├── configs/                # DB, app, dotenv
-├── utils/                  # Password, helpers
-└── frontend/               # React + Vite
-    └── src/features/       # auth, restaurants, orders, events...
-```
+🎉 El servidor estará corriendo en: `http://localhost:3005/api/v1`
 
 ---
 
-## 🔧 Notas Técnicas Importantes
+## 🎭 Arquitectura de Roles (¿Cómo usar el sistema?)
 
-> [!NOTE]
-> **Seeder automático:** Al iniciar el servidor, `helpers/admin-seed.js` sincroniza automáticamente las contraseñas de `admin`, `gerente` y `staff` a `Admin123!`. Esto garantiza acceso siempre en desarrollo, incluso si la base de datos fue modificada.
+Este sistema es un SaaS (Software as a Service) y restringe permisos a través de **4 roles jerárquicos**. A continuación se explica el ciclo de vida de un usuario según su rol:
 
-> [!TIP]
-> **Sincronización DB:** El proyecto usa `sequelize.sync({ force: false })`. Los datos **nunca se borran** al reiniciar el servidor. Solo se actualiza el esquema si hay columnas nuevas.
+### 1. 👑 SUPER_ADMIN_ROLE (El Dueño de la Plataforma)
+Es el administrador supremo. Tú, como desarrollador o dueño de la aplicación, eres el Super Admin.
+* **Flujo de uso:** Entras al sistema para crear Nuevos Restaurantes. 
+* **Qué puedes ver:** Puedes consultar estadísticas globales masivas: métricas totales de facturación, cuáles son las **Horas Pico** donde hay más pedidos en la red, y conocer a los **Clientes Frecuentes (VIP)** que más dinero han gastado.
 
----
+### 2. 🏢 RESTAURANT_ADMIN_ROLE (Gerente del Restaurante)
+Representa al dueño o gerente de un restaurante en específico.
+* **Flujo de uso:** Recibe su usuario de parte del Super Admin. Una vez dentro, configura su menú (platos), añade fotos, precios, tiempos de preparación y el **stock de ingredientes**. También da de alta a sus meseros (Staff).
+* **Qué puede hacer:** Revisa facturación de su local, cambia precios, y **Descarga Reportes de Ventas en Excel** de manera diaria para la contabilidad de su negocio.
 
-## 🗺️ Roadmap
+### 3. 👨‍🍳 STAFF_ROLE (Mesero / Cocinero / Cajero)
+Trabajador asociado directamente a un Restaurante.
+* **Flujo de uso:** Inicia sesión al comenzar su turno. Su trabajo principal es confirmar órdenes entrantes (de cambiar estado "Pendiente" a "Preparando" o "Pagada") y asistir a la creación manual de órdenes de los comensales que llegan físicamente al local.
 
-- [x] Autenticación multi-rol con JWT + Argon2
-- [x] CRUD de restaurantes con verificación por Super Admin
-- [x] Menú digital con control de stock
-- [x] Órdenes con flujo Kanban en tiempo real (Socket.io)
-- [x] Monitor de Cocina / KDS en tiempo real
-- [x] Gestión de mesas y generación de QRs
-- [x] Sistema de reservaciones
-- [x] Eventos por restaurante
-- [x] Reseñas de clientes
-- [x] Analíticas por restaurante y globales
-- [x] Exportación de reportes a Excel
-- [x] Upload de imágenes a Cloudinary
-- [ ] Pasarela de pagos (Stripe / PayPal)
-- [ ] Notificaciones push al cliente
-- [ ] App móvil (React Native)
+### 4. 👤 CLIENT_ROLE (Cliente Final / Comensal)
+El usuario que desea pedir comida o reservar una mesa.
+* **Flujo de uso:** Se registra a sí mismo de manera pública en la app. Revisa el listado de restaurantes, ve el menú y crea órdenes (para Domicilio, Para Llevar, o Comer en Sitio).
+* **Qué puede hacer:** Si el restaurante tiene stock del plato, su orden entra. Luego puede dejar una Calificación (Review) al restaurante y consultar el historial pasado de todas sus compras o reservaciones.
 
 ---
 
-**RestauManager** — *Llevando la ingeniería de software a la mesa.*
->>>>>>> Stashed changes
+## ⚡ Guía Rápida de Postman (Ejemplo Paso a Paso)
+
+Para probar la plataforma correctamente en Postman, el flujo siempre inicia autenticándote para obtener un "pase" (Token JWT). Aquí te explico cómo probar la vida de la app desde los distintos roles:
+
+### Paso 1: Obtener la Llave Maestra (Login)
+Ve a la carpeta **`1. 🌍 Acceso Público & Autenticación`** > **`Login`**.
+* En el `Body` (raw JSON), manda tus credenciales, por ejemplo, el correo del Súper Admin o el correo del restaurante.
+* Al darle **Send**, el servidor te devolverá un `token` larguísimo.
+* **🔑 Cópialo**. En Postman, ve a "Environments" o a la pestaña "Variables" de tu colección y pégalo en tu variable `{{token}}` (o configúralo en la pestaña de Auth como Bearer Token). 
+
+---
+
+### Paso 2: Ejemplos de uso por Rol
+
+#### 👨‍💼 Como SUPER ADMIN (Rol: `SUPER_ADMIN_ROLE`)
+*Te logueaste con el correo del dueño del sistema.*
+1. Ve a la carpeta **`5. 👑 SUPER_ADMIN_ROLE`** > **`Horas Pico (Peak Hours)`**.
+2. En la URL (o variables), asegúrate de tener un `{{restaurant_id}}` válido.
+3. Dale **Send**. El sistema verificará tu token (sabe que eres Super Admin) y te dejará pasar, entregándote un arreglo con las horas de mayor facturación.
+4. Si intentas pedir comida o usar rutas de clientes... te dará un "Error de Rol", porque tu trabajo es administrar.
+
+#### 🏢 Como DUEÑO DE RESTAURANTE (Rol: `RESTAURANT_ADMIN_ROLE`)
+*Te logueaste con el correo del gerente de una franquicia.*
+1. Necesitas cerrar caja y ver tu inventario. Ve a la carpeta **`6. 🧾 Facturación y Reportes`** > **`Descargar Reporte Excel Diario`**.
+2. Tu Token ya está en los Headers gracias a tu variable.
+3. Al darle click, **NO LE DES AL BOTÓN AZUL NORMAL DE SEND**. Haz click en la flechita a su lado y escoge **"Send and Download"**. 
+4. El backend armará un `.xlsx` en memoria con todas tus ventas y te abrirá la ventana para guardar tu archivo real en tu computadora.
+
+#### 👤 Como CLIENTE FINAL (Rol: `CLIENT_ROLE`)
+*Te fuiste a `Register` y creaste un usuario nuevo, o te logueaste como cliente.*
+1. Tienes hambre. Ve a la carpeta **`2. 👤 CLIENT_ROLE (Clientes)`** > **`Create Order`**.
+2. En el `Body`, mandas el ID del Restaurante y un arreglo con los platillos que quieres (`menu_item_id` y `quantity`).
+3. Dale **Send**. Si pusiste que querías 5 hamburguesas y el sistema solo tiene 2 en inventario, PostgreSQL cancelará tu orden de inmediato devolviendo un error. Si hay stock suficiente, te descontará inventario, creará tu factura y te regresará un código 200 OK.
+4. Terminas de comer. Ve a **`Submit Review`** (en la misma carpeta) y dale 5 estrellas al restaurante.
+
+#### 👨‍🍳 Como MESERO (Rol: `STAFF_ROLE`)
+*Te logueaste con el correo de un mesero.*
+1. El cliente de arriba acaba de crear su orden. Tú vas a la carpeta **`3. 👨‍🍳 STAFF_ROLE (Empleados)`** > **`Update Order Status`**.
+2. Cambias el estado a `"serving"` en el `Body`.
+3. El sistema valida tu token, ve que eres mesero de *ese* restaurante, y permite que la orden avance sin dejarte tocar las configuraciones de los menús.
+
+---
+*Desarrollado con arquitectura sólida, control transaccional de bases de datos, validaciones robustas y tiempo real integrado.*

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import { Router } from 'express';
 import {
@@ -12,58 +12,27 @@ import {
   getTodayReservations,
 } from './reservation.controller.js';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
-<<<<<<< Updated upstream
-=======
-import { requireRole } from '../../middlewares/require-role.js';
+import { requireSuperAdmin } from '../../middlewares/require-role.js';
 import { validateUuidParam } from '../../middlewares/validate-params.js';
->>>>>>> Stashed changes
 import {
   validateReservationCreation,
   validateReservationUpdate,
+  validateCheckAvailability,
 } from './reservation.validation.js';
 
 const router = Router();
 
-<<<<<<< Updated upstream
-/**
- * Public routes
- */
-// Check availability
-router.get('/check-availability', checkAvailability);
-=======
-// Personal que puede confirmar reservas
-const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
-
 router.get('/check-availability', validateCheckAvailability, checkAvailability);
->>>>>>> Stashed changes
 
-/**
- * Protected routes (require authentication)
- */
-// Create reservation
+/** Rutas para usuario autenticado (USER_ROLE puede crear/ver/actualizar/cancelar reservas) */
 router.post('/', [validateJWT, validateReservationCreation], createReservation);
-
-// Get all reservations
 router.get('/', validateJWT, getAllReservations);
-
-// Get today's reservations
 router.get('/today', validateJWT, getTodayReservations);
+router.get('/:id', validateJWT, validateUuidParam('id'), getReservationById);
+router.put('/:id', [validateJWT, validateUuidParam('id'), validateReservationUpdate], updateReservation);
+router.delete('/:id', validateJWT, validateUuidParam('id'), cancelReservation);
 
-<<<<<<< Updated upstream
-// Get reservation by ID
-router.get('/:id', validateJWT, getReservationById);
-=======
-/** El personal puede confirmar una reserva */
-router.patch('/:id/confirm', [validateJWT, requireOperationalStaff, validateUuidParam('id')], confirmReservation);
->>>>>>> Stashed changes
-
-// Update reservation
-router.put('/:id', [validateJWT, validateReservationUpdate], updateReservation);
-
-// Cancel reservation
-router.delete('/:id', validateJWT, cancelReservation);
-
-// Confirm reservation
-router.patch('/:id/confirm', validateJWT, confirmReservation);
+/** Solo ADMIN_ROLE puede confirmar una reserva */
+router.patch('/:id/confirm', [validateJWT, requireSuperAdmin, validateUuidParam('id')], confirmReservation);
 
 export default router;

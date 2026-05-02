@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../../shared/api/axios';
+import { useAuthStore } from '../../auth/store/useAuthStore';
 import { useRestaurantStore } from '../store/useRestaurantStore';
 import { AnalyticsCard } from '../../../shared/components/ui/AnalyticsCard';
 import { Utensils, Users, LayoutDashboard, Rocket, DollarSign, ShoppingBag, ChevronRight } from 'lucide-react';
@@ -9,31 +10,66 @@ import { motion } from 'framer-motion';
 export const RestaurantDashboard = () => {
   const { id } = useParams();
   const { restaurants } = useRestaurantStore();
+  const { user, role } = useAuthStore();
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const restaurant = restaurants.find(r => r.id === id);
 
   useEffect(() => {
+    // Si el usuario es Staff o Gerente y está en un ID que no es el suyo, redirigir automáticamente
+    if ((role === 'STAFF_ROLE' || role === 'RESTAURANT_ADMIN_ROLE') && user?.restaurantId && id !== user.restaurantId) {
+       navigate(`/dashboard/restaurants/${user.restaurantId}`, { replace: true });
+       return;
+    }
+
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/restaurants/${id}/stats`);
-        setStats(res.data.stats);
+        setError(null);
+        // Usar el endpoint mejorado de estadísticas
+        const res = await api.get(`/statistics/restaurant/${id}/overview`);
+        setStats(res.data.data);
       } catch (error) {
         console.error('Error fetching stats:', error);
+        if (error.response?.status === 404) {
+          setError('El restaurante solicitado no existe o ha sido eliminado.');
+        } else {
+          setError(error.response?.data?.message || 'Error al cargar estadísticas');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     if (id) fetchStats();
-  }, [id]);
+  }, [id, role, user?.restaurantId, navigate]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="w-12 h-12 border-4 border-purple-500/10 border-t-purple-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-12 bg-zinc-900/40 backdrop-blur-3xl rounded-[3rem] border border-rose-500/20">
+        <div className="text-6xl mb-6">⚠️</div>
+        <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Fallo de Vinculación</h2>
+        <p className="text-zinc-500 mt-2 max-w-md font-medium">
+          {error}. <br/>
+          Tu cuenta está asociada al ID <span className="text-purple-500">{user?.restaurantId}</span>, el cual no parece existir en el sistema actual.
+        </p>
+        <button 
+          onClick={() => navigate('/dashboard/restaurants')} 
+          className="mt-8 px-8 py-4 bg-purple-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-purple-500 shadow-2xl shadow-purple-500/20 transition-all"
+        >
+          Volver a Selección de Sedes
+        </button>
       </div>
     );
   }

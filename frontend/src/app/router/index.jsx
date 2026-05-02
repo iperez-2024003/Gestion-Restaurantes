@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { LoginPage } from '../../features/auth/pages/LoginPage';
 import { RegisterPage } from '../../features/auth/pages/RegisterPage';
 import { VerifyEmailPage } from '../../features/auth/pages/VerifyEmailPage';
@@ -43,6 +44,12 @@ import {
 const DashboardIndex = () => {
   const { role, user } = useAuthStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if ((role === 'STAFF_ROLE' || role === 'RESTAURANT_ADMIN_ROLE') && user?.restaurantId) {
+      navigate(`/dashboard/restaurants/${user.restaurantId}`);
+    }
+  }, [role, user, navigate]);
 
   if (role === 'CLIENT_ROLE') {
     return <ClientDashboard />;

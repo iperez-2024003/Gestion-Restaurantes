@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+﻿import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
 import { generateUserId } from '../../helpers/uuid-generator.js';
 import { User } from '../users/user.model.js';
@@ -22,7 +22,7 @@ export const Role = sequelize.define(
         notEmpty: { msg: 'El nombre del rol es obligatorio.' },
         isIn: {
           args: [ALLOWED_ROLES],
-          msg: 'Rol no permitido. Use ADMIN_ROLE o USER_ROLE.',
+          msg: 'Rol no permitido. Use SUPER_ADMIN_ROLE, RESTAURANT_ADMIN_ROLE, STAFF_ROLE, o CLIENT_ROLE.',
         },
       },
     },

@@ -65,8 +65,8 @@ export const ClientHistory = () => {
         getOrders({ user_id: user.id, limit: 100 }),
         getReservations({ user_id: user.id, limit: 100 }),
       ]);
-      setOrders(ordersResponse.data?.orders || []);
-      setReservations(reservationsResponse.data?.reservations || []);
+      setOrders(ordersResponse.data?.data || []);
+      setReservations(reservationsResponse.data?.data || []);
     } catch (error) {
       showError('No se pudo sincronizar tu historial premium');
     } finally {
