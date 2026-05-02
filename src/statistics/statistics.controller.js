@@ -1,54 +1,101 @@
 'use strict';
 
-import { Restaurant } from '../restaurant/restaurant.model.js';
-import { Order } from '../order/order.model.js';
-import { OrderItem } from '../order/order-item.model.js';
-import { Reservation } from '../reservation/reservation.model.js';
-import { Event } from '../event/event.model.js';
-import { MenuItem } from '../menu/menu-item.model.js';
-import { User } from '../users/user.model.js';
-import { sequelize } from '../../configs/db.js';
-import { Op, fn, col, literal } from 'sequelize';
 import ExcelJS from 'exceljs';
+import Restaurant from '../restaurant/restaurant.model.js';
+import Order from '../order/order.model.js';
+import OrderItem from '../order/order-item.model.js';
+import Reservation from '../reservation/reservation.model.js';
+import Event from '../event/event.model.js';
+import MenuItem from '../menu/menu-item.model.js';
+import { User } from '../users/user.model.js';
+
+const roundMoney = (value) => Number.parseFloat(Number(value || 0).toFixed(2));
+
+const getDateRange = (period) => {
+  const dateFilter = new Date();
+
+  if (period === 'week') {
+    dateFilter.setDate(dateFilter.getDate() - 7);
+  } else if (period === 'month') {
+    dateFilter.setMonth(dateFilter.getMonth() - 1);
+  } else if (period === 'year') {
+    dateFilter.setFullYear(dateFilter.getFullYear() - 1);
+  }
+
+  return dateFilter;
+};
+
+const getTodayBounds = () => {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+};
 
 export const getRestaurantOverview = async (req, res) => {
   try {
     const { id } = req.params;
-    const restaurant = await Restaurant.findByPk(id);
+    const restaurant = await Restaurant.findById(id).lean();
+
     if (!restaurant) {
-      return res.status(404).json({ ok: false, message: 'Restaurante no encontrado' });
+      return res.status(404).json({ success: false, message: 'Restaurante no encontrado' });
     }
-    
-    const today = new Date().toISOString().slice(0, 10);
-    const todayOrders = await Order.count({
-      where: { restaurant_id: id, created_at: { [Op.gte]: today } },
-    });
-    
-    const todayRevenue = await Order.sum('total', {
-      where: { restaurant_id: id, payment_status: 'paid', created_at: { [Op.gte]: today } },
-    }) || 0;
-    
-    const todayReservations = await Reservation.count({
-      where: { restaurant_id: id, reservation_date: today },
-    });
-    
-    const totalOrders = await Order.count({ where: { restaurant_id: id } });
-    const totalRevenue = await Order.sum('total', {
-      where: { restaurant_id: id, payment_status: 'paid' },
-    }) || 0;
-    
+
+    const { start, end } = getTodayBounds();
+
+    const [todayOrders, todayRevenue, todayReservations, totalOrders, totalRevenue] = await Promise.all([
+      Order.countDocuments({ restaurant_id: id, createdAt: { $gte: start, $lte: end } }),
+      Order.aggregate([
+        { $match: { restaurant_id: id, payment_status: 'paid' } },
+        { $group: { _id: null, total: { $sum: '$total' } } },
+      ]),
+      Reservation.countDocuments({ restaurant_id: id, createdAt: { $gte: start, $lte: end } }),
+      Order.countDocuments({ restaurant_id: id }),
+      Order.aggregate([
+        { $match: { restaurant_id: id, payment_status: 'paid' } },
+        { $group: { _id: null, total: { $sum: '$total' } } },
+      ]),
+    ]);
+
+    const paidToday = await Order.aggregate([
+      { $match: { restaurant_id: id, payment_status: 'paid', createdAt: { $gte: start, $lte: end } } },
+      { $group: { _id: null, total: { $sum: '$total' } } },
+    ]);
+
     return res.status(200).json({
-      ok: true,
-      message: 'Restaurant Datos obtenidos exitosamente',
-      overview: {
-        restaurant_info: { id: restaurant.id, name: restaurant.name, rating: restaurant.rating },
-        today: { orders: todayOrders, revenue: parseFloat(todayRevenue.toFixed(2)), reservations: todayReservations },
-        all_time: { total_orders: totalOrders, total_revenue: parseFloat(totalRevenue.toFixed(2)) },
+      success: true,
+      message: 'Datos del restaurante obtenidos exitosamente',
+      data: {
+        basic_info: {
+          id: restaurant._id,
+          name: restaurant.name,
+          rating: restaurant.rating,
+          category: restaurant.category,
+        },
+        summary: {
+          tables: todayReservations, // Usando reservaciones como proxy o mesas totales si existiera el modelo
+          dishes: 0, // Esto se podría contar del menú
+          staff: 0, // Esto se podría contar de los empleados
+          today_revenue: roundMoney(paidToday[0]?.total),
+          today_orders: todayOrders,
+        },
+        today: {
+          orders: todayOrders,
+          revenue: roundMoney(paidToday[0]?.total),
+          reservations: todayReservations,
+        },
+        all_time: {
+          total_orders: totalOrders,
+          total_revenue: roundMoney(totalRevenue[0]?.total),
+        },
       },
     });
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    console.error('Error in getRestaurantOverview:', error);
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -56,36 +103,37 @@ export const getOrdersStats = async (req, res) => {
   try {
     const { id } = req.params;
     const { period = 'month' } = req.query;
-    
-    let dateFilter = new Date();
-    if (period === 'week') dateFilter.setDate(dateFilter.getDate() - 7);
-    else if (period === 'month') dateFilter.setMonth(dateFilter.getMonth() - 1);
-    else if (period === 'year') dateFilter.setFullYear(dateFilter.getFullYear() - 1);
-    
-    const orders = await Order.findAll({
-      where: {
-        restaurant_id: id,
-        created_at: { [Op.gte]: dateFilter },
+    const dateFilter = getDateRange(period);
+
+    const data = await Order.aggregate([
+      { $match: { restaurant_id: id, createdAt: { $gte: dateFilter } } },
+      {
+        $project: {
+          date: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          total: { $toDouble: '$total' },
+        },
       },
-      attributes: [
-        [sequelize.literal('created_at::date'), 'date'],
-        [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
-        [sequelize.fn('SUM', sequelize.col('total')), 'revenue'],
-      ],
-      group: [sequelize.literal('created_at::date')],
-      order: [[sequelize.literal('created_at::date'), 'ASC']],
-      raw: true,
-    });
-    
+      {
+        $group: {
+          _id: '$date',
+          count: { $sum: 1 },
+          revenue: { $sum: '$total' },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
     return res.status(200).json({
-      ok: true,
-      message: 'Orders Datos obtenidos exitosamente',
-      period,
-      data: orders,
+      success: true,
+      message: 'Estadísticas de órdenes obtenidas exitosamente',
+      data: {
+        period,
+        stats: data,
+      },
     });
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    console.error('Error in getOrdersStats:', error);
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
@@ -93,155 +141,226 @@ export const getPopularDishes = async (req, res) => {
   try {
     const { id } = req.params;
     const { limit = 10 } = req.query;
-    
-    const popularDishes = await OrderItem.findAll({
-      attributes: [
-        'menu_item_id',
-        [sequelize.fn('COUNT', sequelize.col('order_item.id')), 'order_count'],
-        [sequelize.fn('SUM', sequelize.col('quantity')), 'total_quantity'],
-      ],
-      include: [
-        {
-          model: MenuItem,
-          as: 'menu_item',
-          where: { restaurant_id: id },
-          attributes: ['id', 'name', 'price', 'description'],
+
+    const popularDishes = await OrderItem.aggregate([
+      {
+        $lookup: {
+          from: 'order',
+          localField: 'order_id',
+          foreignField: '_id',
+          as: 'order',
         },
-      ],
-      group: ['menu_item_id', 'menu_item.id'],
-      order: [[sequelize.fn('SUM', sequelize.col('quantity')), 'DESC']],
-      limit: parseInt(limit),
-      raw: false,
-    });
-    
+      },
+      { $unwind: '$order' },
+      { $match: { 'order.restaurant_id': id } },
+      {
+        $lookup: {
+          from: 'menu_item',
+          localField: 'menu_item_id',
+          foreignField: '_id',
+          as: 'menu_item',
+        },
+      },
+      { $unwind: '$menu_item' },
+      {
+        $group: {
+          _id: '$menu_item_id',
+          name: { $first: '$menu_item.name' },
+          description: { $first: '$menu_item.description' },
+          price: { $first: '$menu_item.price' },
+          order_count: { $sum: 1 },
+          total_quantity: { $sum: '$quantity' },
+          total_revenue: { $sum: '$subtotal' },
+        },
+      },
+      { $sort: { total_quantity: -1, order_count: -1 } },
+      { $limit: Number.parseInt(limit, 10) },
+    ]);
+
     return res.status(200).json({
-      ok: true,
-      message: 'Popular Datos obtenidos exitosamente',
-      dishes: popularDishes,
+      success: true,
+      message: 'Platos populares obtenidos exitosamente',
+      data: popularDishes,
     });
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    console.error('Error in getPopularDishes:', error);
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
 export const getPlatformSummary = async (req, res) => {
   try {
-    const totalRestaurants = await Restaurant.count({ where: { is_active: true } });
-    const totalOrders = await Order.count();
-    const totalRevenue = await Order.sum('total', { where: { payment_status: 'paid' } }) || 0;
-    const totalReservations = await Reservation.count();
-    const totalEvents = await Event.count({ where: { is_active: true } });
-    
-    const topRestaurants = await Restaurant.findAll({
-      where: { is_active: true },
-      order: [['rating', 'DESC']],
-      limit: 5,
-      attributes: ['id', 'name', 'rating', 'category', 'total_reviews'],
-    });
-    
+    const [totalRestaurants, totalOrders, totalRevenueAgg, totalReservations, totalEvents, topRestaurants] = await Promise.all([
+      Restaurant.countDocuments({ isActive: true }),
+      Order.countDocuments(),
+      Order.aggregate([{ $match: { payment_status: 'paid' } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
+      Reservation.countDocuments(),
+      Event.countDocuments({ isActive: true }),
+      Restaurant.find({ isActive: true }).sort({ rating: -1 }).limit(5).select('_id name rating category totalReviews').lean(),
+    ]);
+
     return res.status(200).json({
-      ok: true,
-      message: 'Platform Datos obtenidos exitosamente',
-      summary: {
+      success: true,
+      message: 'Resumen de plataforma obtenido exitosamente',
+      data: {
         total_restaurants: totalRestaurants,
         total_orders: totalOrders,
-        total_revenue: parseFloat(totalRevenue.toFixed(2)),
+        total_revenue: roundMoney(totalRevenueAgg[0]?.total),
         total_reservations: totalReservations,
         total_events: totalEvents,
-        top_restaurants: topRestaurants,
+        top_restaurants: topRestaurants.map((restaurant) => ({
+          id: restaurant._id,
+          name: restaurant.name,
+          rating: restaurant.rating,
+          category: restaurant.category,
+          total_reviews: restaurant.totalReviews,
+        })),
       },
     });
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    console.error('Error in getPlatformSummary:', error);
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
+export const getGlobalStats = async (req, res) => {
+  try {
+    const [totalRestaurants, totalUsers, totalOrdersAgg, totalRevenueAgg, topRestaurantsAgg] = await Promise.all([
+      Restaurant.countDocuments(),
+      User.count().catch(() => 0), // Fallback if Postgres is down
+      Order.countDocuments(),
+      Order.aggregate([{ $match: { payment_status: 'paid' } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
+      Order.aggregate([
+        { $match: { payment_status: 'paid' } },
+        {
+          $group: {
+            _id: '$restaurant_id',
+            revenue: { $sum: '$total' },
+            orders_count: { $sum: 1 },
+          },
+        },
+        { $sort: { revenue: -1 } },
+        { $limit: 5 },
+      ]),
+    ]);
+
+    // Populate restaurant details for topRestaurants
+    const topRestaurants = await Promise.all(
+      topRestaurantsAgg.map(async (stat) => {
+        const restaurant = await Restaurant.findById(stat._id).lean();
+        return {
+          Restaurant: {
+            id: restaurant ? restaurant._id.toString() : 'Desconocido',
+            name: restaurant ? restaurant.name : 'Sede Desconocida',
+          },
+          revenue: roundMoney(stat.revenue),
+          orders_count: stat.orders_count,
+        };
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Estadísticas globales obtenidas exitosamente',
+      data: {
+        totalRestaurants,
+        totalUsers,
+        totalOrders: totalOrdersAgg,
+        totalRevenue: roundMoney(totalRevenueAgg[0]?.total),
+        topRestaurants,
+      },
+    });
+  } catch (error) {
+    console.error('Error in getGlobalStats:', error);
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+};
 export const getPeakHours = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const peakHours = await Order.findAll({
-      where: { restaurant_id: id },
-      attributes: [
-        [sequelize.fn('EXTRACT', sequelize.literal('HOUR FROM created_at')), 'hour'],
-        [sequelize.fn('COUNT', sequelize.col('id')), 'order_count'],
-      ],
-      group: [sequelize.fn('EXTRACT', sequelize.literal('HOUR FROM created_at'))],
-      order: [[sequelize.fn('COUNT', sequelize.col('id')), 'DESC']],
-      raw: true
-    });
-    
+
+    const peakHours = await Order.aggregate([
+      { $match: { restaurant_id: id } },
+      {
+        $project: {
+          hour: { $hour: '$createdAt' },
+        },
+      },
+      {
+        $group: {
+          _id: '$hour',
+          order_count: { $sum: 1 },
+        },
+      },
+      { $sort: { order_count: -1, _id: 1 } },
+    ]);
+
     return res.status(200).json({
-      ok: true,
+      success: true,
       message: 'Horas pico obtenidas exitosamente',
-      data: peakHours
+      data: peakHours.map((entry) => ({ hour: entry._id, order_count: entry.order_count })),
     });
   } catch (error) {
     console.error('Error in getPeakHours:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
 export const getFrequentCustomers = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Filtramos para asegurar que user_id no sea nulo si hay invitados manuales
-    const customers = await Order.findAll({
-      where: { 
-        restaurant_id: id, 
-        status: { [Op.ne]: 'cancelled' },
-        user_id: { [Op.not]: null } 
+
+    const customers = await Order.aggregate([
+      { $match: { restaurant_id: id, status: { $ne: 'cancelled' }, user_id: { $ne: null } } },
+      {
+        $group: {
+          _id: '$user_id',
+          total_orders: { $sum: 1 },
+          total_spent: { $sum: '$total' },
+        },
       },
-      attributes: [
-        'user_id',
-        [sequelize.fn('COUNT', sequelize.col('order.id')), 'total_orders'],
-        [sequelize.fn('SUM', sequelize.col('total')), 'total_spent']
-      ],
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'username', 'email']
-        }
-      ],
-      group: ['user_id', 'user.id', 'user.username', 'user.email'],
-      order: [[sequelize.fn('COUNT', sequelize.col('order.id')), 'DESC']],
-      limit: 10
-    });
-    
+      { $sort: { total_orders: -1, total_spent: -1 } },
+      { $limit: 10 },
+    ]);
+
+    const enrichedCustomers = await Promise.all(
+      customers.map(async (customer) => {
+        const user = await User.findByPk(customer._id);
+        return {
+          id: customer._id,
+          total_orders: customer.total_orders,
+          total_spent: roundMoney(customer.total_spent),
+          user: user
+            ? {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+              }
+            : null,
+        };
+      })
+    );
+
     return res.status(200).json({
-      ok: true,
+      success: true,
       message: 'Clientes frecuentes obtenidos exitosamente',
-      customers
+      data: enrichedCustomers,
     });
   } catch (error) {
     console.error('Error in getFrequentCustomers:', error);
-    return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
-/**
- * Generate Excel Report of Orders
- * @route GET /api/v1/statistics/restaurant/:id/export-excel
- */
 export const exportOrdersToExcel = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Traer todas las ordenes del restaurante (limitamos a 1000 para no reventar la memoria en un demo)
-    const orders = await Order.findAll({
-      where: { restaurant_id: id },
-      order: [['created_at', 'DESC']],
-      limit: 1000,
-    });
+
+    const orders = await Order.find({ restaurant_id: id }).sort({ createdAt: -1 }).limit(1000).lean();
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Ventas');
 
-    // Definir columnas
     worksheet.columns = [
       { header: 'Fecha', key: 'date', width: 20 },
       { header: 'Número de Orden', key: 'orderNumber', width: 25 },
@@ -252,111 +371,83 @@ export const exportOrdersToExcel = async (req, res) => {
       { header: 'Total (Q)', key: 'total', width: 15 },
     ];
 
-    // Estilo a la cabecera
     worksheet.getRow(1).font = { bold: true };
     worksheet.getRow(1).fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: 'FFE6B8' } // Amber claro
+      fgColor: { argb: 'FFE6B8' },
     };
 
-    // Llenar filas
-    orders.forEach((order) => {
+    for (const order of orders) {
+      let customerName = order.customer_name || 'N/A';
+
+      if (order.user_id) {
+        const user = await User.findByPk(order.user_id);
+        customerName = order.customer_name || user?.username || user?.email || 'N/A';
+      }
+
       worksheet.addRow({
-        date: new Date(order.created_at).toLocaleString(),
+        date: new Date(order.createdAt).toLocaleString(),
         orderNumber: order.order_number,
-        customer: order.customer_name,
+        customer: customerName,
         type: order.order_type,
         status: order.status,
-        subtotal: parseFloat(order.subtotal),
-        total: parseFloat(order.total),
+        subtotal: roundMoney(order.subtotal),
+        total: roundMoney(order.total),
       });
-    });
+    }
 
-    // Enviar archivo
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename=Reporte_Ventas_${id}.xlsx`);
+    res.setHeader('Content-Disposition', `attachment; filename=ventas_${id}.xlsx`);
 
     await workbook.xlsx.write(res);
-    res.end();
-
+    return res.end();
   } catch (error) {
-    console.error('Error generating Excel:', error);
-    if (!res.headersSent) {
-      return res.status(500).json({ ok: false, message: 'Error interno generando Excel' });
-    }
+    console.error('Error in exportOrdersToExcel:', error);
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
 
-/**
- * Get global platform statistics (SuperAdmin only)
- */
-export const getGlobalStats = async (req, res) => {
-  try {
-    const totalRestaurants = await Restaurant.count({ where: { is_active: true } });
-    const totalUsers = await User.count({ where: { Status: true } });
-    const totalOrders = await Order.count();
-    
-    const totalRevenue = await Order.sum('total', { 
-      where: { payment_status: 'paid' } 
-    }) || 0;
-
-    const topRestaurants = await Order.findAll({
-      attributes: [
-        'restaurant_id',
-        [fn('SUM', col('total')), 'revenue'],
-        [fn('COUNT', col('order.id')), 'orders_count']
-      ],
-      include: [{ model: Restaurant, as: 'restaurant', attributes: ['name'] }],
-      where: { payment_status: 'paid' },
-      group: ['restaurant_id', 'restaurant.id'],
-      order: [[literal('revenue'), 'DESC']],
-      limit: 5
-    });
-
-    return res.status(200).json({
-      ok: true,
-      stats: {
-        totalRestaurants,
-        totalUsers,
-        totalOrders,
-        totalRevenue: parseFloat(totalRevenue.toFixed(2)),
-        topRestaurants
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching global stats:', error);
-    return res.status(500).json({ ok: false, message: 'Error fetching global stats' });
-  }
-};
-
-/**
- * Get VIP clients across the whole platform
- */
 export const getGlobalVipClients = async (req, res) => {
   try {
-    const vipClients = await Order.findAll({
-      attributes: [
-        'user_id',
-        [fn('COUNT', col('order.id')), 'orders_count'],
-        [fn('SUM', col('total')), 'total_spent']
-      ],
-      include: [{ 
-        model: User, 
-        as: 'user',
-        attributes: ['Id', 'Name', 'Surname', 'Username', 'Email'] 
-      }],
-      group: ['user_id', 'user.id'],
-      order: [[literal('total_spent'), 'DESC']],
-      limit: 10
-    });
+    const vipClients = await Order.aggregate([
+      { $match: { user_id: { $ne: null }, status: { $ne: 'cancelled' }, payment_status: 'paid' } },
+      {
+        $group: {
+          _id: '$user_id',
+          total_orders: { $sum: 1 },
+          total_spent: { $sum: '$total' },
+        },
+      },
+      { $sort: { total_spent: -1, total_orders: -1 } },
+      { $limit: 10 },
+    ]);
+
+    const enrichedVipClients = await Promise.all(
+      vipClients.map(async (client) => {
+        const user = await User.findByPk(client._id);
+        return {
+          id: client._id,
+          total_orders: client.total_orders,
+          total_spent: roundMoney(client.total_spent),
+          user: user
+            ? {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+              }
+            : null,
+        };
+      })
+    );
 
     return res.status(200).json({
-      ok: true,
-      clients: vipClients
+      success: true,
+      message: 'Clientes VIP globales obtenidos exitosamente',
+      data: enrichedVipClients,
     });
   } catch (error) {
-    console.error('Error fetching VIP clients:', error);
-    return res.status(500).json({ ok: false, message: 'Error fetching VIP clients' });
+    console.error('Error in getGlobalVipClients:', error);
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };

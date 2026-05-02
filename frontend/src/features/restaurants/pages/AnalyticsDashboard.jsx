@@ -63,9 +63,9 @@ export const AnalyticsDashboard = () => {
         ]);
 
         setStats({
-          overview: overviewRes.data?.overview,
-          orders: ordersRes.data?.data || [],
-          popularDishes: dishesRes.data?.dishes || []
+          overview: overviewRes.data?.data || overviewRes.data?.overview || {},
+          orders: ordersRes.data?.data?.stats || (Array.isArray(ordersRes.data?.data) ? ordersRes.data.data : []),
+          popularDishes: dishesRes.data?.data || dishesRes.data?.dishes || []
         });
       } catch (error) {
         showError('No se pudo cargar la analítica premium.');
@@ -198,7 +198,7 @@ export const AnalyticsDashboard = () => {
           </div>
           
           <div className="h-[400px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <AreaChart data={orders} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -263,7 +263,7 @@ export const AnalyticsDashboard = () => {
           </div>
 
           <div className="h-[350px] w-full relative flex-1">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <PieChart>
                 <Pie
                   data={popularDishes}

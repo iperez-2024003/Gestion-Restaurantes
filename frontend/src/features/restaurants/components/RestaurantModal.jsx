@@ -24,8 +24,10 @@ import {
   CalendarDays,
   CheckCircle2,
   Utensils,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
+import { useAuthStore } from '../../auth/store/useAuthStore';
 
 const CATEGORIES = [
   { value: 'casual', label: 'Casual' },
@@ -59,6 +61,7 @@ const labelClass = 'flex items-center gap-2 text-[10px] font-black text-zinc-500
 export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
   const { saveRestaurant } = useSaveRestaurant();
   const loading = useRestaurantStore((s) => s.loading);
+  const user = useAuthStore((s) => s.user);
 
   const {
     register,
@@ -120,7 +123,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
           logo_url: '',
           cover_image_url: '',
           website_url: '',
-          admin_id: '',
+          admin_id: user?.id || '',
           accepts_reservations: true,
           accepts_takeout: true,
           accepts_delivery: false,
@@ -194,7 +197,15 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
             <div>
               <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-2 block">Administración Central</span>
               <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">
-                {restaurant ? 'Modificar <span className="text-zinc-600">Sede</span>' : 'Nueva <span className="text-purple-500">Sede</span>'}
+                {restaurant ? (
+                  <>
+                    Modificar <span className="text-zinc-600">Sede</span>
+                  </>
+                ) : (
+                  <>
+                    Nueva <span className="text-purple-500">Sede</span>
+                  </>
+                )}
               </h2>
             </div>
             <button 
@@ -338,8 +349,13 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
                 <input type="number" className={inputClass} placeholder="50" {...register('capacity', { required: true })} />
               </div>
               <div>
-                <label className={labelClass}><CheckCircle2 className="w-3 h-3" /> ID Propietario</label>
-                <input className={inputClass} placeholder="ID de Admin" {...register('admin_id', { required: true })} />
+                <label className={labelClass}><CheckCircle2 className="w-3 h-3" /> Propietario</label>
+                <input 
+                  className={`${inputClass} opacity-60 pointer-events-none`} 
+                  value={user?.username || 'Cargando...'} 
+                  readOnly 
+                />
+                <input type="hidden" {...register('admin_id')} />
               </div>
             </div>
 

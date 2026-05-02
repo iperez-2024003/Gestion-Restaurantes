@@ -90,7 +90,15 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
             <div>
               <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-2 block">Programación de Experiencias</span>
               <h2 className="text-3xl font-black text-white tracking-tighter uppercase leading-none">
-                {initialData ? 'Editar <span className="text-zinc-600">Evento</span>' : 'Nueva <span className="text-purple-500">Experiencia</span>'}
+                {initialData ? (
+                  <>
+                    Editar <span className="text-zinc-600">Evento</span>
+                  </>
+                ) : (
+                  <>
+                    Nueva <span className="text-purple-500">Experiencia</span>
+                  </>
+                )}
               </h2>
             </div>
             <button 

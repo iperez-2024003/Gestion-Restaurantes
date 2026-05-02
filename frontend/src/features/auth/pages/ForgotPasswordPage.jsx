@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { KeyRound, Mail, ArrowLeft, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
-import { Antigravity } from '../../../shared/components/ui/Antigravity';
+import Grainient from '../../../shared/components/ui/Grainient';
 
 export const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -26,13 +26,28 @@ export const ForgotPasswordPage = () => {
   return (
     <div className="relative min-h-screen bg-black flex items-center justify-center overflow-hidden font-inter p-4">
       {/* Background Effect */}
-      <Antigravity 
-        count={200} 
-        color="#A855F7" 
-        magnetRadius={15} 
-        ringRadius={8} 
-        particleSize={1.2}
-      />
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <Grainient
+          timeSpeed={0.25}
+          colorBalance={0.0}
+          warpStrength={1.0}
+          warpFrequency={5.0}
+          warpSpeed={2.0}
+          warpAmplitude={50.0}
+          blendAngle={0.0}
+          blendSoftness={0.05}
+          rotationAmount={500.0}
+          noiseScale={2.0}
+          grainAmount={0.1}
+          grainScale={2.0}
+          contrast={1.5}
+          gamma={1.0}
+          saturation={1.0}
+          color1="#4B1F4B"
+          color2="#2F0F6F"
+          color3="#3A243A"
+        />
+      </div>
 
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}

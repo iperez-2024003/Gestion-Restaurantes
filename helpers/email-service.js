@@ -36,23 +36,33 @@ export const sendVerificationEmail = async (email, name, verificationToken) => {
   }
 
   try {
-    const frontendUrl = config.app.frontendUrl || 'http://localhost:3000';
+    const frontendUrl = config.app.frontendUrl || 'http://localhost:5173';
     const verificationUrl = `${frontendUrl}/verify-email?token=${verificationToken}`;
 
     const mailOptions = {
-      from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+      from: `Gestión de Restaurantes <${config.smtp.fromEmail}>`,
       to: email,
-      subject: 'Verify your email address', // Aligned with .NET
+      subject: 'Verifica tu cuenta de Gestión de Restaurantes',
       html: `
-        <h2>Welcome ${name}!</h2>
-        <p>Please verify your email address by clicking the link below:</p>
-        <a href='${verificationUrl}' style='background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>
-            Verify Email
-        </a>
-        <p>If you cannot click the link, copy and paste this URL into your browser:</p>
-        <p>${verificationUrl}</p>
-        <p>This link will expire in 24 hours.</p>
-        <p>If you didn't create an account, please ignore this email.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+          <div style="background-color: #4f46e5; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Gestión de Restaurantes</h1>
+          </div>
+          <div style="padding: 30px; background-color: #ffffff;">
+            <h2 style="color: #111827; margin-top: 0;">¡Hola ${name}!</h2>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">Gracias por registrarte. Por favor verifica tu cuenta haciendo clic en el siguiente botón:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href='${verificationUrl}' style='background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>
+                  Verificar mi cuenta
+              </a>
+            </div>
+            <p style="color: #6b7280; font-size: 14px;">Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+            <p style="color: #4f46e5; font-size: 14px; word-break: break-all;">${verificationUrl}</p>
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;" />
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">Este enlace expira en 24 horas.</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">Si no solicitaste esta cuenta, ignora este correo.</p>
+          </div>
+        </div>
       `,
     };
 
@@ -69,24 +79,33 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
   }
 
   try {
-    const frontendUrl = config.app.frontendUrl || 'http://localhost:3000';
+    const frontendUrl = config.app.frontendUrl || 'http://localhost:5173';
     const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
 
     const mailOptions = {
-      from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+      from: `Gestión de Restaurantes <${config.smtp.fromEmail}>`,
       to: email,
-      subject: 'Reset your password', // Aligned with .NET
+      subject: 'Recuperación de contraseña',
       html: `
-        <h2>Password Reset Request</h2>
-        <p>Hello ${name},</p>
-        <p>You requested to reset your password. Click the link below to reset it:</p>
-        <a href='${resetUrl}' style='background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>
-            Reset Password
-        </a>
-        <p>If you cannot click the link, copy and paste this URL into your browser:</p>
-        <p>${resetUrl}</p>
-        <p>This link will expire in 1 hour.</p>
-        <p>If you didn't request this, please ignore this email and your password will remain unchanged.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+          <div style="background-color: #4f46e5; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Gestión de Restaurantes</h1>
+          </div>
+          <div style="padding: 30px; background-color: #ffffff;">
+            <h2 style="color: #111827; margin-top: 0;">Hola ${name},</h2>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">Hemos recibido una solicitud para restablecer tu contraseña. Haz clic en el botón para crear una nueva:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href='${resetUrl}' style='background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>
+                  Restablecer Contraseña
+              </a>
+            </div>
+            <p style="color: #6b7280; font-size: 14px;">O copia este enlace en tu navegador:</p>
+            <p style="color: #4f46e5; font-size: 14px; word-break: break-all;">${resetUrl}</p>
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;" />
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">Este enlace expira en 1 hora.</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">Si no solicitaste este cambio, ignora este correo y tu cuenta seguirá segura.</p>
+          </div>
+        </div>
       `,
     };
 
@@ -104,15 +123,22 @@ export const sendWelcomeEmail = async (email, name) => {
 
   try {
     const mailOptions = {
-      from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+      from: `Gestión de Restaurantes <${config.smtp.fromEmail}>`,
       to: email,
-      subject: 'Welcome to AuthDotnet!', // Aligned with .NET
+      subject: '¡Bienvenido a Gestión de Restaurantes!',
       html: `
-        <h2>Welcome to AuthDotnet, ${name}!</h2>
-        <p>Your account has been successfully verified and activated.</p>
-        <p>You can now enjoy all the features of our platform.</p>
-        <p>If you have any questions, feel free to contact our support team.</p>
-        <p>Thank you for joining us!</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+          <div style="background-color: #4f46e5; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Gestión de Restaurantes</h1>
+          </div>
+          <div style="padding: 30px; background-color: #ffffff;">
+            <h2 style="color: #111827; margin-top: 0;">¡Hola ${name}!</h2>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">Tu cuenta ha sido verificada y activada exitosamente.</p>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">Ya puedes acceder a nuestra plataforma y comenzar a disfrutar de nuestros servicios.</p>
+            <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">Si tienes alguna pregunta, no dudes en contactar a soporte.</p>
+            <p style="color: #111827; font-weight: bold; margin-top: 20px;">¡Gracias por unirte!</p>
+          </div>
+        </div>
       `,
     };
 
@@ -130,15 +156,22 @@ export const sendPasswordChangedEmail = async (email, name) => {
 
   try {
     const mailOptions = {
-      from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+      from: `Gestión de Restaurantes <${config.smtp.fromEmail}>`,
       to: email,
-      subject: 'Password Changed Successfully', // More aligned with .NET style
+      subject: 'Tu contraseña ha sido actualizada',
       html: `
-        <h2>Password Changed</h2>
-        <p>Hello ${name},</p>
-        <p>Your password has been successfully updated.</p>
-        <p>If you didn't make this change, please contact our support team immediately.</p>
-        <p>This is an automated email, please do not reply to this message.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+          <div style="background-color: #10b981; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Gestión de Restaurantes</h1>
+          </div>
+          <div style="padding: 30px; background-color: #ffffff;">
+            <h2 style="color: #111827; margin-top: 0;">Contraseña Actualizada</h2>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">Hola ${name},</p>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">Te informamos que tu contraseña ha sido cambiada exitosamente.</p>
+            <p style="color: #ef4444; font-size: 14px; margin-top: 30px;">Si tú no realizaste este cambio, por favor contacta a soporte inmediatamente.</p>
+            <p style="color: #9ca3af; font-size: 12px; margin-top: 30px;">Este es un correo automático, por favor no respondas a este mensaje.</p>
+          </div>
+        </div>
       `,
     };
 

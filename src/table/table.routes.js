@@ -21,24 +21,15 @@ import {
 } from './table.validation.js';
 
 const router = Router();
-
-// Rutas públicas (lectura)
-router.get('/', getAllTables);
-router.get('/available', getAvailableTables);
-router.get('/:id', getTableById);
-router.post('/', [validateJWT, validateTableCreation], createTable);
-router.put('/:id', [validateJWT, validateTableUpdate], updateTable);
-router.delete('/:id', validateJWT, deleteTable);
-router.patch('/:id/status', validateJWT, updateTableStatus);
-
-// Gestión de mesas: solo Restaurant Admin o Super Admin pueden crear/editar/eliminar
 const requireTableAdmin = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE');
+const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
+
+router.get('/available', validateGetAvailableTablesQuery, getAvailableTables);
+router.get('/', getAllTables);
+router.get('/:id', validateUuidParam('id'), getTableById);
 router.post('/', [validateJWT, requireTableAdmin, validateTableCreation], createTable);
 router.put('/:id', [validateJWT, requireTableAdmin, validateUuidParam('id'), validateTableUpdate], updateTable);
 router.delete('/:id', [validateJWT, requireTableAdmin, validateUuidParam('id')], deleteTable);
-
-// Cambio de estado de mesa: permitido para Staff, Restaurant Admin y Super Admin
-const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
 router.patch('/:id/status', [validateJWT, requireOperationalStaff, validateUuidParam('id'), validateTableStatusUpdate], updateTableStatus);
 
 export default router;

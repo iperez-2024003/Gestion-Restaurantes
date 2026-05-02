@@ -15,43 +15,19 @@ import {
 import { validateJWT } from '../../middlewares/validate-JWT.js';
 import { requireRole } from '../../middlewares/require-role.js';
 import { validateUuidParam, validateUuidParams } from '../../middlewares/validate-params.js';
-import {
-    validateOrderCreation,
-    validateAddItem,
-} from './order.validation.js';
+import { validateOrderCreation, validateAddItem, validateOrderStatusUpdate } from './order.validation.js';
 
 const router = Router();
-
-// Permite modificar el estado al personal
 const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
 
-/** Rutas para usuario autenticado (USER_ROLE puede crear/ver/cancelar sus pedidos) */
 router.post('/', [validateJWT, validateOrderCreation], createOrder);
-
-// Get all orders
 router.get('/', validateJWT, getAllOrders);
-router.get('/:id', validateJWT, validateUuidParam('id'), getOrderById);
+router.get('/kitchen/:restaurantId', [validateJWT, requireOperationalStaff, validateUuidParam('restaurantId')], getKitchenOrders);
 router.get('/:id/invoice', validateJWT, validateUuidParam('id'), generateOrderPDF);
+router.get('/:id', validateJWT, validateUuidParam('id'), getOrderById);
 router.delete('/:id', validateJWT, validateUuidParam('id'), cancelOrder);
 router.post('/:id/items', [validateJWT, validateUuidParam('id'), validateAddItem], addItemToOrder);
 router.delete('/:id/items/:itemId', validateJWT, validateUuidParams('id', 'itemId'), removeItemFromOrder);
-
-/** Rutas para Cocina (KDS) */
-router.get('/kitchen/:restaurantId', [validateJWT, requireOperationalStaff, validateUuidParam('restaurantId')], getKitchenOrders);
-
-/** El personal puede actualizar estado del pedido */
 router.patch('/:id/status', [validateJWT, requireOperationalStaff, validateUuidParam('id'), validateOrderStatusUpdate], updateOrderStatus);
-
-// Update order status
-router.patch('/:id/status', validateJWT, updateOrderStatus);
-
-// Cancel order
-router.delete('/:id', validateJWT, cancelOrder);
-
-// Add item to order
-router.post('/:id/items', [validateJWT, validateAddItem], addItemToOrder);
-
-// Remove item from order
-router.delete('/:id/items/:itemId', validateJWT, removeItemFromOrder);
 
 export default router;

@@ -17,37 +17,19 @@ import { validateUuidParam } from '../../middlewares/validate-params.js';
 import {
   validateReservationCreation,
   validateReservationUpdate,
+  validateCheckAvailability,
 } from './reservation.validation.js';
 
 const router = Router();
-
-// Personal que puede confirmar reservas
 const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
 
 router.get('/check-availability', validateCheckAvailability, checkAvailability);
-
-/**
- * Protected routes (require authentication)
- */
-// Create reservation
 router.post('/', [validateJWT, validateReservationCreation], createReservation);
-
-// Get all reservations
-router.get('/', validateJWT, getAllReservations);
-
-// Get today's reservations
 router.get('/today', validateJWT, getTodayReservations);
-
-/** El personal puede confirmar una reserva */
+router.get('/', validateJWT, getAllReservations);
+router.get('/:id', validateJWT, validateUuidParam('id'), getReservationById);
+router.put('/:id', [validateJWT, validateUuidParam('id'), validateReservationUpdate], updateReservation);
+router.delete('/:id', validateJWT, validateUuidParam('id'), cancelReservation);
 router.patch('/:id/confirm', [validateJWT, requireOperationalStaff, validateUuidParam('id')], confirmReservation);
-
-// Update reservation
-router.put('/:id', [validateJWT, validateReservationUpdate], updateReservation);
-
-// Cancel reservation
-router.delete('/:id', validateJWT, cancelReservation);
-
-// Confirm reservation
-router.patch('/:id/confirm', validateJWT, confirmReservation);
 
 export default router;

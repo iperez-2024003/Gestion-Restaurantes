@@ -1,134 +1,48 @@
-﻿'use strict';
+'use strict';
 
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../../configs/db.js';
-import { Order } from './order.model.js';
-import { MenuItem } from '../menu/menu-item.model.js';
+import { Schema, model } from 'mongoose';
 
-export const OrderItem = sequelize.define(
-  'order_item',
+const orderItemSchema = new Schema(
   {
-    id: {
-      type: DataTypes.STRING(50),
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-      allowNull: false,
-    },
     order_id: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      references: {
-        model: 'order',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
+      type: String,
+      required: [true, 'Order ID is required'],
     },
     menu_item_id: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      references: {
-        model: 'menu_item',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'RESTRICT',
+      type: String,
+      required: [true, 'Menu Item ID is required'],
     },
     quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        min: {
-          args: [1],
-          msg: 'Quantity must be at least 1',
-        },
-      },
+      type: Number,
+      required: [true, 'Quantity is required'],
+      min: [1, 'Quantity must be at least 1'],
     },
     unit_price: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-      comment: 'Price at the time of order',
-      validate: {
-        min: {
-          args: [0],
-          msg: 'Unit price cannot be negative',
-        },
-      },
+      type: Number,
+      required: [true, 'Unit price is required'],
+      min: [0, 'Unit price cannot be negative'],
     },
     subtotal: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-      comment: 'quantity * unit_price',
-      validate: {
-        min: {
-          args: [0],
-          msg: 'Subtotal cannot be negative',
-        },
-      },
+      type: Number,
+      required: [true, 'Subtotal is required'],
+      min: [0, 'Subtotal cannot be negative'],
     },
-    special_instructions: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      comment: 'Special preparation instructions',
-    },
+    special_instructions: String,
     status: {
-      type: DataTypes.ENUM('pending', 'preparing', 'ready', 'served'),
-      allowNull: false,
-      defaultValue: 'pending',
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
+      type: String,
+      enum: ['pending', 'preparing', 'ready', 'served'],
+      default: 'pending',
     },
   },
   {
-    tableName: 'order_item',
+    collection: 'order_item',
     timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
-    underscored: true,
-    indexes: [
-      {
-        name: 'idx_order_item_order',
-        fields: ['order_id'],
-      },
-      {
-        name: 'idx_order_item_menu_item',
-        fields: ['menu_item_id'],
-      },
-    ],
+    versionKey: false,
   }
 );
 
-// Relaciones
-OrderItem.belongsTo(Order, {
-  foreignKey: 'order_id',
-  as: 'order',
-  onDelete: 'CASCADE',
-});
+orderItemSchema.index({ order_id: 1 });
+orderItemSchema.index({ menu_item_id: 1 });
 
-OrderItem.belongsTo(MenuItem, {
-  foreignKey: 'menu_item_id',
-  as: 'menu_item',
-  onDelete: 'RESTRICT',
-});
-
-Order.hasMany(OrderItem, {
-  foreignKey: 'order_id',
-  as: 'items',
-  onDelete: 'CASCADE',
-});
-
-MenuItem.hasMany(OrderItem, {
-  foreignKey: 'menu_item_id',
-  as: 'order_items',
-  onDelete: 'RESTRICT',
-});
-
+export const OrderItem = model('OrderItem', orderItemSchema);
 export default OrderItem;

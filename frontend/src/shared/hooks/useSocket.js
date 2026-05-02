@@ -4,8 +4,6 @@ import { useAuthStore } from '../../features/auth/store/useAuthStore';
 import { showSuccess } from '../utils/toast';
 
 export const useSocket = (restaurantId) => {
-  const { user } = useAuthStore();
-
   useEffect(() => {
     if (!socket.connected) {
       socket.connect();
@@ -21,14 +19,14 @@ export const useSocket = (restaurantId) => {
     };
   }, [restaurantId]);
 
-  const on = (event, callback) => {
-    useEffect(() => {
-      socket.on(event, callback);
-      return () => {
-        socket.off(event, callback);
-      };
-    }, [event, callback]);
-  };
+  return { socket };
+};
 
-  return { socket, on };
+export const useSocketEvent = (event, callback) => {
+  useEffect(() => {
+    socket.on(event, callback);
+    return () => {
+      socket.off(event, callback);
+    };
+  }, [event, callback]);
 };

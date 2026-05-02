@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Phone, Upload, Sparkles, ChefHat, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
-import { Antigravity } from '../../../shared/components/ui/Antigravity';
+import Grainient from '../../../shared/components/ui/Grainient';
 
 export const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -59,13 +59,28 @@ export const RegisterPage = () => {
   return (
     <div className="relative min-h-screen bg-black flex items-center justify-center overflow-hidden font-inter py-12 px-6">
       {/* Background Effect */}
-      <Antigravity 
-        count={200} 
-        color="#A855F7" 
-        magnetRadius={15} 
-        ringRadius={8} 
-        particleSize={1.2}
-      />
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <Grainient
+          timeSpeed={0.25}
+          colorBalance={0.0}
+          warpStrength={1.0}
+          warpFrequency={5.0}
+          warpSpeed={2.0}
+          warpAmplitude={50.0}
+          blendAngle={0.0}
+          blendSoftness={0.05}
+          rotationAmount={500.0}
+          noiseScale={2.0}
+          grainAmount={0.1}
+          grainScale={2.0}
+          contrast={1.5}
+          gamma={1.0}
+          saturation={1.0}
+          color1="#4B1F4B"
+          color2="#2F0F6F"
+          color3="#3A243A"
+        />
+      </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-stretch justify-center gap-12">
         

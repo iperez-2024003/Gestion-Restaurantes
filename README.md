@@ -11,7 +11,7 @@
 | **Runtime** | Node.js v24 + ES Modules |
 | **Framework Backend** | Express.js |
 | **ORM** | Sequelize 6 |
-| **Base de Datos** | PostgreSQL |
+| **Bases de Datos** | PostgreSQL (Auth) & MongoDB (Negocio) |
 | **Autenticación** | JWT + Argon2 (hashing) |
 | **Tiempo Real** | Socket.io |
 | **Storage** | Cloudinary |
@@ -28,7 +28,7 @@
 ### Prerrequisitos
 - Node.js 20+
 - pnpm
-- PostgreSQL corriendo localmente
+- PostgreSQL & MongoDB corriendo localmente
 
 ### Backend
 ```bash
@@ -45,25 +45,24 @@ pnpm run dev         # Puerto 5173
 ```
 
 ### Variables de entorno
-Copia `.env` y configura las siguientes variables clave:
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` — Conexión PostgreSQL
-- `JWT_SECRET`, `JWT_EXPIRES_IN` — Configuración de tokens
-- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — Storage de imágenes
-- `EMAIL_USER`, `EMAIL_PASS` — Cuenta Gmail para envío de correos
+Configura tu archivo `.env` con las siguientes claves:
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` — PostgreSQL
+- `MONGODB_URI` — MongoDB
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+- `EMAIL_USER`, `EMAIL_PASS`
+- `JWT_SECRET`
 
 ---
 
 ## 🔑 Credenciales por Defecto
 
-Estas cuentas se crean/sincronizan **automáticamente** al iniciar el servidor:
+Estas cuentas se sincronizan automáticamente al iniciar el servidor:
 
 | Rol | Usuario / Email | Contraseña |
 |---|---|---|
 | Super Admin | `admin` / `admin@restaurantes.com` | `Admin123!` |
-| Gerente | `gerente` / `gerente@kinal.com` | `Admin123!` |
-| Staff | `staff` / `staff@kinal.com` | `Admin123!` |
-
-> **Nota:** El cliente debe registrarse manualmente desde la app y verificar su correo de Gmail.
+| Gerente | `gerente` / `gerente@manager.com` | `Admin123!` |
+| Staff | `staff` / `staff@manager.com` | `Admin123!` |
 
 ---
 
@@ -80,8 +79,6 @@ Estas cuentas se crean/sincronizan **automáticamente** al iniciar el servidor:
 
 ## 📡 API — Endpoints Principales
 
-Base URL: `http://localhost:3005/api/v1`
-
 ### Autenticación (`/auth`)
 | Método | Ruta | Descripción |
 |---|---|---|
@@ -89,18 +86,13 @@ Base URL: `http://localhost:3005/api/v1`
 | POST | `/register` | Registro de nuevo cliente |
 | GET | `/profile` | Perfil del usuario autenticado |
 | POST | `/forgot-password` | Solicitud de reset por correo |
-| POST | `/reset-password` | Reset con token recibido por email |
-| GET | `/verify-email?token=...` | Verificación de correo |
 
 ### Restaurantes (`/restaurants`)
 | Método | Ruta | Acceso |
 |---|---|---|
 | GET | `/` | Público |
-| GET | `/:id` | Público |
 | POST | `/` | Super Admin |
-| PUT | `/:id` | Super Admin |
-| PATCH | `/:id/verify` | Super Admin |
-| DELETE | `/:id` | Super Admin |
+| DELETE | `/:id` | Super Admin (Borrado en Cascada) |
 | GET | `/:id/stats` | Admin / Gerente / Staff |
 | GET | `/:id/staff` | Admin / Gerente |
 | POST | `/:id/staff` | Admin / Gerente |
@@ -109,24 +101,11 @@ Base URL: `http://localhost:3005/api/v1`
 | Ruta | Acceso |
 |---|---|
 | `/restaurant/:id/overview` | Admin / Gerente |
-| `/restaurant/:id/orders?period=month` | Admin / Gerente |
-| `/restaurant/:id/popular-dishes?limit=5` | Admin / Gerente |
-| `/restaurant/:id/peak-hours` | Admin / Gerente |
+| `/restaurant/:id/orders` | Admin / Gerente |
 | `/restaurant/:id/export-excel` | Admin / Gerente |
 | `/global/overview` | Super Admin |
-| `/global/vip-clients` | Super Admin |
 
-### Otros módulos
-- `/menus` — Gestión de menús y categorías
-- `/menus/items` — Platos e inventario
-- `/orders` — Órdenes (CRUD + estados)
-- `/orders/kitchen/:restaurantId` — Vista de cocina (KDS)
-- `/tables` — Mesas y QRs
-- `/reservations` — Reservaciones
-- `/events` — Eventos del restaurante
-- `/reviews` — Reseñas de clientes
-
-
+---
 
 ## 🌊 Flujo de Trabajo Completo
 
@@ -135,7 +114,7 @@ Base URL: `http://localhost:3005/api/v1`
 2. Ver estadísticas globales y ranking de clientes VIP
 
 ### 2. Gerente (Restaurant Admin)
-1. Configurar Menú → Crear Categorías → Agregar Platos con stock
+1. Configurar Menú → Crear Categorías → Agregar Platos con stock e imágenes (Cloudinary)
 2. Crear Mesas → Descargar QRs para impresión
 3. Agregar Staff al restaurante
 4. Ver Analíticas y exportar reportes en Excel
@@ -149,7 +128,6 @@ Base URL: `http://localhost:3005/api/v1`
 1. Registrarse → Verificar correo → Login
 2. Escanear QR de la mesa → Explorar menú → Realizar pedido
 3. Acumular puntos de lealtad por cada compra
-4. Consultar historial de pedidos y reservaciones
 
 ---
 
@@ -161,51 +139,36 @@ Gestion-Restaurantes/
 │   ├── auth/               # Login, JWT, roles
 │   ├── restaurant/         # CRUD, stats, staff
 │   ├── menu/               # Categorías, ítems, inventario
-│   ├── order/              # Pedidos, estados, ítems
-│   ├── reservation/        # Reservaciones
-│   ├── event/              # Eventos del restaurante
-│   ├── review/             # Reseñas de clientes
+│   ├── order/              # Pedidos, estados (KDS)
 │   ├── statistics/         # Analíticas y reportes Excel
-│   ├── table/              # Mesas y QRs
-│   └── users/              # Perfiles de usuario
-├── helpers/                # Servicios (email, cloudinary, JWT)
-│   └── admin-seed.js       # Auto-provisioning de cuentas base
+│   └── ...
+├── helpers/                # Cloudinary, Email, JWT
 ├── middlewares/            # Auth, validación, roles
-├── configs/                # DB, app, dotenv
-├── utils/                  # Password, helpers
-└── frontend/               # React + Vite
-    └── src/features/       # auth, restaurants, orders, events...
+├── configs/                # Conexión DB y App
+└── frontend/               # React 18 + Vite
 ```
 
 ---
 
 ## 🔧 Notas Técnicas Importantes
 
-> [!NOTE]
-> **Seeder automático:** Al iniciar el servidor, `helpers/admin-seed.js` sincroniza automáticamente las contraseñas de `admin`, `gerente` y `staff` a `Admin123!`. Esto garantiza acceso siempre en desarrollo, incluso si la base de datos fue modificada.
+> [!IMPORTANT]
+> **Borrado en Cascada:** Al eliminar un restaurante, el sistema elimina físicamente todos los registros asociados en MongoDB y destruye los assets (imágenes) en Cloudinary.
 
 > [!TIP]
-> **Sincronización DB:** El proyecto usa `sequelize.sync({ force: false })`. Los datos **nunca se borran** al reiniciar el servidor. Solo se actualiza el esquema si hay columnas nuevas.
+> **WebSockets:** El monitor de cocina utiliza `Socket.io` sobre un servidor HTTP unificado para garantizar baja latencia en las notificaciones de nuevos pedidos.
 
 ---
 
 ## 🗺️ Roadmap
 
-- [x] Autenticación multi-rol con JWT + Argon2
-- [x] CRUD de restaurantes con verificación por Super Admin
-- [x] Menú digital con control de stock
-- [x] Órdenes con flujo Kanban en tiempo real (Socket.io)
-- [x] Monitor de Cocina / KDS en tiempo real
-- [x] Gestión de mesas y generación de QRs
-- [x] Sistema de reservaciones
-- [x] Eventos por restaurante
-- [x] Reseñas de clientes
-- [x] Analíticas por restaurante y globales
-- [x] Exportación de reportes a Excel
-- [x] Upload de imágenes a Cloudinary
-- [ ] Pasarela de pagos (Stripe / PayPal)
-- [ ] Notificaciones push al cliente
-- [ ] App móvil (React Native)
+- [x] Autenticación multi-rol
+- [x] Gestión de imágenes con Cloudinary (Upload/Delete)
+- [x] Órdenes en tiempo real (Socket.io)
+- [x] Borrado en cascada de restaurantes
+- [x] Exportación a Excel
+- [ ] Pasarela de pagos (Stripe)
+- [ ] Notificaciones push
 
 ---
 

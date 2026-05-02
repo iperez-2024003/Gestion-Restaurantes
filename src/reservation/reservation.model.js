@@ -1,248 +1,86 @@
-﻿'use strict';
+'use strict';
 
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../../configs/db.js';
-import { Restaurant } from '../restaurant/restaurant.model.js';
-import { User } from '../users/user.model.js';
+import { Schema, model } from 'mongoose';
 
-export const Reservation = sequelize.define(
-  'reservation',
+const reservationSchema = new Schema(
   {
-    id: {
-      type: DataTypes.STRING(50),
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-      allowNull: false,
-    },
     reservation_number: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
+      type: String,
+      required: [true, 'Unique reservation number is required'],
       unique: true,
-      comment: 'Unique reservation number (e.g., RES-20260315-0001)',
     },
     restaurant_id: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      references: {
-        model: 'restaurant',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
+      type: String,
+      required: [true, 'Restaurant ID is required'],
     },
     user_id: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
-      comment: 'User who made the reservation (nullable for guest reservations)',
+      type: String,
+      default: null,
+      index: true,
     },
     customer_name: {
-      type: DataTypes.STRING(150),
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Customer name is required',
-        },
-        len: {
-          args: [2, 150],
-          msg: 'Customer name must be between 2 and 150 characters',
-        },
-      },
+      type: String,
+      required: [true, 'Customer name is required'],
+      trim: true,
+      minlength: [2, 'Customer name must be between 2 and 150 characters'],
+      maxlength: [150, 'Customer name must be between 2 and 150 characters'],
     },
     customer_phone: {
-      type: DataTypes.STRING(20),
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Customer phone is required',
-        },
-      },
+      type: String,
+      required: [true, 'Customer phone is required'],
+      trim: true,
     },
     customer_email: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      validate: {
-        isEmail: {
-          msg: 'Must be a valid email address',
-        },
-      },
+      type: String,
+      trim: true,
     },
     reservation_date: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Reservation date is required',
-        },
-        isDate: {
-          msg: 'Must be a valid date',
-        },
-      },
+      type: String,
+      required: [true, 'Reservation date is required'],
     },
     reservation_time: {
-      type: DataTypes.TIME,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Reservation time is required',
-        },
-      },
+      type: String,
+      required: [true, 'Reservation time is required'],
     },
     party_size: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        min: {
-          args: [1],
-          msg: 'Party size must be at least 1',
-        },
-        max: {
-          args: [20],
-          msg: 'Party size cannot exceed 20',
-        },
-      },
-      comment: 'Number of people',
+      type: Number,
+      required: [true, 'Party size is required'],
+      min: [1, 'Party size must be at least 1'],
+      max: [20, 'Party size cannot exceed 20'],
     },
     status: {
-      type: DataTypes.ENUM(
-        'pending',
-        'confirmed',
-        'seated',
-        'completed',
-        'cancelled',
-        'no_show'
-      ),
-      allowNull: false,
-      defaultValue: 'pending',
-      validate: {
-        isIn: {
-          args: [['pending', 'confirmed', 'seated', 'completed', 'cancelled', 'no_show']],
-          msg: 'Invalid reservation status',
-        },
-      },
+      type: String,
+      enum: ['pending', 'confirmed', 'seated', 'completed', 'cancelled', 'no_show'],
+      default: 'pending',
+      index: true,
     },
     special_requests: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      validate: {
-        len: {
-          args: [0, 1000],
-          msg: 'Special requests cannot exceed 1000 characters',
-        },
-      },
+      type: String,
+      maxlength: [1000, 'Special requests cannot exceed 1000 characters'],
     },
-    table_preference: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      comment: 'Preferred table location (window, terrace, private, etc.)',
-    },
-    occasion: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      comment: 'Special occasion (birthday, anniversary, business, etc.)',
-    },
+    table_preference: String,
+    occasion: String,
     confirmation_sent: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-      comment: 'Whether confirmation email/SMS was sent',
+      type: Boolean,
+      default: false,
     },
     reminder_sent: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-      comment: 'Whether reminder was sent',
+      type: Boolean,
+      default: false,
     },
-    notes: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      comment: 'Internal notes for restaurant staff',
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    confirmed_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      comment: 'When the reservation was confirmed',
-    },
-    cancelled_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      comment: 'When the reservation was cancelled',
-    },
+    notes: String,
+    confirmed_at: Date,
+    cancelled_at: Date,
   },
   {
-    tableName: 'reservation',
+    collection: 'reservation',
     timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
-    underscored: true,
-    indexes: [
-      {
-        name: 'idx_reservation_restaurant',
-        fields: ['restaurant_id'],
-      },
-      {
-        name: 'idx_reservation_user',
-        fields: ['user_id'],
-      },
-      {
-        name: 'idx_reservation_date',
-        fields: ['reservation_date'],
-      },
-      {
-        name: 'idx_reservation_status',
-        fields: ['status'],
-      },
-      {
-        name: 'idx_reservation_number',
-        fields: ['reservation_number'],
-        unique: true,
-      },
-      {
-        name: 'idx_reservation_datetime',
-        fields: ['reservation_date', 'reservation_time'],
-      },
-    ],
+    versionKey: false,
   }
 );
 
-// Relaciones
-Reservation.belongsTo(Restaurant, {
-  foreignKey: 'restaurant_id',
-  as: 'restaurant',
-  onDelete: 'CASCADE',
-});
+reservationSchema.index({ restaurant_id: 1, reservation_date: 1 });
+reservationSchema.index({ reservation_date: 1, reservation_time: 1 });
 
-Reservation.belongsTo(User, {
-  foreignKey: 'user_id',
-  as: 'user',
-  onDelete: 'SET NULL',
-});
-
-Restaurant.hasMany(Reservation, {
-  foreignKey: 'restaurant_id',
-  as: 'reservations',
-  onDelete: 'CASCADE',
-});
-
-User.hasMany(Reservation, {
-  foreignKey: 'user_id',
-  as: 'reservations',
-  onDelete: 'SET NULL',
-});
-
+export const Reservation = model('Reservation', reservationSchema);
 export default Reservation;

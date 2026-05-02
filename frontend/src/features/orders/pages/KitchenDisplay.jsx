@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../../../shared/api/axios';
-import { useSocket } from '../../../shared/hooks/useSocket';
+import { useSocket, useSocketEvent } from '../../../shared/hooks/useSocket';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { 
@@ -28,14 +28,14 @@ export const KitchenDisplay = () => {
     }
   };
 
-  const { on } = useSocket(restaurantId);
-
-  on('new_order', () => {
+  useSocket(restaurantId);
+  
+  useSocketEvent('new_order', () => {
     toast('🍳 ¡Nuevo pedido en cocina!', { icon: '🔥', style: { background: '#1e1b4b', color: '#fff' } });
     fetchKitchenOrders();
   });
 
-  on('order_status_updated', () => {
+  useSocketEvent('order_status_updated', () => {
     fetchKitchenOrders();
   });
 

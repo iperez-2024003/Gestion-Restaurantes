@@ -100,7 +100,7 @@ export const createNewUser = async (userData) => {
         Email: email.toLowerCase(),
         Password: hashedPassword,
         Status: false, // Empieza desactivado hasta que verifique el email
-        restaurant_id: restaurant_id || null,
+        RestaurantId: restaurant_id || null,
       },
       { transaction }
     );
@@ -139,10 +139,10 @@ export const createNewUser = async (userData) => {
 
     // Asignar rol. Si no viene, CLIENT_ROLE por defecto.
     const roleToAssign = role || CLIENT_ROLE;
-    const userRole = await Role.findOne(
-      { where: { Name: roleToAssign } },
-      { transaction }
-    );
+    const userRole = await Role.findOne({
+      where: { Name: roleToAssign },
+      transaction,
+    });
     if (userRole) {
       await UserRole.create(
         {

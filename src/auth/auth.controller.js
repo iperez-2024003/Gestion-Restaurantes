@@ -8,10 +8,16 @@ import {
 } from '../../helpers/auth-operations.js';
 import { getUserProfileHelper } from '../../helpers/profile-operations.js';
 import { asyncHandler } from '../../middlewares/server-genericError-handler.js';
+import { User, UserProfile } from '../users/user.model.js';
+import { uploadImage, deleteImage } from '../../helpers/cloudinary-service.js';
+import { hashPassword, verifyPassword } from '../../utils/password-utils.js';
+import crypto from 'crypto';
+import path from 'path';
+import Restaurant from '../restaurant/restaurant.model.js';
 
+// ─── REGISTER ─────────────────────────────────────────────────────────────────
 export const register = asyncHandler(async (req, res) => {
   try {
-    // Agregar la imagen de perfil si fue subida
     const userData = {
       ...req.body,
       profilePicture: req.file ? req.file.path : null,
@@ -32,7 +38,6 @@ export const register = asyncHandler(async (req, res) => {
     }
 
     const result = await registerUserHelper(userData);
-
     res.status(201).json(result);
   } catch (error) {
     console.error('Error in register controller:', error);
@@ -43,7 +48,7 @@ export const register = asyncHandler(async (req, res) => {
       error.message.includes('ya está en uso') ||
       error.message.includes('Ya existe un usuario')
     ) {
-      statusCode = 409; // Conflict
+      statusCode = 409;
     }
 
     res.status(statusCode).json({
@@ -54,6 +59,7 @@ export const register = asyncHandler(async (req, res) => {
   }
 });
 
+// ─── LOGIN ────────────────────────────────────────────────────────────────────
 export const login = asyncHandler(async (req, res) => {
   try {
     // Aceptamos tanto emailOrUsername como simplemente email/username en minúsculas
@@ -77,7 +83,7 @@ export const login = asyncHandler(async (req, res) => {
       error.message.includes('bloqueada') ||
       error.message.includes('desactivada')
     ) {
-      statusCode = 423; // Locked
+      statusCode = 423;
     }
 
     res.status(statusCode).json({
@@ -88,11 +94,11 @@ export const login = asyncHandler(async (req, res) => {
   }
 });
 
+// ─── VERIFY EMAIL ─────────────────────────────────────────────────────────────
 export const verifyEmail = asyncHandler(async (req, res) => {
   try {
     const { token } = req.body;
     const result = await verifyEmailHelper(token);
-
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in verifyEmail controller:', error);
@@ -115,12 +121,12 @@ export const verifyEmail = asyncHandler(async (req, res) => {
   }
 });
 
+// ─── RESEND VERIFICATION ──────────────────────────────────────────────────────
 export const resendVerification = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
     const result = await resendVerificationEmailHelper(email);
 
-    // Check result.success to determine status code
     if (!result.success) {
       if (result.message.includes('no encontrado')) {
         return res.status(404).json(result);
@@ -128,14 +134,12 @@ export const resendVerification = asyncHandler(async (req, res) => {
       if (result.message.includes('ya ha sido verificado')) {
         return res.status(400).json(result);
       }
-      // Email sending failed
       return res.status(503).json(result);
     }
 
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in resendVerification controller:', error);
-
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor',
@@ -144,13 +148,12 @@ export const resendVerification = asyncHandler(async (req, res) => {
   }
 });
 
+// ─── FORGOT PASSWORD ──────────────────────────────────────────────────────────
 export const forgotPassword = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
     const result = await forgotPasswordHelper(email);
 
-    // forgotPassword always returns success for security, even if user not found
-    // But if email sending fails, we should return 503
     if (!result.success && result.data?.initiated === false) {
       return res.status(503).json(result);
     }
@@ -158,7 +161,6 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in forgotPassword controller:', error);
-
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor',
@@ -167,11 +169,11 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   }
 });
 
+// ─── RESET PASSWORD ───────────────────────────────────────────────────────────
 export const resetPassword = asyncHandler(async (req, res) => {
   try {
     const { token, newPassword } = req.body;
     const result = await resetPasswordHelper(token, newPassword);
-
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in resetPassword controller:', error);
@@ -194,11 +196,11 @@ export const resetPassword = asyncHandler(async (req, res) => {
   }
 });
 
+// ─── GET PROFILE ──────────────────────────────────────────────────────────────
 export const getProfile = asyncHandler(async (req, res) => {
   const userId = req.userId; // Viene del middleware validateJWT
   const user = await getUserProfileHelper(userId);
 
-  // Respuesta estandarizada con envelope
   return res.status(200).json({
     success: true,
     message: 'Perfil obtenido exitosamente',
@@ -206,6 +208,7 @@ export const getProfile = asyncHandler(async (req, res) => {
   });
 });
 
+// ─── GET PROFILE BY ID ────────────────────────────────────────────────────────
 export const getProfileById = asyncHandler(async (req, res) => {
   const { userId } = req.body;
 
@@ -218,10 +221,225 @@ export const getProfileById = asyncHandler(async (req, res) => {
 
   const user = await getUserProfileHelper(userId);
 
-  // Respuesta estandarizada con envelope
   return res.status(200).json({
     success: true,
     message: 'Perfil obtenido exitosamente',
     data: user,
   });
+});
+
+// ─── UPDATE PROFILE ───────────────────────────────────────────────────────────
+// PUT /api/v1/auth/profile
+// Permite editar: name, surname, username, phone y foto de perfil (sube a Cloudinary)
+export const updateProfile = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { name, surname, username, phone } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado',
+      });
+    }
+
+    // Verificar que el nuevo username no esté en uso por otro usuario
+    if (username && username !== user.Username) {
+      const existingUser = await User.findOne({ where: { Username: username } });
+      if (existingUser) {
+        return res.status(409).json({
+          success: false,
+          message: 'El nombre de usuario ya está en uso por otra cuenta',
+        });
+      }
+    }
+
+    // Actualizar campos del usuario
+    await user.update({
+      ...(name && { Name: name }),
+      ...(surname && { Surname: surname }),
+      ...(username && { Username: username }),
+    });
+
+    // Actualizar teléfono en UserProfile si viene
+    if (phone) {
+      const userProfile = await UserProfile.findOne({ where: { UserId: userId } });
+      if (userProfile) {
+        await userProfile.update({ Phone: phone });
+      }
+    }
+
+    // Si viene imagen nueva, subirla a Cloudinary igual que registerUserHelper
+    if (req.file) {
+      try {
+        let normalizedPath = req.file.path.replace(/\\/g, '/');
+        if (!path.isAbsolute(normalizedPath)) {
+          normalizedPath = path.resolve(normalizedPath).replace(/\\/g, '/');
+        }
+
+        const ext = path.extname(req.file.originalname);
+        const randomHex = crypto.randomBytes(6).toString('hex');
+        const cloudinaryFileName = `profile-${randomHex}${ext}`;
+
+        // uploadImage retorna la secure_url completa de Cloudinary
+        const newProfilePictureUrl = await uploadImage(normalizedPath, cloudinaryFileName);
+
+        const userProfile = await UserProfile.findOne({ where: { UserId: userId } });
+        if (userProfile) {
+          // Eliminar imagen anterior de Cloudinary si no es el avatar por defecto
+          const oldPicture = userProfile.ProfilePicture;
+          if (oldPicture && oldPicture.includes('cloudinary.com')) {
+            await deleteImage(oldPicture);
+          }
+          await userProfile.update({ ProfilePicture: newProfilePictureUrl });
+        }
+      } catch (uploadError) {
+        console.error('Error uploading profile picture:', uploadError.message);
+        return res.status(500).json({
+          success: false,
+          message: 'Error al subir la imagen de perfil a Cloudinary',
+          error: uploadError.message,
+        });
+      }
+    }
+
+    const updatedUser = await getUserProfileHelper(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Perfil actualizado exitosamente',
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error('Error in updateProfile controller:', error);
+
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Error de validación',
+        errors: error.errors.map((e) => e.message),
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: 'Error al actualizar el perfil',
+      error: error.message,
+    });
+  }
+});
+
+// ─── CHANGE PASSWORD ──────────────────────────────────────────────────────────
+// PUT /api/v1/auth/profile/change-password
+// Requiere la contraseña actual (ingresar la anterior como pide el laboratorio)
+export const changePassword = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'La nueva contraseña y la confirmación no coinciden',
+      });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'La nueva contraseña debe ser diferente a la contraseña actual',
+      });
+    }
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado',
+      });
+    }
+
+    // Verificar contraseña actual con verifyPassword (igual que login)
+    const isValidPassword = await verifyPassword(user.Password, currentPassword);
+    if (!isValidPassword) {
+      return res.status(401).json({
+        success: false,
+        message: 'La contraseña actual es incorrecta',
+      });
+    }
+
+    // Hashear nueva contraseña con hashPassword (igual que register)
+    const hashedPassword = await hashPassword(newPassword);
+    await user.update({ Password: hashedPassword });
+
+    // Enviar email de confirmación en background (igual que resetPassword)
+    Promise.resolve()
+      .then(async () => {
+        const { sendPasswordChangedEmail } = await import('../../helpers/email-service.js');
+        return sendPasswordChangedEmail(user.Email, user.Name);
+      })
+      .catch((err) => console.error('Error sending password changed email:', err));
+
+    return res.status(200).json({
+      success: true,
+      message: 'Contraseña actualizada exitosamente',
+    });
+  } catch (error) {
+    console.error('Error in changePassword controller:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error al cambiar la contraseña',
+      error: error.message,
+    });
+  }
+});
+
+// ─── SYNC RESTAURANT ──────────────────────────────────────────────────────────
+// PUT /api/v1/auth/profile/sync-restaurant
+// Auto-repara el restaurant_id del usuario si es inválido
+export const syncRestaurant = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { restaurantId } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+    }
+
+    // Verificar si el restaurante existe en MongoDB
+    let validId = restaurantId;
+    if (validId) {
+      const exists = await Restaurant.findById(validId);
+      if (!exists) validId = null;
+    }
+
+    // Si no se envió un ID o el enviado es inválido, buscar el primero disponible (como fallback)
+    if (!validId) {
+      const firstRest = await Restaurant.findOne({ isActive: true });
+      if (firstRest) {
+        validId = firstRest._id.toString();
+      }
+    }
+
+    if (validId) {
+      await user.update({ RestaurantId: validId });
+    }
+
+    const updatedUser = await getUserProfileHelper(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Sincronización de restaurante completada',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Error in syncRestaurant controller:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error al sincronizar restaurante',
+      error: error.message
+    });
+  }
 });

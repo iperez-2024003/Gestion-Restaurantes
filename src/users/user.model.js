@@ -1,4 +1,4 @@
-﻿import { DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
 import { generateUserId } from '../../helpers/uuid-generator.js';
 
@@ -20,7 +20,7 @@ export const User = sequelize.define(
         notEmpty: { msg: 'El nombre es obligatorio.' },
         len: {
           args: [1, 25],
-          msg: 'El nombre no puede tener mÃ¡s de 25 caracteres.',
+          msg: 'El nombre no puede tener más de 25 caracteres.',
         },
       },
     },
@@ -32,7 +32,7 @@ export const User = sequelize.define(
         notEmpty: { msg: 'El apellido es obligatorio.' },
         len: {
           args: [1, 25],
-          msg: 'El apellido no puede tener mÃ¡s de 25 caracteres.',
+          msg: 'El apellido no puede tener más de 25 caracteres.',
         },
       },
     },
@@ -45,7 +45,7 @@ export const User = sequelize.define(
         notEmpty: { msg: 'El nombre de usuario es obligatorio.' },
         len: {
           args: [1, 50],
-          msg: 'El nombre de usuario no puede tener mÃ¡s de 50 caracteres.',
+          msg: 'El nombre de usuario no puede tener más de 50 caracteres.',
         },
       },
     },
@@ -55,11 +55,11 @@ export const User = sequelize.define(
       unique: true,
       field: 'email',
       validate: {
-        notEmpty: { msg: 'El correo electrÃ³nico es obligatorio.' },
-        isEmail: { msg: 'El correo electrÃ³nico no tiene un formato vÃ¡lido.' },
+        notEmpty: { msg: 'El correo electrónico es obligatorio.' },
+        isEmail: { msg: 'El correo electrónico no tiene un formato válido.' },
         len: {
           args: [1, 150],
-          msg: 'El correo electrÃ³nico no puede tener mÃ¡s de 150 caracteres.',
+          msg: 'El correo electrónico no puede tener más de 150 caracteres.',
         },
       },
     },
@@ -68,10 +68,10 @@ export const User = sequelize.define(
       allowNull: false,
       field: 'password',
       validate: {
-        notEmpty: { msg: 'La contraseÃ±a es obligatoria.' },
+        notEmpty: { msg: 'La contraseña es obligatoria.' },
         len: {
           args: [8, 255],
-          msg: 'La contraseÃ±a debe tener entre 8 y 255 caracteres.',
+          msg: 'La contraseña debe tener entre 8 y 255 caracteres.',
         },
       },
     },
@@ -141,12 +141,12 @@ export const UserProfile = sequelize.define(
       allowNull: false,
       field: 'phone',
       validate: {
-        notEmpty: { msg: 'El nÃºmero de telÃ©fono es obligatorio.' },
+        notEmpty: { msg: 'El número de teléfono es obligatorio.' },
         len: {
           args: [8, 8],
-          msg: 'El nÃºmero de telÃ©fono debe tener exactamente 8 dÃ­gitos.',
+          msg: 'El número de teléfono debe tener exactamente 8 dígitos.',
         },
-        isNumeric: { msg: 'El telÃ©fono solo debe contener nÃºmeros.' },
+        isNumeric: { msg: 'El teléfono solo debe contener números.' },
       },
     },
   },
