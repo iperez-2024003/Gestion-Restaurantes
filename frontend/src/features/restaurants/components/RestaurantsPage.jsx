@@ -17,7 +17,7 @@ const CATEGORY_LABELS = {
 
 const CATEGORY_COLORS = {
   casual: 'border-blue-500/20 text-blue-400 bg-blue-500/5',
-  fine_dining: 'border-purple-500/20 text-purple-400 bg-purple-500/5',
+  fine_dining: 'border-[#dcc7a5]/20 text-[#8b6435] bg-[#dcc7a5]/5',
   fast_food: 'border-orange-500/20 text-orange-400 bg-orange-500/5',
   cafe: 'border-amber-500/20 text-amber-400 bg-amber-500/5',
   bakery: 'border-yellow-500/20 text-yellow-400 bg-yellow-500/5',
@@ -95,7 +95,7 @@ export const RestaurantsPage = () => {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div>
           <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-[1.1] mb-2">
-            Gestión de <span className="text-purple-500">Sedes</span>
+            Gestión de <span className="text-[#b98c52]">Sedes</span>
           </h1>
           <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">
             {restaurants.length} establecimientos registrados en la red
@@ -114,12 +114,12 @@ export const RestaurantsPage = () => {
       {/* Search Bar */}
       <div className="relative group max-w-2xl">
         <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-          <Search className="w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+          <Search className="w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
         </div>
         <input
           type="text"
           placeholder="Buscar sede, dirección o especialidad..."
-          className="w-full pl-14 pr-6 py-5 bg-zinc-900/40 backdrop-blur-xl border border-purple-500/10 rounded-[2rem] text-white font-medium focus:outline-none focus:border-purple-500/40 focus:ring-4 focus:ring-purple-500/5 transition-all placeholder:text-zinc-700"
+          className="w-full pl-14 pr-6 py-5 bg-zinc-900/40 backdrop-blur-xl border border-[#dcc7a5]/10 rounded-[2rem] text-white font-medium focus:outline-none focus:border-[#dcc7a5]/40 focus:ring-4 focus:ring-[#d7b77f]/5 transition-all placeholder:text-zinc-700"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -129,7 +129,7 @@ export const RestaurantsPage = () => {
       <div className="min-h-[400px]">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-6">
-            <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
+            <Loader2 className="w-12 h-12 text-[#b98c52] animate-spin" />
             <p className="text-zinc-500 font-black uppercase tracking-[0.3em] text-[10px]">Sincronizando Base de Datos...</p>
           </div>
         ) : filtered.length === 0 ? (
@@ -147,7 +147,7 @@ export const RestaurantsPage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="group relative bg-zinc-900/40 backdrop-blur-3xl rounded-[3rem] overflow-hidden border border-purple-500/10 hover:border-purple-500/30 transition-all shadow-2xl"
+                  className="group relative bg-zinc-900/40 backdrop-blur-3xl rounded-[3rem] overflow-hidden border border-[#dcc7a5]/10 hover:border-[#dcc7a5]/30 transition-all shadow-2xl"
                 >
                   {/* Image/Cover */}
                   <div className="h-44 bg-zinc-800 relative overflow-hidden">
@@ -165,7 +165,7 @@ export const RestaurantsPage = () => {
                   <div className="p-8">
                     <div className="flex justify-between items-start mb-4 gap-4">
                       <h2 className="text-2xl font-black text-white uppercase tracking-tight line-clamp-1">{r.name}</h2>
-                      <span className="shrink-0 bg-purple-500 text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-purple-500/20">
+                      <span className="shrink-0 bg-[#b98c52] text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-[rgba(185,140,82,0.2)]">
                         {r.price_range}
                       </span>
                     </div>
@@ -182,9 +182,9 @@ export const RestaurantsPage = () => {
                     </div>
 
                     <div className="space-y-3 text-[11px] text-zinc-500 font-bold uppercase tracking-widest mb-8">
-                      <div className="flex items-center gap-3"><MapPin className="w-4 h-4 text-purple-500" /> <span className="truncate">{r.address || 'Ubicación Premium'}</span></div>
-                      <div className="flex items-center gap-3"><Phone className="w-4 h-4 text-purple-500" /> {r.phone || 'S/T'}</div>
-                      <div className="flex items-center gap-3"><Clock className="w-4 h-4 text-purple-500" /> {r.opening_time?.slice(0, 5)} - {r.closing_time?.slice(0, 5)}</div>
+                      <div className="flex items-center gap-3"><MapPin className="w-4 h-4 text-[#b98c52]" /> <span className="truncate">{r.address || 'Ubicación Premium'}</span></div>
+                      <div className="flex items-center gap-3"><Phone className="w-4 h-4 text-[#b98c52]" /> {r.phone || 'S/T'}</div>
+                      <div className="flex items-center gap-3"><Clock className="w-4 h-4 text-[#b98c52]" /> {r.opening_time?.slice(0, 5)} - {r.closing_time?.slice(0, 5)}</div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 mb-4">
@@ -196,7 +196,7 @@ export const RestaurantsPage = () => {
                       </button>
                       <button
                         onClick={() => navigate(`/dashboard/restaurants/${r.id}/menu`)}
-                        className="py-3 bg-purple-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-purple-500 transition-all shadow-lg shadow-purple-500/10"
+                        className="py-3 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:to-[#a97d45] transition-all shadow-lg shadow-[rgba(185,140,82,0.1)]"
                       >
                         Menú
                       </button>

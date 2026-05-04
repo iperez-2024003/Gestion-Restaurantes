@@ -2,9 +2,9 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-500: #A855F7;
-  --color-primary-600: #9333EA;
-  --color-secondary-500: #f05252;
+  --color-primary-500: #caa56d;
+  --color-primary-600: #a98042;
+  --color-secondary-500: #8f6a43;
 }
 
 @layer base {
@@ -13,11 +13,19 @@
     font-family: 'Outfit', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    @apply bg-black text-zinc-100;
+    background:
+      radial-gradient(circle at top left, rgba(202, 165, 109, 0.18), transparent 34%),
+      radial-gradient(circle at bottom right, rgba(248, 241, 228, 0.95), rgba(244, 236, 223, 0.98) 55%, #f7f1e7 100%);
+    @apply text-zinc-900;
   }
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-black tracking-tight;
+  }
+
+  ::selection {
+    background: rgba(202, 165, 109, 0.28);
+    color: #2f2317;
   }
 }
 

@@ -108,30 +108,30 @@ export const MenuItemModal = ({ isOpen, onClose, item = null, restaurantId }) =>
   };
 
   const labelClass = "flex items-center gap-2 text-[10px] font-black text-zinc-500 mb-2 uppercase tracking-[0.2em] ml-1";
-  const inputClass = "w-full px-6 py-4 rounded-2xl bg-black/40 border border-zinc-800 text-white placeholder-zinc-700 focus:bg-black focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all text-sm font-medium";
+  const inputClass = "w-full px-6 py-4 rounded-2xl bg-[#fffaf3] border border-[#dcc7a5] text-zinc-900 placeholder-zinc-600 focus:bg-[#fffaf3] focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/20 focus:border-[#d7b77f] transition-all text-sm font-medium";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl font-outfit overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#00000066] backdrop-blur-xl font-outfit overflow-y-auto">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-zinc-950 rounded-[3.5rem] border border-purple-500/20 shadow-2xl w-full max-w-xl overflow-hidden relative"
+        className="bg-[#fffaf3] rounded-[2rem] border border-[#dcc7a5] shadow-2xl w-full max-w-xl md:max-w-2xl overflow-hidden relative"
       >
         {/* Header */}
-        <div className="px-10 py-8 border-b border-purple-500/10 flex items-center justify-between bg-zinc-900/40 relative overflow-hidden">
+        <div className="px-6 md:px-10 py-4 md:py-8 border-b border-[#dcc7a5]/10 flex items-center justify-between bg-[#f3e4ca]/20 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-6 opacity-5">
-             <Utensils className="w-24 h-24 text-purple-500" />
+             <Utensils className="w-24 h-24 text-[#b98c52]" />
           </div>
           <div className="relative z-10">
-            <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-1 block">Gestión de Menú</span>
-            <h2 className="text-3xl font-black text-white tracking-tighter uppercase">
+            <span className="text-[9px] md:text-[10px] font-black text-[#b98c52] uppercase tracking-[0.35em] mb-1 block">Gestión de Menú</span>
+            <h2 className="text-2xl md:text-3xl font-black text-zinc-900 tracking-tighter uppercase">
               {item ? (
                 <>
                   Modificar <span className="text-zinc-600">Plato</span>
                 </>
               ) : (
                 <>
-                  Nuevo <span className="text-purple-500">Plato</span>
+                  Nuevo <span className="text-[#b98c52]">Plato</span>
                 </>
               )}
             </h2>
@@ -144,17 +144,17 @@ export const MenuItemModal = ({ isOpen, onClose, item = null, restaurantId }) =>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-10 space-y-8">
+          <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6 md:space-y-8">
           {/* Imagen / Preview */}
-          <div className="flex flex-col items-center gap-6">
-            <div className="w-48 h-48 bg-zinc-900 rounded-[2.5rem] border-2 border-dashed border-zinc-800 flex items-center justify-center overflow-hidden group relative transition-all hover:border-purple-500/50">
+          <div className="flex flex-col items-center gap-4 md:gap-6">
+            <div className="w-36 h-36 md:w-48 md:h-48 bg-[#fffaf3] rounded-2xl md:rounded-[2.5rem] border-2 border-dashed border-[#dcc7a5] flex items-center justify-center overflow-hidden group relative transition-all hover:border-[#d7b77f]">
               {preview ? (
                 <img src={preview} alt="Preview" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
               ) : (
-                <Utensils className="w-12 h-12 text-zinc-800 group-hover:text-purple-500/50 transition-colors" />
+                <Utensils className="w-10 h-10 md:w-12 md:h-12 text-[#dcc7a5] group-hover:text-[#b98c52] transition-colors" />
               )}
-              <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white text-[10px] font-black uppercase tracking-widest gap-2">
-                <ImageIcon className="w-5 h-5 text-purple-500" />
+              <label className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-zinc-900 text-[10px] font-black uppercase tracking-widest gap-2">
+                <ImageIcon className="w-5 h-5 text-[#b98c52]" />
                 Cargar Imagen
                 <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
               </label>
@@ -175,7 +175,7 @@ export const MenuItemModal = ({ isOpen, onClose, item = null, restaurantId }) =>
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className={labelClass}><DollarSign className="w-3 h-3" /> Precio (Q)</label>
                 <input
@@ -225,7 +225,7 @@ export const MenuItemModal = ({ isOpen, onClose, item = null, restaurantId }) =>
               <textarea
                 name="description"
                 rows="3"
-                className={`${inputClass} resize-none min-h-[100px]`}
+                className={`${inputClass} resize-none min-h-[90px] md:min-h-[100px]`}
                 placeholder="Ingredientes premium, alérgenos, preparación..."
                 value={formData.description}
                 onChange={handleChange}
@@ -233,11 +233,11 @@ export const MenuItemModal = ({ isOpen, onClose, item = null, restaurantId }) =>
             </div>
           </div>
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-5 rounded-3xl border border-zinc-800 text-zinc-500 font-black uppercase tracking-widest text-[10px] hover:text-white hover:bg-zinc-900 transition-all"
+              className="flex-1 py-3 md:py-5 rounded-3xl border border-zinc-800 text-zinc-500 font-black uppercase tracking-widest text-[10px] hover:text-white hover:bg-zinc-900 transition-all"
             >
               Cancelar
             </button>
@@ -246,7 +246,7 @@ export const MenuItemModal = ({ isOpen, onClose, item = null, restaurantId }) =>
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="flex-1 py-5 rounded-3xl bg-purple-600 text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-purple-600/20 hover:bg-purple-500 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="flex-1 py-3 md:py-5 rounded-3xl bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-[rgba(185,140,82,0.06)] hover:to-[#a97d45] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                 <>

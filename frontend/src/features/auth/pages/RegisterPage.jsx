@@ -3,8 +3,9 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, Phone, Upload, Sparkles, ChefHat, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
+import { User, Mail, Lock, Phone, Upload, Sparkles, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import Grainient from '../../../shared/components/ui/Grainient';
+import { BrandLogo } from '../../../shared/components/ui/BrandLogo';
 
 export const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -57,7 +58,7 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-black flex items-center justify-center overflow-hidden font-inter py-12 px-6">
+    <div className="relative min-h-screen bg-[#f7f1e7] flex items-center justify-center overflow-hidden font-inter py-12 px-6 text-zinc-900">
       {/* Background Effect */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <Grainient
@@ -76,9 +77,9 @@ export const RegisterPage = () => {
           contrast={1.5}
           gamma={1.0}
           saturation={1.0}
-          color1="#4B1F4B"
-          color2="#2F0F6F"
-          color3="#3A243A"
+          color1="#f8ecd7"
+          color2="#d6b47a"
+          color3="#ead9bf"
         />
       </div>
 
@@ -90,15 +91,13 @@ export const RegisterPage = () => {
           animate={{ opacity: 1, x: 0 }}
           className="w-full lg:w-[600px]"
         >
-          <div className="bg-zinc-900/40 backdrop-blur-3xl rounded-[3rem] border border-purple-500/20 shadow-2xl p-8 lg:p-12 h-full">
+          <div className="bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/70 shadow-[0_30px_100px_rgba(110,80,45,0.14)] p-8 lg:p-12 h-full">
             <div className="mb-10">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-                  <ChefHat className="w-7 h-7 text-white" />
-                </div>
-                <h2 className="text-3xl font-black text-white tracking-tight">Crear Cuenta</h2>
+                <BrandLogo size="md" className="mx-auto lg:mx-0 mb-0" imageClassName="p-0" />
+                <h2 className="text-3xl font-black text-zinc-900 tracking-tight">Crear Cuenta</h2>
               </div>
-              <p className="text-zinc-400 font-medium">Únete a la plataforma de gestión gastronómica líder.</p>
+              <p className="text-zinc-600 font-medium">Únete a la plataforma de gestión gastronómica líder.</p>
             </div>
 
             <form className="space-y-6" onSubmit={handleSubmit}>
@@ -106,10 +105,10 @@ export const RegisterPage = () => {
                 <div className="group">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Nombre</label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
                     <input
                       name="name" type="text" required
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
                       placeholder="Tu nombre"
                       value={formData.name} onChange={handleChange}
                     />
@@ -119,10 +118,10 @@ export const RegisterPage = () => {
                 <div className="group">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Apellido</label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
                     <input
                       name="surname" type="text" required
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
                       placeholder="Tu apellido"
                       value={formData.surname} onChange={handleChange}
                     />
@@ -132,10 +131,10 @@ export const RegisterPage = () => {
                 <div className="group">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Usuario</label>
                   <div className="relative">
-                    <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
                     <input
                       name="username" type="text" required
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
                       placeholder="usuario_123"
                       value={formData.username} onChange={handleChange}
                     />
@@ -145,10 +144,10 @@ export const RegisterPage = () => {
                 <div className="group">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Teléfono</label>
                   <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
                     <input
                       name="phone" type="text" required pattern="\d{8}"
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
                       placeholder="12345678"
                       value={formData.phone} onChange={handleChange}
                     />
@@ -158,10 +157,10 @@ export const RegisterPage = () => {
                 <div className="group md:col-span-2">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Email Corporativo</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
                     <input
                       name="email" type="email" required
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
                       placeholder="tu@email.com"
                       value={formData.email} onChange={handleChange}
                     />
@@ -171,10 +170,10 @@ export const RegisterPage = () => {
                 <div className="group md:col-span-2">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Contraseña de Acceso</label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-purple-500 transition-colors" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
                     <input
                       name="password" type="password" required minLength="8"
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-800 bg-black/40 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
                       placeholder="••••••••"
                       value={formData.password} onChange={handleChange}
                     />
@@ -183,8 +182,8 @@ export const RegisterPage = () => {
 
                 <div className="group md:col-span-2">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Foto de Perfil (Opcional)</label>
-                  <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-800 rounded-3xl cursor-pointer bg-black/20 hover:bg-black/40 hover:border-purple-500/50 transition-all">
-                    <Upload className="w-6 h-6 text-zinc-700 mb-1" />
+                  <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-[#d8c19b] rounded-3xl cursor-pointer bg-[#fffaf3] hover:bg-[#f6ead4] hover:border-[#b98c52] transition-all">
+                    <Upload className="w-6 h-6 text-zinc-600 mb-1" />
                     <p className="text-[10px] text-zinc-600 font-bold uppercase">Subir Imagen</p>
                     <input name="profilePicture" type="file" className="hidden" onChange={handleChange} />
                   </label>
@@ -192,10 +191,10 @@ export const RegisterPage = () => {
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.01, boxShadow: "0 0 20px rgba(168,85,247,0.3)" }}
+                whileHover={{ scale: 1.01, boxShadow: "0 0 20px rgba(185,140,82,0.25)" }}
                 whileTap={{ scale: 0.98 }}
                 type="submit" disabled={isLoading}
-                className="w-full py-5 bg-purple-600 text-white font-black rounded-2xl flex items-center justify-center gap-3 transition-all"
+                className="w-full py-5 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black rounded-2xl flex items-center justify-center gap-3 transition-all"
               >
                 {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
                   <>
@@ -208,7 +207,7 @@ export const RegisterPage = () => {
               <div className="text-center">
                 <p className="text-zinc-500 text-sm font-medium">
                   ¿Ya tienes cuenta?{' '}
-                  <Link to="/login" className="text-purple-400 font-black hover:text-purple-300">
+                  <Link to="/login" className="text-[#a97d45] font-black hover:text-[#8b6435]">
                     Inicia Sesión
                   </Link>
                 </p>
@@ -219,9 +218,12 @@ export const RegisterPage = () => {
 
         {/* Right Section (Visual) */}
         <div className="hidden lg:flex flex-1 flex-col justify-center items-start text-white">
-          <div className="p-8 bg-zinc-900/40 backdrop-blur-3xl rounded-[3rem] border border-purple-500/10 max-w-md">
-            <ShieldCheck className="w-12 h-12 text-purple-500 mb-6" />
-            <h3 className="text-4xl font-black mb-6 leading-tight">Seguridad y Control <br /> en un solo <span className="text-purple-500 italic">Lugar</span></h3>
+          <div className="p-8 bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/70 max-w-md shadow-[0_20px_80px_rgba(110,80,45,0.12)]">
+            <div className="mb-6">
+              <BrandLogo size="md" className="mx-auto lg:mx-0" imageClassName="p-0" />
+            </div>
+            <ShieldCheck className="w-12 h-12 text-[#b98c52] mb-6" />
+            <h3 className="text-4xl font-black mb-6 leading-tight text-zinc-900">Seguridad y Control <br /> en un solo <span className="text-[#b98c52] italic">Lugar</span></h3>
             <ul className="space-y-6">
               {[
                 "Protección de datos AES-256",
@@ -229,8 +231,8 @@ export const RegisterPage = () => {
                 "Analítica avanzada en tiempo real"
               ].map((text, i) => (
                 <li key={i} className="flex items-center gap-4">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full" />
-                  <span className="text-zinc-300 font-medium">{text}</span>
+                  <div className="w-2 h-2 bg-[#b98c52] rounded-full" />
+                  <span className="text-zinc-700 font-medium">{text}</span>
                 </li>
               ))}
             </ul>

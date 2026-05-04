@@ -83,16 +83,16 @@ export const AdminEventsPage = () => {
     <div className="space-y-12 animate-in fade-in duration-700 font-outfit">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-        <div className="relative overflow-hidden bg-zinc-900/40 backdrop-blur-3xl rounded-[3rem] border border-purple-500/10 p-10 lg:p-12 flex-1">
+        <div className="relative overflow-hidden bg-[#fffaf3]/60 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5] p-10 lg:p-12 flex-1">
           <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 rotate-12">
-             <PartyPopper className="w-64 h-64 text-purple-500" />
+             <PartyPopper className="w-64 h-64 text-[#b98c52]" />
           </div>
           <div className="relative z-10">
-            <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-4 block">Eventos & Experiencias</span>
-            <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-none mb-4">
-              Cartelera <span className="text-purple-500 italic">Premium</span>
+            <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-4 block">Eventos & Experiencias</span>
+            <h1 className="text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none mb-4">
+              Cartelera <span className="text-[#b98c52] italic">Premium</span>
             </h1>
-            <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px] leading-relaxed max-w-lg">
+            <p className="text-zinc-600 font-bold uppercase tracking-widest text-[10px] leading-relaxed max-w-lg">
               Gestiona y publica experiencias gastronómicas exclusivas para tu comunidad de comensales.
             </p>
           </div>
@@ -102,7 +102,7 @@ export const AdminEventsPage = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => handleOpenModal()}
-          className="h-fit px-10 py-6 bg-purple-600 text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl shadow-purple-500/20 hover:bg-purple-500 transition-all border border-purple-400/20 flex items-center gap-3 shrink-0"
+          className="h-fit px-10 py-6 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl shadow-[rgba(185,140,82,0.2)] hover:to-[#a97d45] transition-all border border-[#d7b77f]/30 flex items-center gap-3 shrink-0"
         >
           <Plus className="w-5 h-5" /> Nueva Experiencia
         </motion.button>
@@ -112,12 +112,12 @@ export const AdminEventsPage = () => {
       <div className="space-y-8">
         <div className="flex items-center justify-between px-6">
            <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">Agenda de Programación</h3>
-           <span className="text-[10px] font-black text-purple-500 uppercase tracking-widest bg-purple-500/10 px-4 py-2 rounded-full border border-purple-500/20">{events.length} Eventos Activos</span>
+           <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-widest bg-[#d7b77f]/10 px-4 py-2 rounded-full border border-[#d7b77f]/20">{events.length} Eventos Activos</span>
         </div>
 
         {loading ? (
           <div className="py-32 flex flex-col items-center justify-center gap-6 bg-zinc-900/20 rounded-[4rem] border border-dashed border-zinc-800">
-             <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
+             <Loader2 className="w-12 h-12 text-[#b98c52] animate-spin" />
              <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Sincronizando Cartelería...</p>
           </div>
         ) : (
@@ -129,7 +129,7 @@ export const AdminEventsPage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="group bg-zinc-900/40 backdrop-blur-3xl rounded-[3rem] border border-purple-500/10 overflow-hidden hover:border-purple-500/30 transition-all flex flex-col shadow-2xl h-full"
+                  className="group bg-[#fffaf3]/70 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/30 overflow-hidden hover:border-[#dcc7a5]/50 transition-all flex flex-col shadow-2xl h-full"
                 >
                   <div className="h-52 relative overflow-hidden shrink-0">
                     <img 
@@ -140,7 +140,7 @@ export const AdminEventsPage = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
                     
                     <div className="absolute top-6 left-6 flex flex-col gap-2">
-                      <span className="px-4 py-2 rounded-xl bg-zinc-950/80 backdrop-blur-xl text-purple-400 text-[9px] font-black uppercase tracking-widest border border-purple-500/20">
+                      <span className="px-4 py-2 rounded-xl bg-[#f3e4ca]/80 backdrop-blur-xl text-[#b98c52] text-[9px] font-black uppercase tracking-widest border border-[#dcc7a5]/20">
                         {translateEventType(event.event_type)}
                       </span>
                     </div>
@@ -159,20 +159,20 @@ export const AdminEventsPage = () => {
                   </div>
                   
                   <div className="p-8 flex-1 flex flex-col">
-                    <h4 className="text-2xl font-black text-white tracking-tight uppercase truncate mb-4 group-hover:text-purple-400 transition-colors">{event.name}</h4>
+                    <h4 className="text-2xl font-black text-zinc-900 tracking-tight uppercase truncate mb-4 group-hover:text-[#b98c52] transition-colors">{event.name}</h4>
                     
                     <div className="space-y-4 mb-8 flex-1">
-                      <div className="flex items-center gap-4 p-4 bg-black/40 rounded-2xl border border-zinc-800">
-                         <Calendar className="w-4 h-4 text-purple-500" />
-                         <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{event.event_date}</span>
+                      <div className="flex items-center gap-4 p-4 bg-[#f3e4ca]/40 rounded-2xl border border-[#dcc7a5]">
+                         <Calendar className="w-4 h-4 text-[#b98c52]" />
+                         <span className="text-[10px] font-black text-[#8b6435] uppercase tracking-widest">{event.event_date}</span>
                       </div>
-                      <div className="flex items-center gap-4 p-4 bg-black/40 rounded-2xl border border-zinc-800">
-                         <Clock className="w-4 h-4 text-purple-500" />
-                         <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{event.start_time?.slice(0, 5)} - {event.end_time?.slice(0, 5)}</span>
+                      <div className="flex items-center gap-4 p-4 bg-[#f3e4ca]/40 rounded-2xl border border-[#dcc7a5]">
+                         <Clock className="w-4 h-4 text-[#b98c52]" />
+                         <span className="text-[10px] font-black text-[#8b6435] uppercase tracking-widest">{event.start_time?.slice(0, 5)} - {event.end_time?.slice(0, 5)}</span>
                       </div>
-                      <div className="flex items-center gap-4 p-4 bg-black/40 rounded-2xl border border-zinc-800">
-                         <Users className="w-4 h-4 text-purple-500" />
-                         <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{event.current_participants} / {event.max_participants} Participantes</span>
+                      <div className="flex items-center gap-4 p-4 bg-[#f3e4ca]/40 rounded-2xl border border-[#dcc7a5]">
+                         <Users className="w-4 h-4 text-[#b98c52]" />
+                         <span className="text-[10px] font-black text-[#8b6435] uppercase tracking-widest">{event.current_participants} / {event.max_participants} Participantes</span>
                       </div>
                     </div>
 

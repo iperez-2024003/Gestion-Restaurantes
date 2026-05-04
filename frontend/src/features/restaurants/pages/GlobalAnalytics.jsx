@@ -42,10 +42,10 @@ export const GlobalAnalytics = () => {
   if (loading) return (
     <div className="flex flex-col justify-center items-center h-[70vh] font-outfit">
        <div className="relative">
-          <div className="w-20 h-20 rounded-full border-4 border-purple-500/20 border-t-purple-500 animate-spin" />
-          <div className="absolute inset-0 flex items-center justify-center">
-             <Globe className="w-8 h-8 text-purple-500" />
-          </div>
+         <div className="w-20 h-20 rounded-full border-4 border-[#dcc7a5]/20 border-t-[#b98c52] animate-spin" />
+         <div className="absolute inset-0 flex items-center justify-center">
+           <Globe className="w-8 h-8 text-[#b98c52]" />
+         </div>
         </div>
         <p className="mt-8 text-zinc-500 font-black animate-pulse uppercase tracking-[0.4em] text-[10px]">Sincronizando Plataforma Global...</p>
     </div>
@@ -56,10 +56,10 @@ export const GlobalAnalytics = () => {
       <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
          <Globe className="w-10 h-10 text-rose-500" />
       </div>
-      <p className="text-white font-black uppercase tracking-widest text-xl mb-4">Error de Conexión Global</p>
+      <p className="text-zinc-900 font-black uppercase tracking-widest text-xl mb-4">Error de Conexión Global</p>
       <button 
         onClick={() => window.location.reload()} 
-        className="px-8 py-4 bg-zinc-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-zinc-800 hover:border-purple-500"
+        className="px-8 py-4 bg-[#fffaf3] text-zinc-900 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-[#dcc7a5] hover:border-[#b98c52]"
       >
         Reintentar Protocolo
       </button>
@@ -70,11 +70,11 @@ export const GlobalAnalytics = () => {
     <div className="space-y-12 pb-20 font-outfit animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-           <p className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-2">Network intelligence</p>
-           <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">Global <span className="text-zinc-600">Analytics</span></h1>
+           <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-2">Network intelligence</p>
+           <h1 className="text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none">Global <span className="text-zinc-600">Analytics</span></h1>
         </div>
         
-        <div className="flex items-center gap-4 bg-zinc-900/40 backdrop-blur-xl px-6 py-3 rounded-2xl border border-purple-500/10">
+        <div className="flex items-center gap-4 bg-white/70 backdrop-blur-xl px-6 py-3 rounded-2xl border border-[#dcc7a5]/10">
            <div className="relative">
               <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping absolute inset-0" />
               <div className="w-2 h-2 bg-emerald-500 rounded-full relative" />
@@ -95,33 +95,33 @@ export const GlobalAnalytics = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
             key={i} 
-            className="bg-zinc-900/40 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-purple-500/5 hover:border-purple-500/20 transition-all group"
+            className="bg-white/80 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-[#dcc7a5]/5 hover:border-[#b98c52]/20 transition-all group"
           >
-            <div className={`w-14 h-14 bg-zinc-950 border border-purple-500/10 text-purple-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-xl`}>
+            <div className={`w-14 h-14 bg-[#f3e4ca] border border-[#dcc7a5]/10 text-[#b98c52] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-xl`}>
               <kpi.icon className="w-6 h-6" />
             </div>
             <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">{kpi.label}</p>
-            <p className="text-3xl font-black text-white tracking-tighter leading-none">{kpi.value}</p>
+            <p className="text-3xl font-black text-zinc-900 tracking-tighter leading-none">{kpi.value}</p>
           </motion.div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Top Restaurants Chart */}
-        <div className="bg-zinc-900/40 backdrop-blur-3xl p-10 rounded-[3rem] border border-purple-500/10 shadow-2xl">
+        <div className="bg-white/80 backdrop-blur-3xl p-10 rounded-[3rem] border border-[#dcc7a5]/10 shadow-2xl">
           <div className="flex items-center justify-between mb-12">
             <div className="flex items-center gap-4">
-               <Award className="w-8 h-8 text-purple-500" />
-               <div>
-                  <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1">Ranking de Sedes</p>
-                  <h3 className="text-2xl font-black text-white tracking-tight uppercase leading-none">Top <span className="text-zinc-600">Performance</span></h3>
-               </div>
+              <Award className="w-8 h-8 text-[#b98c52]" />
+              <div>
+                <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-widest mb-1">Ranking de Sedes</p>
+                <h3 className="text-2xl font-black text-zinc-900 tracking-tight uppercase leading-none">Top <span className="text-zinc-600">Performance</span></h3>
+              </div>
             </div>
           </div>
           <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.topRestaurants}>
-                <CartesianGrid strokeDasharray="8 8" vertical={false} stroke="#27272a" />
+                <CartesianGrid strokeDasharray="8 8" vertical={false} stroke="#dcc7a5" />
                 <XAxis 
                   dataKey="Restaurant.name" 
                   axisLine={false} 
@@ -136,16 +136,16 @@ export const GlobalAnalytics = () => {
                   tickFormatter={(val) => `Q${val}`}
                 />
                 <Tooltip 
-                  cursor={{ fill: 'rgba(168, 85, 247, 0.05)' }}
+                  cursor={{ fill: 'rgba(185,140,82,0.05)' }}
                   contentStyle={{ 
-                    backgroundColor: '#09090b',
+                    backgroundColor: '#fffaf3',
                     borderRadius: '24px', 
-                    border: '1px solid rgba(168, 85, 247, 0.2)', 
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                    border: '1px solid rgba(185,140,82,0.12)', 
+                    boxShadow: '0 25px 50px -12px rgba(110,80,45,0.08)',
                     padding: '20px'
                   }}
-                  itemStyle={{ fontWeight: '900', fontSize: '14px', color: '#fff' }}
-                  labelStyle={{ marginBottom: '8px', color: '#a855f7', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.2em' }}
+                  itemStyle={{ fontWeight: '900', fontSize: '14px', color: '#2b2b2b' }}
+                  labelStyle={{ marginBottom: '8px', color: '#b98c52', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.2em' }}
                 />
                 <Bar dataKey="revenue" radius={[12, 12, 0, 0]}>
                   {stats.topRestaurants.map((entry, index) => (
@@ -158,10 +158,10 @@ export const GlobalAnalytics = () => {
         </div>
 
         {/* Detailed Table */}
-        <div className="bg-zinc-900/40 backdrop-blur-3xl p-10 rounded-[3rem] border border-purple-500/10 shadow-2xl overflow-hidden flex flex-col">
+        <div className="bg-[#fffaf3]/60 backdrop-blur-3xl p-10 rounded-[3rem] border border-[#dcc7a5] shadow-2xl overflow-hidden flex flex-col">
            <div className="mb-10">
-              <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1">Auditoría Operativa</p>
-              <h3 className="text-2xl font-black text-white tracking-tight uppercase leading-none">Desempeño <span className="text-zinc-600">Detallado</span></h3>
+              <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-widest mb-1">Auditoría Operativa</p>
+              <h3 className="text-2xl font-black text-zinc-900 tracking-tight uppercase leading-none">Desempeño <span className="text-zinc-600">Detallado</span></h3>
            </div>
            <div className="overflow-x-auto flex-1">
              <table className="w-full text-left">
@@ -174,7 +174,7 @@ export const GlobalAnalytics = () => {
                </thead>
                <tbody className="divide-y divide-zinc-800/50">
                  {stats.topRestaurants.map((rest, i) => (
-                   <tr key={i} className="group hover:bg-purple-500/5 transition-all">
+                   <tr key={i} className="group hover:bg-[#d7b77f]/5 transition-all">
                      <td className="py-6 px-4">
                         <div className="flex flex-col">
                            <span className="font-black text-white text-sm uppercase tracking-tight">{rest.Restaurant.name}</span>
@@ -182,7 +182,7 @@ export const GlobalAnalytics = () => {
                         </div>
                      </td>
                      <td className="py-6 px-4">
-                        <span className="px-4 py-1.5 bg-zinc-950 text-purple-400 border border-purple-500/10 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        <span className="px-4 py-1.5 bg-[#f3e4ca] text-[#b98c52] border border-[#dcc7a5] rounded-full text-[10px] font-black uppercase tracking-widest">
                            {rest.orders_count} Trans.
                         </span>
                      </td>

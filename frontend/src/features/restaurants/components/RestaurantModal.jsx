@@ -54,7 +54,7 @@ const DAYS = [
 ];
 
 const inputClass =
-  'w-full px-6 py-4 rounded-2xl bg-black/40 border border-zinc-800 text-white placeholder-zinc-700 focus:bg-black focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all text-sm font-medium';
+  'w-full px-6 py-4 rounded-2xl bg-black/40 border border-zinc-800 text-white placeholder-zinc-700 focus:bg-black focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/20 focus:border-[#d7b77f] transition-all text-sm font-medium';
 
 const labelClass = 'flex items-center gap-2 text-[10px] font-black text-zinc-500 mb-2 uppercase tracking-[0.2em] ml-1';
 
@@ -186,16 +186,16 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-zinc-950 rounded-[3.5rem] border border-purple-500/20 shadow-[0_0_100px_rgba(168,85,247,0.1)] w-full max-w-4xl overflow-hidden"
+        className="bg-zinc-950 rounded-[3.5rem] border border-[#dcc7a5]/20 shadow-[0_0_100px_rgba(185,140,82,0.1)] w-full max-w-4xl overflow-hidden"
       >
         {/* HEADER */}
-        <div className="px-12 py-10 border-b border-purple-500/10 bg-zinc-900/40 relative overflow-hidden">
+        <div className="px-12 py-10 border-b border-[#dcc7a5]/10 bg-zinc-900/40 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-5">
-             <Building2 className="w-40 h-40 text-purple-500" />
+             <Building2 className="w-40 h-40 text-[#b98c52]" />
           </div>
           <div className="flex justify-between items-start relative z-10">
             <div>
-              <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-2 block">Administración Central</span>
+              <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-2 block">Administración Central</span>
               <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">
                 {restaurant ? (
                   <>
@@ -203,7 +203,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
                   </>
                 ) : (
                   <>
-                    Nueva <span className="text-purple-500">Sede</span>
+                    Nueva <span className="text-[#b98c52]">Sede</span>
                   </>
                 )}
               </h2>
@@ -223,8 +223,8 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
           {/* ① INFORMACIÓN BÁSICA */}
           <div className="space-y-8">
             <div className="flex items-center gap-4">
-               <div className="w-10 h-10 bg-purple-600/10 rounded-xl flex items-center justify-center border border-purple-500/20">
-                  <Info className="w-5 h-5 text-purple-500" />
+               <div className="w-10 h-10 bg-[#d7b77f]/10 rounded-xl flex items-center justify-center border border-[#dcc7a5]/20">
+                  <Info className="w-5 h-5 text-[#b98c52]" />
                </div>
                <h3 className="text-sm font-black text-white uppercase tracking-widest">Información Básica</h3>
             </div>
@@ -266,8 +266,8 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
           {/* ② CONTACTO Y UBICACIÓN */}
           <div className="space-y-8">
             <div className="flex items-center gap-4">
-               <div className="w-10 h-10 bg-purple-600/10 rounded-xl flex items-center justify-center border border-purple-500/20">
-                  <MapPin className="w-5 h-5 text-purple-500" />
+               <div className="w-10 h-10 bg-[#d7b77f]/10 rounded-xl flex items-center justify-center border border-[#dcc7a5]/20">
+                  <MapPin className="w-5 h-5 text-[#b98c52]" />
                </div>
                <h3 className="text-sm font-black text-white uppercase tracking-widest">Contacto & Geografía</h3>
             </div>
@@ -305,9 +305,9 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
                     className="absolute inset-0 opacity-0 cursor-pointer z-10" 
                     {...register('logo')} 
                   />
-                  <div className="w-full px-6 py-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-500 text-sm font-bold flex items-center justify-between group-hover:border-purple-500 transition-all">
+                  <div className="w-full px-6 py-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-500 text-sm font-bold flex items-center justify-between group-hover:border-[#d7b77f] transition-all">
                     <span>{watch('logo')?.[0]?.name || 'Subir nuevo logo...'}</span>
-                    <ImageIcon className="w-4 h-4 text-purple-500" />
+                    <ImageIcon className="w-4 h-4 text-[#b98c52]" />
                   </div>
                 </div>
               </div>
@@ -317,8 +317,8 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
           {/* ③ OPERACIONES */}
           <div className="space-y-8">
             <div className="flex items-center gap-4">
-               <div className="w-10 h-10 bg-purple-600/10 rounded-xl flex items-center justify-center border border-purple-500/20">
-                  <Clock className="w-5 h-5 text-purple-500" />
+               <div className="w-10 h-10 bg-[#d7b77f]/10 rounded-xl flex items-center justify-center border border-[#dcc7a5]/20">
+                  <Clock className="w-5 h-5 text-[#b98c52]" />
                </div>
                <h3 className="text-sm font-black text-white uppercase tracking-widest">Ritmo Operativo</h3>
             </div>
@@ -369,7 +369,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
                     onClick={() => toggleDay(d.value)}
                     className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${
                       selectedDays.includes(d.value)
-                        ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-600/20'
+                        ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] border-[#b98c52] text-white shadow-lg shadow-[rgba(185,140,82,0.2)]'
                         : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700'
                     }`}
                   >
@@ -383,8 +383,8 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
           {/* ④ SERVICIOS */}
           <div className="space-y-8">
             <div className="flex items-center gap-4">
-               <div className="w-10 h-10 bg-purple-600/10 rounded-xl flex items-center justify-center border border-purple-500/20">
-                  <Sparkles className="w-5 h-5 text-purple-500" />
+               <div className="w-10 h-10 bg-[#d7b77f]/10 rounded-xl flex items-center justify-center border border-[#dcc7a5]/20">
+                  <Sparkles className="w-5 h-5 text-[#b98c52]" />
                </div>
                <h3 className="text-sm font-black text-white uppercase tracking-widest">Amenidades & Servicios</h3>
             </div>
@@ -399,10 +399,10 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
                 { name: 'pet_friendly', label: 'Pets', icon: Dog },
                 { name: 'wheelchair_accessible', label: 'Accesible', icon: Accessibility },
               ].map(({ name, label, icon: Icon }) => (
-                <label key={name} className="flex items-center gap-4 p-5 rounded-[2rem] border border-zinc-800 bg-zinc-900/40 cursor-pointer hover:border-purple-500/40 transition-all group">
-                  <input type="checkbox" className="w-5 h-5 accent-purple-600 rounded-lg" {...register(name)} />
+                <label key={name} className="flex items-center gap-4 p-5 rounded-[2rem] border border-zinc-800 bg-zinc-900/40 cursor-pointer hover:border-[#dcc7a5]/40 transition-all group">
+                  <input type="checkbox" className="w-5 h-5 accent-[#d7b77f] rounded-lg" {...register(name)} />
                   <div className="flex flex-col">
-                    <Icon className="w-4 h-4 text-purple-500 mb-1" />
+                    <Icon className="w-4 h-4 text-[#b98c52] mb-1" />
                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest group-hover:text-white transition-colors">{label}</span>
                   </div>
                 </label>
@@ -411,7 +411,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
           </div>
 
           {/* BOTONES */}
-          <div className="flex items-center justify-end gap-6 pt-12 border-t border-purple-500/10">
+          <div className="flex items-center justify-end gap-6 pt-12 border-t border-[#dcc7a5]/10">
             <button
               type="button"
               onClick={onClose}
@@ -424,7 +424,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
               whileTap={{ scale: 0.95 }}
               type="submit"
               disabled={loading}
-              className="px-10 py-5 rounded-3xl bg-purple-600 text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-purple-600/20 hover:bg-purple-500 transition-all flex items-center gap-3 disabled:opacity-50"
+              className="px-10 py-5 rounded-3xl bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-[rgba(185,140,82,0.2)] hover:to-[#a97d45] transition-all flex items-center gap-3 disabled:opacity-50"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                 <>

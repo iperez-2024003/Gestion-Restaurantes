@@ -26,7 +26,7 @@ export const TransactionCard = ({ label, onClick }) => {
         </div>
         
         {/* Decorative Glow */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+        <div className="absolute -inset-1 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
       </div>
     </StyledWrapper>
   );
@@ -34,7 +34,7 @@ export const TransactionCard = ({ label, onClick }) => {
 
 const StyledWrapper = styled.div`
   .container {
-    background-color: rgba(24, 24, 27, 0.6);
+    background-color: rgba(255, 250, 243, 0.88);
     backdrop-filter: blur(20px);
     display: flex;
     width: 320px;
@@ -42,19 +42,19 @@ const StyledWrapper = styled.div`
     position: relative;
     border-radius: 1.5rem;
     transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    border: 1px solid rgba(168, 85, 247, 0.2);
+    border: 1px solid rgba(220, 199, 165, 0.8);
     cursor: pointer;
     overflow: hidden;
   }
 
   .container:hover {
     transform: scale(1.02);
-    border-color: rgba(168, 85, 247, 0.5);
-    box-shadow: 0 0 30px rgba(168, 85, 247, 0.15);
+    border-color: rgba(185, 140, 82, 0.5);
+    box-shadow: 0 0 30px rgba(185, 140, 82, 0.12);
   }
 
   .left-side {
-    background: linear-gradient(135deg, #9333ea, #4f46e5);
+    background: linear-gradient(135deg, #d7b77f, #b98c52);
     width: 100px;
     height: 100%;
     border-radius: 1.4rem;
@@ -161,18 +161,18 @@ const StyledWrapper = styled.div`
   .screen {
     width: 45px;
     height: 20px;
-    background-color: #18181b;
+    background-color: #f8f1e7;
     position: absolute;
     top: 20px;
     right: 5px;
     border-radius: 3px;
-    border: 1px solid #3f3f46;
+    border: 1px solid #e1c89e;
   }
 
   .dollar {
     font-size: 14px;
     font-weight: 900;
-    color: #a855f7;
+    color: #8b6435;
     text-align: center;
     line-height: 20px;
   }

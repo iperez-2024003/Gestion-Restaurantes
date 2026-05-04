@@ -2,7 +2,6 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { useAuthStore } from '../../features/auth/store/useAuthStore';
 import { 
   LayoutDashboard, 
-  ChefHat, 
   Users, 
   Utensils, 
   ClipboardList, 
@@ -15,6 +14,7 @@ import {
   Star
 } from 'lucide-react';
 import { getImageUrl } from '../utils/getImageUrl';
+import { BrandLogo } from './ui/BrandLogo';
 
 export const Sidebar = () => {
   const { role, user, logout } = useAuthStore();
@@ -48,25 +48,20 @@ export const Sidebar = () => {
         to={to} 
         className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 group font-black uppercase tracking-widest text-[10px] ${
           active 
-            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/20' 
-            : 'text-zinc-500 hover:text-purple-400 hover:bg-purple-500/5'
+            ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white shadow-lg shadow-[rgba(153,114,58,0.22)]' 
+            : 'text-zinc-500 hover:text-[#94673a] hover:bg-[#f0e4d2]'
         }`}
       >
-        <Icon className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${active ? 'text-white' : 'text-zinc-600 group-hover:text-purple-500'}`} />
+        <Icon className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${active ? 'text-white' : 'text-zinc-600 group-hover:text-[#b98c52]'}`} />
         <span>{children}</span>
       </Link>
     );
   };
 
   return (
-    <aside className="w-72 h-screen bg-black border-r border-purple-500/10 flex flex-col relative z-30">
-      <div className="h-20 flex items-center px-8 border-b border-purple-500/10 bg-zinc-900/40 backdrop-blur-3xl">
-        <div className="flex items-center gap-3">
-           <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/30">
-              <ChefHat className="w-5 h-5 text-white" />
-           </div>
-           <h1 className="text-lg font-black text-white tracking-tighter uppercase">RestauManager</h1>
-        </div>
+    <aside className="hidden md:flex md:w-72 h-screen bg-[#f6efe4] border-r border-[#dcc7a5] flex-col relative z-30 shadow-[0_20px_80px_rgba(119,89,52,0.08)]">
+      <div className="h-20 md:h-24 flex items-center px-4 md:px-6 border-b border-[#dcc7a5]/80 bg-[#fffaf2]/90 backdrop-blur-3xl">
+        <BrandLogo size="sm" className="mx-auto md:mx-0 w-full max-w-[13rem]" imageClassName="p-1" />
       </div>
 
       <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2 scrollbar-hide">
@@ -119,9 +114,9 @@ export const Sidebar = () => {
         )}
       </div>
 
-      <div className="p-4 border-t border-purple-500/10 bg-zinc-900/20 backdrop-blur-xl">
-        <Link to="/dashboard/profile" className="flex items-center gap-3 mb-4 p-3 rounded-2xl hover:bg-purple-500/5 transition-all group border border-transparent hover:border-purple-500/20">
-          <div className="w-10 h-10 rounded-xl bg-purple-600/20 flex items-center justify-center text-purple-400 font-black border border-purple-500/30 overflow-hidden">
+      <div className="p-4 border-t border-[#dcc7a5]/80 bg-[#fffaf2]/80 backdrop-blur-xl">
+        <Link to="/dashboard/profile" className="flex items-center gap-3 mb-4 p-3 rounded-2xl hover:bg-[#efe1c9] transition-all group border border-transparent hover:border-[#d5b57b]/40">
+          <div className="w-10 h-10 rounded-xl bg-[#d9bb88]/20 flex items-center justify-center text-[#94673a] font-black border border-[#d5b57b]/30 overflow-hidden">
             {user?.profilePicture ? (
               <img src={getImageUrl(user.profilePicture)} alt="Perfil" className="w-full h-full object-cover" />
             ) : (
@@ -129,14 +124,14 @@ export const Sidebar = () => {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-black text-white truncate uppercase tracking-tighter">{user?.name || user?.username}</p>
-            <p className="text-[10px] text-purple-500 font-black uppercase tracking-widest">{friendlyRole}</p>
+            <p className="text-xs font-black text-zinc-900 truncate uppercase tracking-tighter">{user?.name || user?.username}</p>
+            <p className="text-[10px] text-[#9f7642] font-black uppercase tracking-widest">{friendlyRole}</p>
           </div>
-          <Settings className="w-4 h-4 text-zinc-600 group-hover:text-purple-400" />
+          <Settings className="w-4 h-4 text-zinc-600 group-hover:text-[#b98c52]" />
         </Link>
         <button 
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all font-black uppercase tracking-widest text-[10px]"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[#7f5530] hover:bg-[#eddcc0] transition-all font-black uppercase tracking-widest text-[10px] border border-[#dcc7a5]/70"
         >
           <LogOut className="w-5 h-5" />
           <span>Cerrar Sesión</span>

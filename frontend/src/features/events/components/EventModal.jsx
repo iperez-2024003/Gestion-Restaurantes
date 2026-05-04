@@ -26,8 +26,8 @@ const EVENT_TYPES = [
   'other',
 ];
 
-const inputClass = 'w-full px-6 py-4 rounded-2xl bg-black/40 border border-zinc-800 text-white placeholder-zinc-700 focus:bg-black focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all text-sm font-medium';
-const labelClass = 'flex items-center gap-2 text-[10px] font-black text-zinc-500 mb-2 uppercase tracking-[0.2em] ml-1';
+const inputClass = 'w-full px-6 py-4 rounded-2xl bg-[#fffaf3] border border-[#dcc7a5] text-zinc-900 placeholder-zinc-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all text-sm font-medium';
+const labelClass = 'flex items-center gap-2 text-[10px] font-black text-zinc-600 mb-2 uppercase tracking-[0.2em] ml-1';
 
 export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = null }) => {
   const [form, setForm] = useState({
@@ -76,34 +76,34 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex justify-center items-center z-50 p-4 font-outfit overflow-y-auto">
+    <div className="fixed inset-0 bg-[#f7f1e7]/90 backdrop-blur-xl flex justify-center items-center z-50 p-4 font-outfit overflow-y-auto">
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-zinc-950 rounded-[3.5rem] border border-purple-500/20 shadow-[0_0_100px_rgba(168,85,247,0.1)] w-full max-w-2xl overflow-hidden my-auto"
+        className="bg-white/90 rounded-[3.5rem] border border-[#dcc7a5]/70 shadow-[0_30px_100px_rgba(110,80,45,0.14)] w-full max-w-2xl overflow-hidden my-auto"
       >
-        <div className="px-10 py-8 border-b border-purple-500/10 bg-zinc-900/40 relative overflow-hidden">
+        <div className="px-10 py-8 border-b border-[#dcc7a5]/70 bg-[#fffaf3] relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-5">
-             <Sparkles className="w-40 h-40 text-purple-500" />
+             <Sparkles className="w-40 h-40 text-[#b98c52]" />
           </div>
           <div className="flex justify-between items-center relative z-10">
             <div>
-              <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-2 block">Programación de Experiencias</span>
-              <h2 className="text-3xl font-black text-white tracking-tighter uppercase leading-none">
+              <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-2 block">Programación de Experiencias</span>
+              <h2 className="text-3xl font-black text-zinc-900 tracking-tighter uppercase leading-none">
                 {initialData ? (
                   <>
-                    Editar <span className="text-zinc-600">Evento</span>
+                    Editar <span className="text-[#8b6435]">Evento</span>
                   </>
                 ) : (
                   <>
-                    Nueva <span className="text-purple-500">Experiencia</span>
+                    Nueva <span className="text-[#b98c52]">Experiencia</span>
                   </>
                 )}
               </h2>
             </div>
             <button 
               onClick={onClose} 
-              className="p-4 rounded-2xl bg-zinc-800/50 text-zinc-500 hover:text-white transition-all border border-zinc-800"
+              className="p-4 rounded-2xl bg-[#fffaf3] text-zinc-500 hover:text-zinc-900 transition-all border border-[#dcc7a5]"
             >
               <X className="w-5 h-5" />
             </button>
@@ -210,7 +210,7 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-6 pt-8 border-t border-purple-500/10">
+          <div className="flex items-center justify-end gap-6 pt-8 border-t border-[#dcc7a5]/70">
             <button
               type="button"
               onClick={onClose}
@@ -223,7 +223,7 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
               whileTap={{ scale: 0.95 }}
               type="submit" 
               disabled={creating}
-              className="px-10 py-5 rounded-3xl bg-purple-600 text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-purple-600/20 hover:bg-purple-500 transition-all flex items-center justify-center gap-3 disabled:opacity-50 border border-purple-400/20"
+              className="px-10 py-5 rounded-3xl bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-[rgba(185,140,82,0.18)] hover:to-[#a97d45] transition-all flex items-center justify-center gap-3 disabled:opacity-50 border border-[#d7b77f]/30"
             >
               {creating ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                 <>
