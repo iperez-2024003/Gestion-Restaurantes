@@ -1,6 +1,6 @@
-# 🍽️ RestauManager — Plataforma Integral de Gestión Gastronómica
+# 🍽️ BuenProvecho — Plataforma Integral de Gestión Gastronómica
 
-**RestauManager** es un ecosistema Full-Stack diseñado para transformar la operación de restaurantes. Conecta a dueños, gerentes, personal y comensales en tiempo real a través de una interfaz premium y una API robusta.
+**BuenProvecho** es un ecosistema Full-Stack diseñado para transformar la operación de restaurantes. Conecta a dueños, gerentes, personal y comensales en tiempo real a través de una interfaz premium y una API robusta.
 
 ---
 
@@ -68,12 +68,83 @@ Estas cuentas se sincronizan automáticamente al iniciar el servidor:
 
 ## 🛡️ Roles y Permisos
 
-| Rol | Acceso |
-|---|---|
-| `SUPER_ADMIN_ROLE` | Gestión global: todos los restaurantes, usuarios y estadísticas |
-| `RESTAURANT_ADMIN_ROLE` | Su restaurante: menú, staff, órdenes, reportes, eventos |
-| `STAFF_ROLE` | Monitor de cocina, órdenes, mesas, reservaciones, menú (lectura) |
-| `CLIENT_ROLE` | Menú público QR, historial de órdenes, reservaciones, eventos |
+El sistema trabaja con 4 roles conectados entre backend y frontend. La separación real de responsabilidades se apoya en `validateJWT` y en los middlewares de `helpers/require-role.js`.
+
+| Rol | Qué hace | Cómo entra en la app |
+|---|---|---|
+| `SUPER_ADMIN_ROLE` | Administra toda la plataforma: restaurantes, usuarios, verificación, estadísticas globales | Entra al panel global del dashboard |
+| `RESTAURANT_ADMIN_ROLE` | Administra una sede específica: menú, mesas, staff, órdenes, eventos y reportes | El frontend lo lleva directo a su `restaurantId` |
+| `STAFF_ROLE` | Opera la sede asignada: cocina, órdenes y mesas | El frontend también lo dirige a su `restaurantId` |
+| `CLIENT_ROLE` | Consume la experiencia: menú público, pedidos, historial, reseñas y eventos | Entra al dashboard de cliente o al menú público |
+
+### Flujo de conexión
+
+1. El usuario inicia sesión por `/auth/login`.
+2. El backend valida credenciales y devuelve el perfil con el rol principal.
+3. El frontend guarda el rol y, cuando aplica, el `restaurantId`.
+4. El router del frontend redirige según el rol:
+	- `CLIENT_ROLE` va al dashboard cliente.
+	- `RESTAURANT_ADMIN_ROLE` y `STAFF_ROLE` van directo al restaurante asociado.
+	- `SUPER_ADMIN_ROLE` entra al panel global.
+5. El backend bloquea rutas sensibles con `requireRole`, evitando acceso fuera de permiso.
+
+### Qué puede hacer cada rol
+
+#### 1. `SUPER_ADMIN_ROLE`
+
+Es el administrador global de la plataforma.
+
+Puede:
+- Crear y verificar restaurantes.
+- Eliminar restaurantes.
+- Ver estadísticas globales.
+- Gestionar usuarios por rol.
+- Asignar o cambiar roles administrativos.
+
+En el backend tiene acceso a rutas como:
+- `/restaurants/admin/:adminId`
+- `/restaurants/:id/verify`
+- `/users/by-role/:roleName`
+- `/users/:userId/role`
+- `/statistics/platform/summary`
+- `/statistics/global/overview`
+
+#### 2. `RESTAURANT_ADMIN_ROLE`
+
+Es el gerente de una sede específica.
+
+Puede:
+- Administrar su restaurante.
+- Gestionar menú, mesas, staff, órdenes, eventos y reportes.
+- Ver estadísticas operativas de su sede.
+- Crear staff dentro de su restaurante.
+
+En el frontend ve el menú del restaurante asociado y el sistema lo lleva a ese `restaurantId`.
+
+#### 3. `STAFF_ROLE`
+
+Es el personal operativo del restaurante.
+
+Puede:
+- Ver el resumen de la sede.
+- Gestionar órdenes y cocina.
+- Consultar el estado de mesas.
+- Trabajar solo dentro del restaurante asignado.
+
+No administra la plataforma completa ni modifica datos globales.
+
+#### 4. `CLIENT_ROLE`
+
+Es el cliente final.
+
+Puede:
+- Explorar menús públicos.
+- Hacer pedidos.
+- Ver su historial.
+- Dejar reseñas.
+- Consultar eventos.
+
+No administra restaurantes ni personal.
 
 ---
 
@@ -110,24 +181,28 @@ Estas cuentas se sincronizan automáticamente al iniciar el servidor:
 ## 🌊 Flujo de Trabajo Completo
 
 ### 1. Super Admin
-1. Login → Crear Restaurante → Asignar Gerente → **Verificar** el restaurante (activa `is_active`)
-2. Ver estadísticas globales y ranking de clientes VIP
+1. Inicia sesión.
+2. Crea o verifica restaurantes.
+3. Asigna gerentes.
+4. Revisa estadísticas globales y usuarios.
 
-### 2. Gerente (Restaurant Admin)
-1. Configurar Menú → Crear Categorías → Agregar Platos con stock e imágenes (Cloudinary)
-2. Crear Mesas → Descargar QRs para impresión
-3. Agregar Staff al restaurante
-4. Ver Analíticas y exportar reportes en Excel
+### 2. Gerente de Sede
+1. Entra a su restaurante.
+2. Configura menú, mesas y eventos.
+3. Da de alta staff.
+4. Consulta analíticas y reportes.
 
 ### 3. Staff / Mesero
-1. Monitor de Cocina (KDS) — órdenes entrantes en tiempo real vía WebSocket
-2. Gestionar estado de mesas y reservaciones del día
-3. Consultar el menú actualizado
+1. Entra a la sede asignada.
+2. Atiende órdenes y cocina.
+3. Gestiona mesas y reservaciones.
+4. Opera solo dentro de su restaurante.
 
 ### 4. Cliente
-1. Registrarse → Verificar correo → Login
-2. Escanear QR de la mesa → Explorar menú → Realizar pedido
-3. Acumular puntos de lealtad por cada compra
+1. Entra al menú público o inicia sesión.
+2. Explora restaurantes y platillos.
+3. Hace pedidos o reservaciones.
+4. Revisa historial, reseñas y eventos.
 
 ---
 
@@ -172,4 +247,4 @@ Gestion-Restaurantes/
 
 ---
 
-**RestauManager** — *Llevando la ingeniería de software a la mesa.*
+**BuenProvecho** — *Llevando la ingeniería de software a la mesa.*

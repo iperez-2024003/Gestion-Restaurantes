@@ -78,12 +78,12 @@ export const RestaurantMenu = () => {
         <div className="flex items-center gap-6">
           <button 
             onClick={() => navigate('/dashboard')} 
-            className="w-14 h-14 bg-zinc-900/40 rounded-2xl border border-purple-500/10 text-zinc-500 hover:text-purple-400 hover:border-purple-500/30 transition-all flex items-center justify-center shadow-xl group"
+            className="w-14 h-14 bg-[#fffaf3]/60 rounded-2xl border border-[#dcc7a5] text-[#b98c52] hover:text-[#a97d45] hover:border-[#d7b77f] transition-all flex items-center justify-center shadow-xl group"
           >
             <ChevronLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
           </button>
           <div className="flex flex-col">
-             <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-1">{restaurant?.name || 'Gestión Maestro'}</span>
+             <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-1">{restaurant?.name || 'Gestión Maestro'}</span>
              <h1 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">Menú <span className="text-zinc-600 italic">Digital</span></h1>
           </div>
         </div>
@@ -95,15 +95,15 @@ export const RestaurantMenu = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleNewCategory}
-                className="px-8 py-4 bg-zinc-900/40 text-zinc-400 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-zinc-800 hover:text-white hover:border-purple-500/30 transition-all flex items-center gap-3"
+                className="px-8 py-4 bg-[#fffaf3]/60 text-[#b98c52] rounded-2xl text-[10px] font-black uppercase tracking-widest border border-[#dcc7a5] hover:bg-[#d7b77f] hover:text-white transition-all flex items-center gap-3"
               >
-                <FolderPlus className="w-4 h-4 text-purple-500" /> Categoría
+                <FolderPlus className="w-4 h-4 text-[#b98c52]" /> Categoría
               </motion.button>
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleNew}
-                className="px-8 py-4 bg-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-500 transition-all shadow-2xl shadow-purple-500/20 flex items-center gap-3 border border-purple-400/20"
+                className="px-8 py-4 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:to-[#a97d45] transition-all shadow-2xl shadow-[rgba(185,140,82,0.06)] flex items-center gap-3 border border-[#d7b77f]/30"
               >
                 <PlusCircle className="w-4 h-4" /> Añadir Platillo
               </motion.button>
@@ -118,7 +118,7 @@ export const RestaurantMenu = () => {
           onClick={() => setActiveCategory(null)}
           className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 flex items-center gap-2 border whitespace-nowrap ${
             !activeCategory 
-              ? 'bg-purple-600 text-white border-purple-400 shadow-2xl shadow-purple-600/20' 
+              ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white border-[#b98c52] shadow-2xl shadow-[rgba(185,140,82,0.2)]' 
               : 'bg-zinc-950 border-zinc-800 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900'
           }`}
         >
@@ -130,7 +130,7 @@ export const RestaurantMenu = () => {
             onClick={() => setActiveCategory(m.id)}
             className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all duration-500 border ${
               activeCategory === m.id 
-                ? 'bg-purple-600 text-white border-purple-400 shadow-2xl shadow-purple-600/20' 
+                ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white border-[#b98c52] shadow-2xl shadow-[rgba(185,140,82,0.2)]' 
                 : 'bg-zinc-950 border-zinc-800 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900'
             }`}
           >
@@ -140,10 +140,10 @@ export const RestaurantMenu = () => {
       </div>
 
       {/* Grid de Platillos */}
-      <div className="min-h-[500px]">
+      <div className="min-h-[300px] md:min-h-[500px]">
         {loading ? (
-          <div className="h-[400px] flex flex-col items-center justify-center gap-6">
-            <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
+          <div className="h-[300px] md:h-[400px] flex flex-col items-center justify-center gap-6">
+            <Loader2 className="w-10 h-10 md:w-12 md:h-12 text-[#b98c52] animate-spin" />
             <p className="text-zinc-600 font-black uppercase tracking-[0.4em] text-[10px]">Sincronizando Inventario...</p>
           </div>
         ) : filteredItems.length === 0 ? (
@@ -157,7 +157,7 @@ export const RestaurantMenu = () => {
             <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.2em] mt-3">No hay ítems registrados bajo esta categoría.</p>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-12">
             <AnimatePresence>
               {filteredItems.map((item, index) => (
                 <motion.div
@@ -180,7 +180,7 @@ export const RestaurantMenu = () => {
                     <div className="absolute top-4 right-4 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 translate-x-4 group-hover:translate-x-0">
                       <button
                         onClick={() => handleEdit(item)}
-                        className="w-12 h-12 bg-zinc-950/90 backdrop-blur-xl text-white rounded-2xl shadow-2xl hover:bg-purple-600 transition-all border border-zinc-800 flex items-center justify-center"
+                        className="w-12 h-12 bg-zinc-950/90 backdrop-blur-xl text-white rounded-2xl shadow-2xl hover:bg-[#b98c52] hover:text-white transition-all border border-zinc-800 flex items-center justify-center"
                         title="Configurar Platillo"
                       >
                         <Settings className="w-5 h-5" />

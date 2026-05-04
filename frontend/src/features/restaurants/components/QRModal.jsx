@@ -44,17 +44,17 @@ export const QRModal = ({ isOpen, onClose, table, restaurant }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl font-outfit overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl font-outfit overflow-y-auto">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-zinc-950 rounded-[3.5rem] border border-purple-500/20 shadow-2xl w-full max-w-lg overflow-hidden relative"
+        className="bg-[#fffaf3] rounded-[3.5rem] border border-[#dcc7a5] shadow-2xl w-full max-w-lg overflow-hidden relative"
       >
         {/* Header */}
-        <div className="px-10 py-8 border-b border-purple-500/10 flex items-center justify-between bg-zinc-900/40">
+        <div className="px-10 py-8 border-b border-[#dcc7a5]/10 flex items-center justify-between bg-zinc-900/40">
            <div>
-              <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-1 block">Identidad Digital</span>
-              <h2 className="text-3xl font-black text-white tracking-tighter uppercase">Generador <span className="text-purple-500">QR</span></h2>
+              <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-1 block">Identidad Digital</span>
+              <h2 className="text-3xl font-black text-white tracking-tighter uppercase">Generador <span className="text-[#b98c52]">QR</span></h2>
            </div>
            <button 
              onClick={onClose} 
@@ -74,8 +74,8 @@ export const QRModal = ({ isOpen, onClose, table, restaurant }) => {
               </div>
               <h2 className="text-3xl font-black text-zinc-900 tracking-tighter uppercase leading-none">{restaurant.name}</h2>
               <div className="mt-2 flex items-center gap-2">
-                 <UtensilsCrossed className="w-3 h-3 text-purple-600" />
-                 <span className="text-[10px] font-black text-purple-600 uppercase tracking-[0.3em]">Menú Digital Interactivo</span>
+                 <UtensilsCrossed className="w-3 h-3 text-[#b98c52]" />
+                 <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.3em]">Menú Digital Interactivo</span>
               </div>
             </div>
 
@@ -95,7 +95,7 @@ export const QRModal = ({ isOpen, onClose, table, restaurant }) => {
                   excavate: true,
                 }}
               />
-              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg">
+              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#b98c52] text-white px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg">
                  Scan Me
               </div>
             </div>
@@ -111,7 +111,7 @@ export const QRModal = ({ isOpen, onClose, table, restaurant }) => {
             </p>
 
             <div className="mt-10 pt-8 border-t border-zinc-100 w-full">
-              <p className="text-[9px] font-black text-zinc-300 tracking-[0.4em] uppercase">Powered by RestauManager OS</p>
+              <p className="text-[9px] font-black text-zinc-300 tracking-[0.4em] uppercase">Powered by BuenProvecho OS</p>
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@ export const QRModal = ({ isOpen, onClose, table, restaurant }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handlePrint}
-            className="flex-1 py-5 rounded-[2rem] bg-purple-600 text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-purple-600/20 hover:bg-purple-500 transition-all flex items-center justify-center gap-3"
+            className="flex-1 py-5 rounded-[2rem] bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-[rgba(185,140,82,0.06)] hover:to-[#a97d45] transition-all flex items-center justify-center gap-3"
           >
             <Printer className="w-4 h-4" /> 
             Imprimir Identificador

@@ -73,22 +73,22 @@ export const TableModal = ({ isOpen, onClose, table = null, restaurantId }) => {
   };
 
   const labelClass = "flex items-center gap-2 text-[10px] font-black text-zinc-500 mb-2 uppercase tracking-[0.2em] ml-1";
-  const inputClass = "w-full px-6 py-4 rounded-2xl bg-black/40 border border-zinc-800 text-white placeholder-zinc-700 focus:bg-black focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all text-sm font-medium";
+  const inputClass = "w-full px-6 py-4 rounded-2xl bg-black/40 border border-zinc-800 text-white placeholder-zinc-700 focus:bg-black focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/20 focus:border-[#d7b77f] transition-all text-sm font-medium";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl font-outfit">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-zinc-950 rounded-[3.5rem] border border-purple-500/20 shadow-2xl w-full max-w-md overflow-hidden relative"
+        className="bg-zinc-950 rounded-[3.5rem] border border-[#dcc7a5]/20 shadow-2xl w-full max-w-lg md:max-w-md overflow-hidden relative"
       >
         {/* Header */}
-        <div className="px-10 py-8 border-b border-purple-500/10 flex items-center justify-between bg-zinc-900/40 relative overflow-hidden">
+        <div className="px-6 md:px-10 py-6 md:py-8 border-b border-[#dcc7a5]/10 flex items-center justify-between bg-zinc-900/40 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-6 opacity-5">
-             <LayoutDashboard className="w-24 h-24 text-purple-500" />
+             <LayoutDashboard className="w-24 h-24 text-[#b98c52]" />
           </div>
           <div className="relative z-10">
-            <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-1 block">Gestión de Aforo</span>
+            <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-1 block">Gestión de Aforo</span>
             <h2 className="text-3xl font-black text-white tracking-tighter uppercase">
               {table ? (
                 <>
@@ -96,7 +96,7 @@ export const TableModal = ({ isOpen, onClose, table = null, restaurantId }) => {
                 </>
               ) : (
                 <>
-                  Nueva <span className="text-purple-500">Mesa</span>
+                  Nueva <span className="text-[#b98c52]">Mesa</span>
                 </>
               )}
             </h2>
@@ -109,8 +109,8 @@ export const TableModal = ({ isOpen, onClose, table = null, restaurantId }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-10 space-y-8">
-          <div className="grid grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6 md:space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="group">
               <label className={labelClass}><Hash className="w-3 h-3" /> Nº de Mesa</label>
               <input
@@ -178,7 +178,7 @@ export const TableModal = ({ isOpen, onClose, table = null, restaurantId }) => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="flex-1 py-5 rounded-3xl bg-purple-600 text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-purple-600/20 hover:bg-purple-500 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="flex-1 py-5 rounded-3xl bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-[rgba(185,140,82,0.2)] hover:to-[#a97d45] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                 <>

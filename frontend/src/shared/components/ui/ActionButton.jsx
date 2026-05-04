@@ -1,8 +1,8 @@
 import React from 'react';
 
-export const ActionButton = ({ label, icon: Icon, color = "purple", onClick }) => {
+export const ActionButton = ({ label, icon: Icon, color = "amber", onClick }) => {
   const colorMap = {
-    purple: "text-purple-400 group-hover:text-purple-300",
+    amber: "text-[#b98c52] group-hover:text-[#8b6435]",
     blue: "text-blue-400 group-hover:text-blue-300",
     orange: "text-orange-400 group-hover:text-orange-300",
     cyan: "text-cyan-400 group-hover:text-cyan-300",
@@ -12,13 +12,13 @@ export const ActionButton = ({ label, icon: Icon, color = "purple", onClick }) =
   return (
     <button 
       onClick={onClick}
-      className="cursor-pointer bg-zinc-900/40 backdrop-blur-3xl relative inline-flex items-center justify-center gap-3 rounded-2xl text-[10px] font-black uppercase tracking-widest ring-offset-black transition-all duration-300 border border-zinc-800/50 hover:border-purple-500/50 hover:bg-purple-500/10 h-12 px-6 group"
+      className="cursor-pointer bg-white/80 backdrop-blur-3xl relative inline-flex items-center justify-center gap-3 rounded-2xl text-[10px] font-black uppercase tracking-widest ring-offset-black transition-all duration-300 border border-[#dcc7a5]/70 hover:border-[#b98c52]/50 hover:bg-[#f5ead8] h-10 md:h-12 px-4 md:px-6 group"
     >
-      <Icon className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${colorMap[color] || colorMap.purple}`} />
+      <Icon className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${colorMap[color] || colorMap.amber}`} />
       <span className="text-zinc-400 group-hover:text-white transition-colors">{label}</span>
       
       {/* Glow Effect on Hover */}
-      <div className="absolute inset-0 rounded-2xl bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute inset-0 rounded-2xl bg-[#d7b77f]/10 opacity-0 group-hover:opacity-100 transition-opacity" />
     </button>
   );
 }

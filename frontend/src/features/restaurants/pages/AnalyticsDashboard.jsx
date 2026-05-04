@@ -107,9 +107,9 @@ export const AnalyticsDashboard = () => {
     return (
       <div className="h-[70vh] flex flex-col justify-center items-center font-outfit">
         <div className="relative">
-          <div className="w-20 h-20 rounded-full border-4 border-purple-500/20 border-t-purple-500 animate-spin" />
+          <div className="w-20 h-20 rounded-full border-4 border-[#dcc7a5]/20 border-t-[#b98c52] animate-spin" />
           <div className="absolute inset-0 flex items-center justify-center">
-             <BarChart3 className="w-8 h-8 text-purple-500" />
+             <BarChart3 className="w-8 h-8 text-[#b98c52]" />
           </div>
         </div>
         <p className="mt-8 text-zinc-500 font-black animate-pulse uppercase tracking-[0.4em] text-[10px]">Calculando Métricas Premium...</p>
@@ -129,8 +129,8 @@ export const AnalyticsDashboard = () => {
       {/* ── HEADER ───────────────────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-           <p className="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-2">Business Intelligence</p>
-           <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">Operational <span className="text-zinc-600">Performance</span></h1>
+           <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-2">Business Intelligence</p>
+           <h1 className="text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none">Operational <span className="text-zinc-600">Performance</span></h1>
         </div>
         
         <button 
@@ -138,8 +138,8 @@ export const AnalyticsDashboard = () => {
           disabled={exporting}
           className={`group flex items-center gap-4 px-8 py-4 rounded-2xl font-black transition-all border ${
             exporting 
-            ? 'bg-zinc-900 text-zinc-500 border-zinc-800' 
-            : 'bg-zinc-950 text-white border-purple-500/20 hover:border-purple-500 hover:bg-purple-600/10 shadow-2xl'
+            ? 'bg-[#fffaf3] text-zinc-900 border-[#dcc7a5]' 
+            : 'bg-[#f3e4ca] text-[#b98c52] border-[#dcc7a5]/20 hover:border-[#b98c52] shadow-2xl'
           } text-[10px] uppercase tracking-widest`}
         >
           {exporting ? (
@@ -162,16 +162,16 @@ export const AnalyticsDashboard = () => {
           <motion.div 
             key={idx}
             variants={itemVariants}
-            className="bg-zinc-900/40 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-purple-500/5 hover:border-purple-500/20 transition-all group relative overflow-hidden"
+            className="bg-white/80 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-[#dcc7a5]/5 hover:border-[#b98c52]/20 transition-all group relative overflow-hidden"
           >
-            <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-${kpi.color}-500/5 rounded-full blur-2xl group-hover:bg-${kpi.color}-500/10 transition-all`} />
+            <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-${kpi.color}-500/5 rounded-full blur-2xl transition-all`} />
             <div className="relative z-10 flex flex-col gap-6">
-              <div className={`w-14 h-14 bg-zinc-950 border border-purple-500/10 text-purple-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl`}>
+              <div className={`w-14 h-14 bg-[#f3e4ca] border border-[#dcc7a5]/10 text-[#b98c52] rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl`}>
                 <kpi.icon className="w-6 h-6" />
               </div>
               <div>
                 <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">{kpi.label}</p>
-                <p className="text-3xl font-black text-white tracking-tighter leading-none">{kpi.value}</p>
+                <p className="text-3xl font-black text-zinc-900 tracking-tighter leading-none">{kpi.value}</p>
               </div>
             </div>
           </motion.div>
@@ -179,25 +179,25 @@ export const AnalyticsDashboard = () => {
       </div>
 
       {/* ── CHARTS ───────────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
         
         {/* Revenue Area Chart */}
         <motion.div 
           variants={itemVariants}
-          className="bg-zinc-900/40 backdrop-blur-3xl p-10 rounded-[3rem] border border-purple-500/10 lg:col-span-2 shadow-2xl"
+          className="bg-white/80 backdrop-blur-3xl p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-[#dcc7a5]/10 lg:col-span-2 shadow-2xl"
         >
           <div className="flex items-center justify-between mb-12">
             <div>
-               <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1">Crecimiento Mensual</p>
-               <h2 className="text-2xl font-black text-white tracking-tight uppercase">Rendimiento <span className="text-zinc-600">Comercial</span></h2>
+               <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-widest mb-1">Crecimiento Mensual</p>
+               <h2 className="text-2xl font-black text-zinc-900 tracking-tight uppercase">Rendimiento <span className="text-zinc-600">Comercial</span></h2>
             </div>
-            <div className="flex items-center gap-3 px-5 py-2.5 bg-purple-500/10 text-purple-400 rounded-2xl border border-purple-500/20 text-[10px] font-black uppercase tracking-widest">
+            <div className="flex items-center gap-3 px-5 py-2.5 bg-[#fffaf3] text-[#b98c52] rounded-2xl border border-[#dcc7a5]/20 text-[10px] font-black uppercase tracking-widest">
               <Activity className="w-4 h-4" />
               +14.2% Eficiencia
             </div>
           </div>
           
-          <div className="h-[400px] w-full">
+          <div className="h-[300px] md:h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <AreaChart data={orders} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <defs>
@@ -206,7 +206,7 @@ export const AnalyticsDashboard = () => {
                     <stop offset="95%" stopColor="#A855F7" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="8 8" vertical={false} stroke="#27272a" />
+                <CartesianGrid strokeDasharray="8 8" vertical={false} stroke="#dcc7a5" />
                 <XAxis 
                   dataKey="date" 
                   axisLine={false}
@@ -226,16 +226,16 @@ export const AnalyticsDashboard = () => {
                   tickFormatter={(value) => `Q${value}`} 
                 />
                 <Tooltip 
-                  cursor={{ stroke: '#A855F7', strokeWidth: 2, strokeDasharray: '8 8' }}
+                  cursor={{ stroke: '#b98c52', strokeWidth: 2, strokeDasharray: '8 8' }}
                   contentStyle={{ 
-                    backgroundColor: '#09090b',
+                    backgroundColor: '#fffaf3',
                     borderRadius: '24px', 
-                    border: '1px solid rgba(168, 85, 247, 0.2)', 
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                    border: '1px solid rgba(185,140,82,0.12)', 
+                    boxShadow: '0 25px 50px -12px rgba(110,80,45,0.08)',
                     padding: '20px'
                   }}
-                  itemStyle={{ fontWeight: '900', fontSize: '14px', color: '#fff' }}
-                  labelStyle={{ marginBottom: '8px', color: '#a855f7', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.2em' }}
+                  itemStyle={{ fontWeight: '900', fontSize: '14px', color: '#2b2b2b' }}
+                  labelStyle={{ marginBottom: '8px', color: '#b98c52', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.2em' }}
                   formatter={(value) => [`Q${parseFloat(value).toFixed(2)}`, 'Ventas']}
                 />
                 <Area 
@@ -255,14 +255,14 @@ export const AnalyticsDashboard = () => {
         {/* Popular Dishes Donut Chart */}
         <motion.div 
           variants={itemVariants}
-          className="bg-zinc-900/40 backdrop-blur-3xl p-10 rounded-[3rem] border border-purple-500/10 shadow-2xl flex flex-col"
+          className="bg-white/80 backdrop-blur-3xl p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-[#dcc7a5]/10 shadow-2xl flex flex-col"
         >
           <div className="mb-10">
-             <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1">Top de Ventas</p>
-             <h2 className="text-2xl font-black text-white tracking-tight uppercase">Platillos <span className="text-zinc-600">Estrella</span></h2>
+             <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-widest mb-1">Top de Ventas</p>
+             <h2 className="text-2xl font-black text-zinc-900 tracking-tight uppercase">Platillos <span className="text-zinc-600">Estrella</span></h2>
           </div>
 
-          <div className="h-[350px] w-full relative flex-1">
+          <div className="h-[260px] md:h-[350px] w-full relative flex-1">
             <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <PieChart>
                 <Pie
@@ -301,7 +301,7 @@ export const AnalyticsDashboard = () => {
             
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-8">
               <span className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em] mb-1">Total Unid.</span>
-              <span className="text-4xl font-black text-white tracking-tighter">
+              <span className="text-4xl font-black text-zinc-900 tracking-tighter">
                 {popularDishes.reduce((acc, curr) => acc + Number(curr.total_quantity), 0)}
               </span>
             </div>
@@ -313,24 +313,24 @@ export const AnalyticsDashboard = () => {
       {/* ── ADDITIONAL STATS ─────────────────────────────────────────────────────── */}
       <motion.div 
         variants={itemVariants}
-        className="bg-zinc-950 border border-purple-500/10 p-12 rounded-[4rem] text-white overflow-hidden relative shadow-2xl"
+        className="bg-white/80 border border-[#dcc7a5]/10 p-12 rounded-[4rem] text-zinc-900 overflow-hidden relative shadow-2xl"
       >
-        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,0.1),transparent)]" />
+        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(185,140,82,0.06),transparent)]" />
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="text-center md:text-left max-w-xl">
             <h2 className="text-4xl font-black tracking-tighter uppercase mb-4 leading-none">Inteligencia <span className="text-zinc-600">Operativa</span></h2>
             <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs leading-loose">Optimiza tu inventario y maximiza la rentabilidad analizando el comportamiento de tus comensales en tiempo real.</p>
           </div>
           <div className="flex gap-6">
-             <div className="bg-zinc-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-purple-500/10 flex flex-col items-center min-w-[180px]">
-                <Target className="w-8 h-8 text-purple-500 mb-4" />
-                <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Ticket Medio</p>
-                <p className="text-3xl font-black text-white leading-none">Q145</p>
+             <div className="bg-white/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-[#dcc7a5]/10 flex flex-col items-center min-w-[180px]">
+               <Target className="w-8 h-8 text-[#b98c52] mb-4" />
+               <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Ticket Medio</p>
+               <p className="text-3xl font-black text-zinc-900 leading-none">Q145</p>
              </div>
-             <div className="bg-zinc-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-purple-500/10 flex flex-col items-center min-w-[180px]">
-                <Zap className="w-8 h-8 text-indigo-500 mb-4" />
-                <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Fidelización</p>
-                <p className="text-3xl font-black text-white leading-none">88%</p>
+             <div className="bg-white/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-[#dcc7a5]/10 flex flex-col items-center min-w-[180px]">
+               <Zap className="w-8 h-8 text-[#6b8bd6] mb-4" />
+               <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Fidelización</p>
+               <p className="text-3xl font-black text-zinc-900 leading-none">88%</p>
              </div>
           </div>
         </div>

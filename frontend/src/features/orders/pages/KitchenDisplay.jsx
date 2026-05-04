@@ -31,7 +31,7 @@ export const KitchenDisplay = () => {
   useSocket(restaurantId);
   
   useSocketEvent('new_order', () => {
-    toast('🍳 ¡Nuevo pedido en cocina!', { icon: '🔥', style: { background: '#1e1b4b', color: '#fff' } });
+    toast('🍳 ¡Nuevo pedido en cocina!', { icon: '🔥', style: { background: '#fffaf3', color: '#2f2317', border: '1px solid #dcc7a5' } });
     fetchKitchenOrders();
   });
 
@@ -55,28 +55,28 @@ export const KitchenDisplay = () => {
   };
 
   if (loading) return (
-    <div className="flex justify-center items-center h-screen bg-slate-950">
-       <div className="w-16 h-16 border-4 border-indigo-900 border-t-indigo-400 rounded-full animate-spin"></div>
+    <div className="flex justify-center items-center h-screen bg-[#f7f1e7]">
+       <div className="w-16 h-16 border-4 border-[#dcc7a5] border-t-[#b98c52] rounded-full animate-spin"></div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 p-6 text-white overflow-x-auto">
+    <div className="min-h-screen bg-[#f7f1e7] p-6 text-zinc-900 overflow-x-auto">
       <div className="flex justify-between items-center mb-8 px-4">
         <div>
           <h1 className="text-3xl font-black tracking-tighter flex items-center gap-3">
-            <FireIcon className="w-8 h-8 text-orange-500" />
+            <FireIcon className="w-8 h-8 text-[#b98c52]" />
             KITCHEN DISPLAY SYSTEM
           </h1>
-          <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">Control de producción en tiempo real</p>
+          <p className="text-zinc-600 text-sm font-bold uppercase tracking-widest">Control de producción en tiempo real</p>
         </div>
-        <div className="bg-slate-900 px-6 py-3 rounded-2xl border border-slate-800 flex items-center gap-4">
+        <div className="bg-white/80 px-6 py-3 rounded-2xl border border-[#dcc7a5] flex items-center gap-4 shadow-lg">
           <div className="text-right">
-             <p className="text-xs text-slate-500 font-bold">ÓRDENES ACTIVAS</p>
-             <p className="text-2xl font-black text-indigo-400">{orders.length}</p>
+             <p className="text-xs text-zinc-500 font-bold">ÓRDENES ACTIVAS</p>
+             <p className="text-2xl font-black text-[#b98c52]">{orders.length}</p>
           </div>
-          <div className="w-px h-8 bg-slate-800" />
-          <ClockIcon className="w-6 h-6 text-slate-400" />
+          <div className="w-px h-8 bg-[#dcc7a5]" />
+          <ClockIcon className="w-6 h-6 text-[#b98c52]" />
         </div>
       </div>
 
@@ -91,16 +91,16 @@ export const KitchenDisplay = () => {
               exit={{ opacity: 0, scale: 0.8, x: 50 }}
               className={`w-80 flex flex-col rounded-3xl border-2 transition-all shadow-2xl ${
                 order.status === 'pending' 
-                  ? 'bg-slate-900 border-indigo-900/50' 
-                  : 'bg-indigo-950/40 border-indigo-500 shadow-indigo-900/20'
+                  ? 'bg-white/80 border-[#dcc7a5]' 
+                  : 'bg-[#fffaf3] border-[#dcc7a5] shadow-[0_30px_100px_rgba(110,80,45,0.14)]'
               }`}
             >
               {/* Header de la tarjeta */}
-              <div className={`p-5 rounded-t-3xl ${order.status === 'preparing' ? 'bg-indigo-600' : 'bg-slate-800'}`}>
+              <div className={`p-5 rounded-t-3xl ${order.status === 'preparing' ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52]' : 'bg-[#f3e4ca]'}`}>
                 <div className="flex justify-between items-start mb-1">
                   <span className="text-2xl font-black">#{order.order_number}</span>
                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-                    order.status === 'pending' ? 'bg-orange-500/20 text-orange-400' : 'bg-white/20 text-white'
+                    order.status === 'pending' ? 'bg-white/70 text-[#8b6435]' : 'bg-white/70 text-[#2f2317]'
                   }`}>
                     {order.status === 'pending' ? 'NUEVO' : 'COCINANDO'}
                   </span>
@@ -111,15 +111,15 @@ export const KitchenDisplay = () => {
               {/* Items */}
               <div className="flex-1 p-5 overflow-y-auto space-y-4">
                 {order.items?.map((item, i) => (
-                  <div key={i} className="border-b border-slate-800/50 pb-3 last:border-0">
+                  <div key={i} className="border-b border-[#dcc7a5]/70 pb-3 last:border-0">
                     <div className="flex justify-between items-start gap-2">
-                       <span className="text-xl font-bold text-indigo-100 flex-1">{item.menu_item?.name}</span>
-                       <span className="bg-slate-800 text-white w-8 h-8 rounded-lg flex items-center justify-center font-black">x{item.quantity}</span>
+                       <span className="text-xl font-bold text-zinc-900 flex-1">{item.menu_item?.name}</span>
+                       <span className="bg-[#f3e4ca] text-[#8b6435] w-8 h-8 rounded-lg flex items-center justify-center font-black">x{item.quantity}</span>
                     </div>
                     {item.special_instructions && (
-                      <div className="mt-2 flex items-start gap-2 bg-orange-500/10 p-2 rounded-xl border border-orange-500/20">
-                         <ChatBubbleLeftRightIcon className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
-                         <p className="text-[11px] text-orange-200 font-bold leading-tight">{item.special_instructions}</p>
+                      <div className="mt-2 flex items-start gap-2 bg-[#fffaf3] p-2 rounded-xl border border-[#dcc7a5]">
+                         <ChatBubbleLeftRightIcon className="w-4 h-4 text-[#b98c52] mt-0.5 shrink-0" />
+                         <p className="text-[11px] text-zinc-600 font-bold leading-tight">{item.special_instructions}</p>
                       </div>
                     )}
                   </div>
@@ -127,8 +127,8 @@ export const KitchenDisplay = () => {
               </div>
 
               {/* Footer / Acción */}
-              <div className="p-5 bg-slate-900/50 rounded-b-3xl mt-auto">
-                <div className="flex items-center justify-between mb-4 text-slate-400">
+              <div className="p-5 bg-white/70 rounded-b-3xl mt-auto border-t border-[#dcc7a5]">
+                <div className="flex items-center justify-between mb-4 text-zinc-500">
                    <div className="flex items-center gap-1">
                       <ClockIcon className="w-4 h-4" />
                       <span className="text-xs font-bold">{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -142,8 +142,8 @@ export const KitchenDisplay = () => {
                   onClick={() => handleUpdateStatus(order.id, order.status)}
                   className={`w-full py-4 rounded-2xl font-black transition-all flex items-center justify-center gap-2 active:scale-95 ${
                     order.status === 'pending'
-                      ? 'bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/30'
-                      : 'bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/30'
+                      ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] hover:to-[#a97d45] shadow-lg shadow-[rgba(185,140,82,0.18)] text-white'
+                      : 'bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/30 text-white'
                   }`}
                 >
                   {order.status === 'pending' ? (
