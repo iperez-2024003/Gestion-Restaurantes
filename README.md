@@ -30,27 +30,73 @@
 - pnpm
 - PostgreSQL & MongoDB corriendo localmente
 
-### Backend
+### 1️⃣ Instalar dependencias en cada servicio
 ```bash
-# En la raíz del proyecto
-pnpm install
-pnpm run dev         # Puerto 3005
+# AuthService
+cd AuthService && pnpm install && cd ..
+
+# RestaurantesService
+cd RestaurantesService && pnpm install && cd ..
+
+# PedidosReservacionesService
+cd PedidosReservacionesService && pnpm install && cd ..
+
+# EventosReportesService
+cd EventosReportesService && pnpm install && cd ..
+
+# Frontend
+cd frontend && pnpm install && cd ..
 ```
 
-### Frontend
+### 2️⃣ Ejecutar los servicios (5 terminales separadas)
+
+**Terminal 1 — AuthService**
+```bash
+cd AuthService
+pnpm dev           # Puerto 3001
+```
+
+**Terminal 2 — RestaurantesService**
+```bash
+cd RestaurantesService
+pnpm dev           # Puerto 3002
+```
+
+**Terminal 3 — PedidosReservacionesService**
+```bash
+cd PedidosReservacionesService
+pnpm dev           # Puerto 3003
+```
+
+**Terminal 4 — EventosReportesService**
+```bash
+cd EventosReportesService
+pnpm dev           # Puerto 3004
+```
+
+**Terminal 5 — Frontend**
 ```bash
 cd frontend
-pnpm install
-pnpm run dev         # Puerto 5173
+pnpm dev           # Puerto 5173 → http://localhost:5173
 ```
 
-### Variables de entorno
-Configura tu archivo `.env` con las siguientes claves:
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` — PostgreSQL
-- `MONGODB_URI` — MongoDB
-- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
-- `EMAIL_USER`, `EMAIL_PASS`
-- `JWT_SECRET`
+### 3️⃣ Verificar que los servicios estén corriendo
+```bash
+# Cada servicio responde a:
+curl http://localhost:3001/api/v1/health   # AuthService
+curl http://localhost:3002/api/v1/health   # RestaurantesService
+curl http://localhost:3003/api/v1/health   # PedidosReservacionesService
+curl http://localhost:3004/api/v1/health   # EventosReportesService
+```
+
+### 4️⃣ Variables de entorno
+Cada servicio tiene su propio `.env` con:
+- `PORT` — Puerto del servicio
+- `DATABASE_URL` — PostgreSQL (compartida)
+- `MONGO_URI` — MongoDB (compartida)
+- `JWT_SECRET` — Secreto JWT (compartido)
+- `CLOUDINARY_*` — Credenciales de Cloudinary
+- `EMAIL_USER`, `EMAIL_PASS` — Gmail para notificaciones
 
 ---
 
@@ -206,22 +252,106 @@ No administra restaurantes ni personal.
 
 ---
 
-## 📦 Estructura del Proyecto
+## 📦 Arquitectura de Microservicios
 
 ```
 Gestion-Restaurantes/
-├── src/                    # Módulos del backend
-│   ├── auth/               # Login, JWT, roles
-│   ├── restaurant/         # CRUD, stats, staff
-│   ├── menu/               # Categorías, ítems, inventario
-│   ├── order/              # Pedidos, estados (KDS)
-│   ├── statistics/         # Analíticas y reportes Excel
-│   └── ...
-├── helpers/                # Cloudinary, Email, JWT
-├── middlewares/            # Auth, validación, roles
-├── configs/                # Conexión DB y App
-└── frontend/               # React 18 + Vite
+├── AuthService/                          (Puerto 3001)
+│   ├── src/
+│   │   ├── auth/                         # Login, JWT, roles
+│   │   └── users/                        # Gestión de usuarios
+│   ├── helpers/                          # Operaciones de auth
+│   ├── middlewares/                      # Validación JWT, roles
+│   ├── configs/                          # DB, CORS, Helmet
+│   ├── index.js                          # Entry point
+│   ├── package.json
+│   └── .env
+│
+├── RestaurantesService/                  (Puerto 3002)
+│   ├── src/
+│   │   └── models/
+│   │       ├── restaurantes/             # CRUD restaurantes
+│   │       ├── menus/                    # Categorías y ítems
+│   │       ├── platos/                   # Platillos
+│   │       ├── mesas/                    # Gestión de mesas
+│   │       ├── inventario/               # Stock
+│   │       └── reseñas/                  # Reseñas de clientes
+│   ├── helpers/                          # Cloudinary, file-upload
+│   ├── middlewares/                      # Validación, roles
+│   ├── configs/                          # DB, CORS, Helmet
+│   ├── index.js
+│   ├── package.json
+│   └── .env
+│
+├── PedidosReservacionesService/          (Puerto 3003)
+│   ├── src/
+│   │   └── models/
+│   │       ├── pedidos/                  # Órdenes y KDS
+│   │       ├── reservaciones/            # Reservas de mesas
+│   │       ├── detallePedidos/           # Items de orden
+│   │       ├── facturas/                 # Facturación
+│   │       ├── mesas/ (ref)              # Referencias
+│   │       └── restaurantes/ (ref)
+│   ├── helpers/                          # Email service
+│   ├── middlewares/
+│   ├── configs/
+│   ├── index.js
+│   ├── package.json
+│   └── .env
+│
+├── EventosReportesService/               (Puerto 3004)
+│   ├── src/
+│   │   └── models/
+│   │       ├── eventos/                  # Eventos del restaurante
+│   │       ├── reportes/                 # Reportes y analíticas
+│   │       └── estadisticas/             # KPIs y dashboards
+│   ├── helpers/                          # Email, Excel export
+│   ├── middlewares/
+│   ├── configs/
+│   ├── index.js
+│   ├── package.json
+│   └── .env
+│
+├── frontend/                             (Puerto 5173)
+│   ├── src/
+│   │   ├── shared/
+│   │   │   ├── components/               # UI System (Button, Modal, Card, etc)
+│   │   │   ├── constants/                # Design tokens
+│   │   │   └── hooks/                    # useToastStore, etc
+│   │   ├── features/                     # Módulos por feature
+│   │   │   ├── auth/
+│   │   │   ├── restaurants/
+│   │   │   ├── orders/
+│   │   │   ├── reservations/
+│   │   │   └── events/
+│   │   └── app/
+│   │       ├── router/                   # Rutas y permisos
+│   │       └── layouts/                  # Layouts principales
+│   ├── index.html
+│   ├── vite.config.js
+│   ├── package.json
+│   └── .env
+│
+├── .env                                  # Vars compartidas
+├── .gitignore
+├── .eslintrc.json
+├── eslint.config.js
+├── .prettierrc.json
+├── docker-compose.yml                    # Para PostgreSQL + MongoDB
+├── Gestion_Restaurantes_COMPLETO.postman_collection.json
+└── README.md
 ```
+
+### 🔄 Comunicación entre Servicios
+
+Los servicios se comunican vía **HTTP REST** usando las siguientes URLs:
+
+- **AuthService** → Valida JWT para otros servicios
+- **RestaurantesService** → Sirve datos de restaurantes a otros servicios  
+- **PedidosReservacionesService** → Consume datos de restaurantes y menús
+- **EventosReportesService** → Consume datos de órdenes para reportes
+
+Cada servicio tiene su propio `.env` con las URLs de los otros servicios si lo requiere.
 
 ---
 
