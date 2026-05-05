@@ -16,10 +16,11 @@ import {
   Package, 
   UtensilsCrossed, 
   FileText,
-  Loader2,
   ChevronRight,
   Bell
 } from 'lucide-react';
+import UnifiedButton from '../../../shared/components/ui/UnifiedButton';
+import LoadingSpinner from '../../../shared/components/states/LoadingSpinner';
 
 const ORDER_STATUSES = [
   { id: 'pending', label: 'Pendientes', color: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
@@ -63,8 +64,7 @@ export const OrdersKanban = () => {
   if (loading && orders.length === 0) {
     return (
       <div className="h-[70vh] flex flex-col justify-center items-center font-outfit">
-        <Loader2 className="w-12 h-12 text-[#b98c52] animate-spin" />
-        <p className="mt-6 text-zinc-500 font-black animate-pulse uppercase tracking-[0.4em] text-[10px]">Sincronizando Comanda Digital...</p>
+        <LoadingSpinner size="lg" text="Sincronizando Comanda Digital..." />
       </div>
     );
   }
@@ -77,13 +77,16 @@ export const OrdersKanban = () => {
            <h1 className="text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none">Command <span className="text-[#8b6435]">Center</span></h1>
         </div>
         
-        <button 
+        <UnifiedButton
+          variant="secondary"
+          size="md"
+          icon={RefreshCcw}
           onClick={() => fetchRestaurantOrders(restaurantId)}
-          className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#fffaf3] text-zinc-900 font-black uppercase tracking-widest text-[10px] border border-[#dcc7a5] hover:border-[#b98c52] transition-all shadow-2xl"
+          loading={loading}
+          disabled={loading}
         >
-          <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Sincronizar
-        </button>
+        </UnifiedButton>
       </div>
 
       <div className="flex gap-6 md:gap-8 overflow-x-auto pb-10 h-[calc(100vh-280px)] md:h-[calc(100vh-220px)] items-start scrollbar-thin scrollbar-thumb-zinc-800">
@@ -151,22 +154,25 @@ export const OrdersKanban = () => {
                         <span className="text-2xl font-black text-zinc-900 tracking-tighter">Q{order.total}</span>
                         
                         {status.id !== 'served' ? (
-                          <button
+                          <UnifiedButton
+                            variant="primary"
+                            size="sm"
+                            icon={status.id === 'pending' ? Flame : 
+                                   status.id === 'preparing' ? CheckCircle2 : ChevronRight}
                             onClick={() => handleStatusChange(order.id, status.id)}
-                            className="px-6 py-3 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:to-[#a97d45] transition-all shadow-2xl shadow-[rgba(185,140,82,0.18)] flex items-center gap-2"
                           >
-                            {status.id === 'pending' ? <Flame className="w-4 h-4" /> : 
-                             status.id === 'preparing' ? <CheckCircle2 className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                             {status.id === 'pending' ? 'Cocinar' : 
                              status.id === 'preparing' ? 'Listo' : 'Entregar'}
-                          </button>
+                          </UnifiedButton>
                         ) : (
-                          <button
+                          <UnifiedButton
+                            variant="secondary"
+                            size="sm"
+                            icon={FileText}
                             onClick={() => window.open(downloadOrderPdfUrl(order.id, token), '_blank')}
-                            className="px-6 py-3 bg-[#fffaf3] text-[#8b6435] border border-[#dcc7a5] text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#f4e8d3] transition-all flex items-center gap-2"
                           >
-                            <FileText className="w-4 h-4" /> Ticket
-                          </button>
+                            Ticket
+                          </UnifiedButton>
                         )}
                       </div>
                     </motion.div>

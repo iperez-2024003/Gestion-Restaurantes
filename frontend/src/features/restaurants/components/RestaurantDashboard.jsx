@@ -6,6 +6,9 @@ import { useRestaurantStore } from '../store/useRestaurantStore';
 import { AnalyticsCard } from '../../../shared/components/ui/AnalyticsCard';
 import { Utensils, Users, LayoutDashboard, Rocket, DollarSign, ShoppingBag, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import LoadingSpinner from '../../../shared/components/states/LoadingSpinner';
+import ErrorState from '../../../shared/components/states/ErrorState';
+import UnifiedButton from '../../../shared/components/ui/UnifiedButton';
 
 export const RestaurantDashboard = () => {
   const { id } = useParams();
@@ -49,27 +52,22 @@ export const RestaurantDashboard = () => {
 
     if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] md:min-h-[400px]">
-        <div className="w-10 h-10 md:w-12 md:h-12 border-4 border-[#dcc7a5]/10 border-t-[#b98c52] rounded-full animate-spin" />
+      <div className="flex items-center justify-center min-h-[400px]">
+        <LoadingSpinner size="lg" text="Cargando Dashboard..." />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-12 bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-rose-500/10">
-        <div className="text-6xl mb-6">⚠️</div>
-        <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-tighter">Fallo de Vinculación</h2>
-        <p className="text-zinc-600 mt-2 max-w-md font-medium">
-          {error}. <br/>
-          Tu cuenta está asociada al ID <span className="text-[#b98c52]">{user?.restaurantId}</span>, el cual no parece existir en el sistema actual.
-        </p>
-        <button 
-          onClick={() => navigate('/dashboard/restaurants')} 
-          className="mt-8 px-8 py-4 bg-[#b98c52] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:brightness-95 shadow-2xl transition-all"
-        >
-          Volver a Selección de Sedes
-        </button>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <ErrorState
+          title="Fallo de Vinculación"
+          message={`${error}. Tu cuenta está asociada al ID ${user?.restaurantId}, el cual no parece existir.`}
+          actionLabel="Volver a Selección"
+          onAction={() => navigate('/dashboard/restaurants')}
+          fullPage={false}
+        />
       </div>
     );
   }
@@ -152,12 +150,14 @@ export const RestaurantDashboard = () => {
               <p className="text-zinc-500 font-bold uppercase tracking-widest text-[11px] leading-loose mb-10 max-w-sm">
                 Monitorea el flujo de capital y la eficiencia operativa de tu sede en tiempo real.
               </p>
-              <a 
-                href={`/dashboard/restaurants/${id}/analytics`}
-                className="inline-flex items-center gap-3 bg-[#b98c52] text-white px-10 py-5 rounded-[2rem] font-black hover:brightness-95 active:scale-95 transition-all shadow-2xl uppercase tracking-[0.2em] text-[10px] border border-[#b98c52]/20"
+              <UnifiedButton
+                variant="primary"
+                size="md"
+                icon={ChevronRight}
+                onClick={() => navigate(`/dashboard/restaurants/${id}/analytics`)}
               >
-                Auditar Analíticas <ChevronRight className="w-4 h-4" />
-              </a>
+                Auditar Analíticas
+              </UnifiedButton>
             </div>
             
             <div className="flex flex-col gap-6 w-full md:w-auto">

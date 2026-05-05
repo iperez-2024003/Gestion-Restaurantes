@@ -5,6 +5,11 @@ import { useRestaurantStore } from '../../restaurants/store/useRestaurantStore';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Sparkles, MapPin, Search, ChefHat, Star, ArrowRight } from 'lucide-react';
+import Card from '../../../shared/components/ui/Card';
+import UnifiedButton from '../../../shared/components/ui/UnifiedButton';
+import EmptyState from '../../../shared/components/states/EmptyState';
+import LoadingSpinner from '../../../shared/components/states/LoadingSpinner';
+import { typography } from '../../../shared/constants/uiConstants';
 
 export const ClientDashboard = () => {
   const navigate = useNavigate();
@@ -77,36 +82,34 @@ export const ClientDashboard = () => {
       {/* Categorías (Filtros) */}
       <div className="flex items-center gap-3 overflow-x-auto pb-4 scrollbar-hide px-2 md:px-0">
         {['Todos', ...categories].map((cat) => (
-          <button
+          <UnifiedButton
             key={cat}
+            variant={activeTab === cat ? 'primary' : 'outline'}
+            size="sm"
             onClick={() => setActiveTab(cat)}
-            className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
-              activeTab === cat 
-                ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white shadow-lg shadow-[rgba(185,140,82,0.18)] border border-[#d7b77f]/50' 
-                : 'bg-white/70 text-zinc-600 border border-[#dcc7a5] hover:border-[#b98c52]/30 hover:text-[#8b6435]'
-            }`}
           >
             {cat === 'Todos' ? '🍽️ Todos' : cat}
-          </button>
+          </UnifiedButton>
         ))}
       </div>
 
       {/* Grid de Restaurantes */}
       <div className="min-h-[300px] md:min-h-[400px]">
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 mt-8">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white/70 rounded-[3rem] h-64 md:h-96 animate-pulse border border-[#dcc7a5]" />
-            ))}
-          </div>
+          <LoadingSpinner text="Cargando restaurantes..." />
         ) : filteredRestaurants.length === 0 ? (
-            <div className="text-center py-24 bg-white/70 rounded-[3rem] border border-dashed border-[#dcc7a5]">
-              <ChefHat className="w-16 h-16 text-[#d7b77f] mx-auto mb-6" />
-              <h3 className="text-xl font-black text-zinc-900 uppercase">No hay opciones en esta categoría</h3>
-              <p className="text-zinc-500 text-xs font-medium mt-2">Explora otras delicias o vuelve más tarde.</p>
-           </div>
+          <EmptyState
+            icon={ChefHat}
+            title="No hay opciones en esta categoría"
+            description="Explora otras delicias o vuelve más tarde."
+            variant="info"
+          />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 mt-8">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-8"
+          >
             <AnimatePresence>
               {filteredRestaurants.map((r, index) => (
                 <motion.div
@@ -115,41 +118,63 @@ export const ClientDashboard = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ delay: index * 0.05 }}
-                  onClick={() => navigate(`/menu/${r.id}`)}
-                  className="group relative bg-white/80 backdrop-blur-3xl rounded-[3rem] overflow-hidden border border-[#dcc7a5]/70 hover:border-[#b98c52]/30 transition-all cursor-pointer shadow-[0_30px_100px_rgba(110,80,45,0.14)]"
                 >
-                  <div className="h-48 md:h-56 relative overflow-hidden">
-                    <img 
-                      src={r.cover_image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80'} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      alt={r.name}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#2f2317]/75 via-transparent to-transparent opacity-60" />
-                    <div className="absolute top-6 right-6 bg-white/80 backdrop-blur-xl px-4 py-2 rounded-xl text-[10px] font-black text-[#8b6435] border border-[#dcc7a5] shadow-lg">
-                      {r.rating || '4.5'} ⭐
+                  <Card 
+                    hoverable
+                    variant="elevated"
+                    padding="md"
+                    onClick={() => navigate(`/menu/${r.id}`)}
+                    className="h-full cursor-pointer"
+                  >
+                    {/* Imagen */}
+                    <div className="h-48 md:h-56 -m-4 mb-4 overflow-hidden rounded-lg">
+                      <img 
+                        src={r.cover_image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80'} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        alt={r.name}
+                      />
                     </div>
-                  </div>
-                  
-                  <div className="p-6 md:p-8">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-2xl font-black text-white uppercase tracking-tight">{r.name}</h3>
-                      <span className="bg-[#f3e4ca] text-[#8b6435] border border-[#dcc7a5] px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
+
+                    {/* Contenido */}
+                    <div>
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 style={typography.h4} className="text-zinc-900 uppercase flex-1">
+                          {r.name}
+                        </h3>
+                        <span className="bg-amber-50 text-amber-900 px-2 py-1 rounded text-[9px] font-bold uppercase tracking-widest whitespace-nowrap ml-2">
+                          {r.rating || '4.5'} ⭐
+                        </span>
+                      </div>
+                      
+                      <p style={typography.bodySmall} className="text-gray-500 mb-3">
                         {r.category || 'Casual'}
-                      </span>
+                      </p>
+
+                      <div className="flex items-center gap-2 text-gray-600 mb-4">
+                        <MapPin size={14} className="text-amber-600 flex-shrink-0" />
+                        <span style={typography.caption} className="truncate">
+                          {r.address || 'Ubicación Premium'}
+                        </span>
+                      </div>
+
+                      <UnifiedButton
+                        variant="primary"
+                        size="sm"
+                        icon={ArrowRight}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/menu/${r.id}`);
+                        }}
+                        className="w-full"
+                      >
+                        Explorar Menú
+                      </UnifiedButton>
                     </div>
-                    <div className="flex items-center gap-2 text-zinc-500 text-xs font-bold uppercase tracking-widest mb-8">
-                       <MapPin className="w-4 h-4 text-[#b98c52]" />
-                       <span className="truncate">{r.address || 'Ubicación Premium'}</span>
-                    </div>
-                    
-                    <button className="w-full py-3 md:py-4 bg-[#fffaf3] text-zinc-900 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] group-hover:bg-gradient-to-r group-hover:from-[#d7b77f] group-hover:to-[#b98c52] group-hover:text-white transition-all flex items-center justify-center gap-3 border border-[#dcc7a5] group-hover:border-[#d7b77f]/30 group-hover:shadow-lg group-hover:shadow-[rgba(185,140,82,0.18)]">
-                      Explorar Menú <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
+                  </Card>
                 </motion.div>
               ))}
             </AnimatePresence>
-          </div>
+          </motion.div>
         )}
       </div>
 
@@ -162,9 +187,14 @@ export const ClientDashboard = () => {
           </div>
           <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 tracking-tighter uppercase max-w-2xl leading-[1.1]">Descubre sabores que <span className="text-[#b98c52]">marcan la diferencia</span></h2>
           <p className="text-zinc-500 font-bold text-sm md:text-lg uppercase tracking-widest max-w-xl">Promociones exclusivas para nuestra comunidad Gourmet.</p>
-          <button className="mt-8 md:mt-10 px-8 md:px-12 py-4 md:py-5 bg-white text-black rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-xl">
+          <UnifiedButton
+            variant="secondary"
+            size="md"
+            className="mt-8 md:mt-10"
+            onClick={() => navigate('/menu')}
+          >
             Ver Ofertas ✨
-          </button>
+          </UnifiedButton>
         </div>
       </div>
     </div>

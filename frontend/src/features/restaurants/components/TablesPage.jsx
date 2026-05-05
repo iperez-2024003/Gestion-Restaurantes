@@ -6,8 +6,9 @@ import { useAuthStore } from '../../auth/store/useAuthStore';
 import { TableModal } from './TableModal';
 import { QRModal } from './QRModal';
 import { showSuccess, showError } from '../../../shared/utils/toast';
-import { ActionButton } from '../../../shared/components/ui/ActionButton';
-import { PlusCircle, QrCode, Trash2, Edit3, Loader2, ChevronLeft, LayoutGrid, Info } from 'lucide-react';
+import UnifiedButton from '../../../shared/components/ui/UnifiedButton';
+import LoadingSpinner from '../../../shared/components/states/LoadingSpinner';
+import { PlusCircle, QrCode, Trash2, Edit3, ChevronLeft, LayoutGrid, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const TablesPage = () => {
@@ -61,12 +62,14 @@ export const TablesPage = () => {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <button 
+            <UnifiedButton
               onClick={() => navigate('/dashboard')} 
-              className="p-2 bg-white/70 rounded-xl border border-[#dcc7a5]/10 text-zinc-600 hover:text-[#b98c52] transition-colors"
+              variant="outline"
+              size="sm"
+              className="p-2"
             >
               <ChevronLeft className="w-5 h-5" />
-            </button>
+            </UnifiedButton>
             <div className="flex flex-col">
               <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.2em]">{restaurant?.name || 'Sede'}</span>
               <h1 className="text-4xl font-black text-zinc-900 tracking-tighter uppercase">Gestión de Mesas</h1>
@@ -74,12 +77,14 @@ export const TablesPage = () => {
           </div>
         </div>
         {canManage && (
-          <ActionButton 
-            label="Nueva Mesa" 
-            icon={PlusCircle} 
-            color="purple" 
-            onClick={() => { setSelectedTable(null); setModalOpen(true); }} 
-          />
+          <UnifiedButton
+            variant="primary"
+            size="md"
+            icon={PlusCircle}
+            onClick={() => { setSelectedTable(null); setModalOpen(true); }}
+          >
+            Nueva Mesa
+          </UnifiedButton>
         )}
       </div>
 
@@ -87,8 +92,7 @@ export const TablesPage = () => {
       <div className="min-h-[300px] md:min-h-[400px]">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 md:py-32 gap-6">
-                <Loader2 className="w-10 h-10 md:w-12 md:h-12 text-[#b98c52] animate-spin" />
-                <p className="text-zinc-600 font-black uppercase tracking-[0.3em] text-[10px]">Mapeando Salón...</p>
+                    <LoadingSpinner size="lg" text="Mapeando Salón..." />
               </div>
         ) : tables.length === 0 ? (
           <div className="text-center py-32 bg-white/90 rounded-[4rem] border border-dashed border-[#dcc7a5]">
@@ -138,26 +142,33 @@ export const TablesPage = () => {
                         </select>
                         
                         <div className="grid grid-cols-2 gap-2">
-                           <button
+                             <UnifiedButton
                              onClick={() => { setSelectedTable(table); setQrModalOpen(true); }}
-                             className="col-span-2 py-3 rounded-xl bg-[#b98c52] text-white text-[9px] font-black uppercase tracking-widest hover:brightness-95 transition-all flex items-center justify-center gap-2 shadow-md"
+                               variant="primary"
+                               size="sm"
+                               icon={QrCode}
+                               className="col-span-2"
                            >
-                             <QrCode className="w-3.5 h-3.5" /> Generar QR
-                           </button>
+                               Generar QR
+                             </UnifiedButton>
                            {canManage && (
                              <>
-                               <button
+                                 <UnifiedButton
                                  onClick={() => { setSelectedTable(table); setModalOpen(true); }}
-                                 className="py-3 rounded-xl bg-white/90 text-zinc-600 text-[9px] font-black uppercase tracking-widest border border-[#dcc7a5] hover:text-zinc-900 transition-all"
+                                   variant="outline"
+                                   size="sm"
+                                   className="py-3"
+                                   icon={Edit3}
                                >
-                                 <Edit3 className="w-3.5 h-3.5 mx-auto" />
-                               </button>
-                               <button
+                                 </UnifiedButton>
+                                 <UnifiedButton
                                  onClick={() => handleDelete(table.id, table.table_number)}
-                                 className="py-3 rounded-xl bg-red-600/10 text-red-500 text-[9px] font-black uppercase tracking-widest border border-red-500/20 hover:bg-red-600 hover:text-white transition-all"
+                                   variant="danger"
+                                   size="sm"
+                                   className="py-3"
+                                   icon={Trash2}
                                >
-                                 <Trash2 className="w-3.5 h-3.5 mx-auto" />
-                               </button>
+                                 </UnifiedButton>
                              </>
                            )}
                         </div>

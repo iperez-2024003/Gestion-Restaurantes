@@ -9,12 +9,13 @@ import { showSuccess, showError } from '../../../shared/utils/toast';
 import { getImageUrl } from '../../../shared/utils/getImageUrl';
 import { MenuFlipCard } from '../../../shared/components/ui/MenuFlipCard';
 import { ActionButton } from '../../../shared/components/ui/ActionButton';
+import UnifiedButton from '../../../shared/components/ui/UnifiedButton';
+import LoadingSpinner from '../../../shared/components/states/LoadingSpinner';
 import { 
   PlusCircle, 
   FolderPlus, 
   UtensilsCrossed, 
   ChevronLeft, 
-  Loader2, 
   Settings, 
   Trash2,
   Sparkles,
@@ -76,12 +77,14 @@ export const RestaurantMenu = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div className="flex items-center gap-6">
-          <button 
+          <UnifiedButton
             onClick={() => navigate('/dashboard')} 
-            className="w-14 h-14 bg-[#fffaf3]/60 rounded-2xl border border-[#dcc7a5] text-[#b98c52] hover:text-[#a97d45] hover:border-[#d7b77f] transition-all flex items-center justify-center shadow-xl group"
+            variant="outline"
+            size="md"
+            className="w-14 h-14 p-0 group"
           >
             <ChevronLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
-          </button>
+          </UnifiedButton>
           <div className="flex flex-col">
              <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-1">{restaurant?.name || 'Gestión Maestro'}</span>
              <h1 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">Menú <span className="text-zinc-600 italic">Digital</span></h1>
@@ -91,22 +94,22 @@ export const RestaurantMenu = () => {
         <div className="flex flex-wrap gap-4">
           {canManage && (
             <>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <UnifiedButton
                 onClick={handleNewCategory}
-                className="px-8 py-4 bg-[#fffaf3]/60 text-[#b98c52] rounded-2xl text-[10px] font-black uppercase tracking-widest border border-[#dcc7a5] hover:bg-[#d7b77f] hover:text-white transition-all flex items-center gap-3"
+                variant="outline"
+                size="md"
+                icon={FolderPlus}
               >
-                <FolderPlus className="w-4 h-4 text-[#b98c52]" /> Categoría
-              </motion.button>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                Categoría
+              </UnifiedButton>
+              <UnifiedButton
                 onClick={handleNew}
-                className="px-8 py-4 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:to-[#a97d45] transition-all shadow-2xl shadow-[rgba(185,140,82,0.06)] flex items-center gap-3 border border-[#d7b77f]/30"
+                variant="primary"
+                size="md"
+                icon={PlusCircle}
               >
-                <PlusCircle className="w-4 h-4" /> Añadir Platillo
-              </motion.button>
+                Añadir Platillo
+              </UnifiedButton>
             </>
           )}
         </div>
@@ -114,28 +117,25 @@ export const RestaurantMenu = () => {
 
       {/* Categorías (Filtros) */}
       <div className="flex items-center gap-4 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-zinc-800">
-        <button
+        <UnifiedButton
           onClick={() => setActiveCategory(null)}
-          className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 flex items-center gap-2 border whitespace-nowrap ${
-            !activeCategory 
-              ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white border-[#b98c52] shadow-2xl shadow-[rgba(185,140,82,0.2)]' 
-              : 'bg-zinc-950 border-zinc-800 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900'
-          }`}
+          variant={!activeCategory ? 'primary' : 'outline'}
+          size="md"
+          icon={LayoutGrid}
+          className="whitespace-nowrap"
         >
-          <LayoutGrid className="w-3 h-3" /> Catálogo Completo
-        </button>
+          Catálogo Completo
+        </UnifiedButton>
         {menus.map((m) => (
-          <button
+          <UnifiedButton
             key={m.id}
             onClick={() => setActiveCategory(m.id)}
-            className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all duration-500 border ${
-              activeCategory === m.id 
-                ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white border-[#b98c52] shadow-2xl shadow-[rgba(185,140,82,0.2)]' 
-                : 'bg-zinc-950 border-zinc-800 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900'
-            }`}
+            variant={activeCategory === m.id ? 'primary' : 'outline'}
+            size="md"
+            className="whitespace-nowrap"
           >
             {m.name}
-          </button>
+          </UnifiedButton>
         ))}
       </div>
 
@@ -143,8 +143,7 @@ export const RestaurantMenu = () => {
       <div className="min-h-[300px] md:min-h-[500px]">
         {loading ? (
           <div className="h-[300px] md:h-[400px] flex flex-col items-center justify-center gap-6">
-            <Loader2 className="w-10 h-10 md:w-12 md:h-12 text-[#b98c52] animate-spin" />
-            <p className="text-zinc-600 font-black uppercase tracking-[0.4em] text-[10px]">Sincronizando Inventario...</p>
+            <LoadingSpinner size="lg" text="Sincronizando Inventario..." />
           </div>
         ) : filteredItems.length === 0 ? (
           <motion.div 
@@ -178,20 +177,24 @@ export const RestaurantMenu = () => {
                   
                   {canManage && (
                     <div className="absolute top-4 right-4 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 translate-x-4 group-hover:translate-x-0">
-                      <button
+                      <UnifiedButton
                         onClick={() => handleEdit(item)}
-                        className="w-12 h-12 bg-zinc-950/90 backdrop-blur-xl text-white rounded-2xl shadow-2xl hover:bg-[#b98c52] hover:text-white transition-all border border-zinc-800 flex items-center justify-center"
+                        variant="outline"
+                        size="sm"
+                        className="w-12 h-12 p-0 bg-zinc-950/90 backdrop-blur-xl text-white"
                         title="Configurar Platillo"
+                        icon={Settings}
                       >
-                        <Settings className="w-5 h-5" />
-                      </button>
-                      <button
+                      </UnifiedButton>
+                      <UnifiedButton
                         onClick={() => handleDelete(item.id, item.name)}
-                        className="w-12 h-12 bg-rose-600/10 backdrop-blur-xl text-rose-500 rounded-2xl shadow-2xl hover:bg-rose-600 hover:text-white transition-all border border-rose-500/20 flex items-center justify-center"
+                        variant="danger"
+                        size="sm"
+                        className="w-12 h-12 p-0 bg-rose-600/10 backdrop-blur-xl text-rose-500"
                         title="Eliminar del Menú"
+                        icon={Trash2}
                       >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                      </UnifiedButton>
                     </div>
                   )}
                 </motion.div>

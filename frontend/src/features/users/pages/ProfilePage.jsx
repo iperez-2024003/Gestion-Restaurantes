@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../auth/store/useAuthStore';
-import { toast } from 'react-hot-toast';
-import { User, Key, Mail, Phone, Camera, Shield, Trash2, Loader2, Save } from 'lucide-react';
+import { useToast } from '../../../shared/hooks/useToastStore';
+import { User, Key, Mail, Phone, Camera, Shield, Trash2, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
+import FormInput, { FormTextarea } from '../../../shared/components/forms/FormInput';
+import UnifiedButton from '../../../shared/components/ui/UnifiedButton';
+import Card from '../../../shared/components/ui/Card';
+import { spacing, typography } from '../../../shared/constants/uiConstants';
 
 export const ProfilePage = () => {
   const { user, getProfile, updateProfile, changePassword, isLoading } = useAuthStore();
+  const toast = useToast();
   
   const [profileData, setProfileData] = useState({
     name: '', surname: '', phone: '', profilePicture: null
@@ -130,106 +135,143 @@ export const ProfilePage = () => {
         <div className="lg:col-span-8 space-y-12">
           
           {/* Actualizar Perfil */}
-            <div className="bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/70 overflow-hidden shadow-[0_30px_100px_rgba(110,80,45,0.14)]">
-            <div className="px-6 md:px-10 py-6 md:py-8 border-b border-[#dcc7a5]/70 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#f3e4ca] flex items-center justify-center text-[#b98c52]">
-                <User className="w-5 h-5" />
+            <Card title="Datos Personales" variant="elevated">
+            <form onSubmit={submitProfile} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  label="Nombre"
+                  name="name"
+                  value={profileData.name}
+                  onChange={handleProfileChange}
+                  required
+                />
+                <FormInput
+                  label="Apellido"
+                  name="surname"
+                  value={profileData.surname}
+                  onChange={handleProfileChange}
+                  required
+                />
               </div>
-              <h3 className="text-xl font-black text-zinc-900 uppercase tracking-tight">Datos Personales</h3>
-            </div>
-            <div className="p-6 md:p-10">
-              <form onSubmit={submitProfile} className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Nombre</label>
-                    <input type="text" name="name" required value={profileData.name} onChange={handleProfileChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl px-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Apellido</label>
-                    <input type="text" name="surname" required value={profileData.surname} onChange={handleProfileChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl px-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all" />
-                  </div>
-                </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Teléfono Móvil</label>
-                  <div className="relative">
-                    <Phone className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700" />
-                    <input type="text" name="phone" required pattern="\d{8}" value={profileData.phone} onChange={handleProfileChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl pl-14 pr-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all" placeholder="12345678" />
-                  </div>
-                </div>
+              <FormInput
+                label="Teléfono"
+                name="phone"
+                type="tel"
+                value={profileData.phone}
+                onChange={handleProfileChange}
+                required
+                icon={Phone}
+                pattern="\d{8}"
+                placeholder="12345678"
+              />
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Imagen de Perfil</label>
-                  <input type="file" id="profilePicture" name="profilePicture" accept="image/*" onChange={handleProfileChange} className="w-full text-[10px] text-zinc-500 font-black uppercase tracking-widest file:mr-6 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-[#f3e4ca] file:text-[#8b6435] hover:file:bg-[#d7b77f] hover:file:text-white transition-all file:cursor-pointer" />
-                </div>
+              <div className="space-y-2">
+                <label style={typography.label} className="text-zinc-500 px-1">
+                  Imagen de Perfil
+                </label>
+                <input 
+                  type="file" 
+                  id="profilePicture" 
+                  name="profilePicture" 
+                  accept="image/*" 
+                  onChange={handleProfileChange} 
+                  className="w-full text-[10px] text-zinc-500 font-black uppercase tracking-widest file:mr-6 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-[#f3e4ca] file:text-[#8b6435] hover:file:bg-[#d7b77f] hover:file:text-white transition-all file:cursor-pointer" 
+                />
+              </div>
 
-                <div className="flex justify-end pt-4">
-                  <button type="submit" disabled={isLoading} className="px-6 md:px-10 py-3 md:py-4 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:to-[#a97d45] transition-all shadow-lg shadow-[rgba(185,140,82,0.18)] disabled:opacity-50 flex items-center gap-3">
-                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    Guardar Cambios
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+              <div className="flex justify-end pt-4">
+                <UnifiedButton 
+                  variant="primary" 
+                  size="md"
+                  icon={Save}
+                  type="submit"
+                  disabled={isLoading}
+                  loading={isLoading}
+                >
+                  Guardar Cambios
+                </UnifiedButton>
+              </div>
+            </form>
+          </Card>
 
           {/* Seguridad */}
-          <div className="bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/70 overflow-hidden shadow-[0_30px_100px_rgba(110,80,45,0.14)]">
-            <div className="px-6 md:px-10 py-6 md:py-8 border-b border-[#dcc7a5]/70 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#f3e4ca] flex items-center justify-center text-[#b98c52]">
-                <Key className="w-5 h-5" />
+          <Card title="Seguridad" variant="elevated">
+            <form onSubmit={submitPassword} className="space-y-6">
+              <FormInput
+                label="Contraseña Actual"
+                name="currentPassword"
+                type="password"
+                value={passwordData.currentPassword}
+                onChange={handlePasswordChange}
+                required
+                icon={Key}
+                placeholder="••••••••"
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  label="Nueva Contraseña"
+                  name="newPassword"
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={handlePasswordChange}
+                  required
+                  minLength={8}
+                  placeholder="Min. 8 caracteres"
+                  helpText="Mínimo 8 caracteres"
+                />
+                <FormInput
+                  label="Confirmar Nueva"
+                  name="confirmPassword"
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={handlePasswordChange}
+                  required
+                  minLength={8}
+                  placeholder="Repite la contraseña"
+                />
               </div>
-              <h3 className="text-xl font-black text-zinc-900 uppercase tracking-tight">Seguridad</h3>
-            </div>
-            <div className="p-6 md:p-10">
-              <form onSubmit={submitPassword} className="space-y-8">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Contraseña Actual</label>
-                  <input type="password" name="currentPassword" required value={passwordData.currentPassword} onChange={handlePasswordChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl px-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all placeholder:text-zinc-500" placeholder="••••••••" />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Nueva Contraseña</label>
-                    <input type="password" name="newPassword" required minLength="8" value={passwordData.newPassword} onChange={handlePasswordChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl px-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all placeholder:text-zinc-500" placeholder="Min. 8 caracteres" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Confirmar Nueva</label>
-                    <input type="password" name="confirmPassword" required minLength="8" value={passwordData.confirmPassword} onChange={handlePasswordChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl px-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all placeholder:text-zinc-500" placeholder="Repite la contraseña" />
-                  </div>
-                </div>
 
-                <div className="flex justify-end pt-4">
-                  <button type="submit" disabled={isLoading} className="px-10 py-4 bg-[#fffaf3] text-zinc-900 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#f4e8d3] transition-all border border-[#dcc7a5] disabled:opacity-50">
-                    {isLoading ? 'Sincronizando...' : 'Actualizar Contraseña'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+              <div className="flex justify-end pt-4">
+                <UnifiedButton 
+                  variant="secondary"
+                  size="md"
+                  type="submit"
+                  disabled={isLoading}
+                  loading={isLoading}
+                >
+                  Actualizar Contraseña
+                </UnifiedButton>
+              </div>
+            </form>
+          </Card>
 
           {/* Peligro */}
-          <div className="bg-rose-500/5 rounded-[3rem] border border-rose-500/20 p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
-             <div className="flex items-center gap-6">
-                <div className="w-16 h-16 rounded-[1.5rem] bg-red-600/10 flex items-center justify-center text-red-500 shrink-0">
-                  <Trash2 className="w-8 h-8" />
+          <Card variant="elevated" padding="lg">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-6">
+                <div className="w-14 h-14 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 shrink-0">
+                  <Trash2 className="w-6 h-6" />
                 </div>
                 <div>
-                   <h4 className="text-xl font-black text-zinc-900 uppercase tracking-tight">Zona de Peligro</h4>
-                   <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">La eliminación de cuenta es irreversible</p>
+                  <h4 style={typography.h4} className="text-zinc-900 uppercase">Zona de Peligro</h4>
+                  <p style={typography.bodySmall} className="text-zinc-500 mt-1">La eliminación de cuenta es irreversible</p>
                 </div>
-             </div>
-             <button
-               onClick={() => {
-                 if (window.confirm('¿ESTÁS ABSOLUTAMENTE SEGURO?')) {
-                   toast.error('Acción restringida. Contacta a soporte.');
-                 }
-               }}
-               className="px-8 py-4 bg-rose-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-400 transition-all shadow-lg shadow-rose-600/10"
-             >
-               Eliminar Mi Cuenta
-             </button>
-          </div>
+              </div>
+              <UnifiedButton 
+                variant="danger"
+                size="md"
+                onClick={() => {
+                  if (window.confirm('¿ESTÁS ABSOLUTAMENTE SEGURO?')) {
+                    toast.error('Acción restringida. Contacta a soporte.');
+                  }
+                }}
+              >
+                Eliminar Mi Cuenta
+              </UnifiedButton>
+            </div>
+          </Card>
 
         </div>
       </div>
