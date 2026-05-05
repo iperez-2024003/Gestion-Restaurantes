@@ -5,7 +5,7 @@ import {
   UserPasswordReset,
 } from '../src/users/user.model.js';
 import { UserRole, Role } from '../src/auth/role.model.js';
-import { USER_ROLE } from './role-constants.js';
+import { CLIENT_ROLE } from './role-constants.js';
 import { hashPassword } from '../utils/password-utils.js';
 import { Op } from 'sequelize';
 
@@ -86,7 +86,7 @@ export const createNewUser = async (userData) => {
   const transaction = await User.sequelize.transaction();
 
   try {
-    const { name, surname, username, email, password, phone, profilePicture } =
+    const { name, surname, username, email, password, phone, profilePicture, role, restaurant_id } =
       userData;
 
     const hashedPassword = await hashPassword(password);
@@ -100,6 +100,7 @@ export const createNewUser = async (userData) => {
         Email: email.toLowerCase(),
         Password: hashedPassword,
         Status: false, // Empieza desactivado hasta que verifique el email
+        RestaurantId: restaurant_id || null,
       },
       { transaction }
     );
@@ -136,11 +137,12 @@ export const createNewUser = async (userData) => {
       { transaction }
     );
 
-    // Asignar rol USER_ROLE por defecto (matching .NET DataSeeder)
-    const userRole = await Role.findOne(
-      { where: { Name: USER_ROLE } },
-      { transaction }
-    );
+    // Asignar rol. Si no viene, CLIENT_ROLE por defecto.
+    const roleToAssign = role || CLIENT_ROLE;
+    const userRole = await Role.findOne({
+      where: { Name: roleToAssign },
+      transaction,
+    });
     if (userRole) {
       await UserRole.create(
         {
@@ -151,7 +153,7 @@ export const createNewUser = async (userData) => {
       );
     } else {
       console.warn(
-        `USER_ROLE not found in database during user creation for user ${user.Id}`
+        `CLIENT_ROLE not found in database during user creation for user ${user.Id}`
       );
     }
 

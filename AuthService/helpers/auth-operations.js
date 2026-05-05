@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import path from 'path';
+import Restaurant from '../src/restaurant/restaurant.model.js';
 import {
   checkUserExists,
   createNewUser,
@@ -43,7 +43,7 @@ const getExpirationTime = (timeString) => {
 
 export const registerUserHelper = async (userData) => {
   try {
-    const { email, username, password, name, surname, phone, profilePicture } =
+    const { email, username, password, name, surname, phone, profilePicture, role, restaurant_id } =
       userData;
 
     // Validation is now handled by express-validator middleware in routes
@@ -68,7 +68,7 @@ export const registerUserHelper = async (userData) => {
           // CORRECCIÓN CRÍTICA: Normalizar la ruta del archivo antes de subirlo
           // Convertir barras invertidas a barras normales
           let normalizedPath = profilePicture.replace(/\\/g, '/');
-          
+
           // Si la ruta es relativa, convertirla a absoluta
           if (!path.isAbsolute(normalizedPath)) {
             normalizedPath = path.resolve(normalizedPath).replace(/\\/g, '/');
@@ -94,7 +94,7 @@ export const registerUserHelper = async (userData) => {
       } else {
         // Si viene una URL de Cloudinary, usarla directamente
         if (profilePicture.startsWith('https://res.cloudinary.com/') ||
-            profilePicture.startsWith('http://res.cloudinary.com/')) {
+          profilePicture.startsWith('http://res.cloudinary.com/')) {
           profilePictureToStore = profilePicture;
         } else {
           // Si no es URL completa ni archivo local, intentar normalizar
@@ -112,6 +112,8 @@ export const registerUserHelper = async (userData) => {
       password,
       phone,
       profilePicture: profilePictureToStore,
+      role,
+      restaurant_id,
     });
 
     // Generar token de verificación de email
@@ -181,20 +183,41 @@ export const loginUserHelper = async (emailOrUsername, password) => {
     }
 
     // Generate JWT with role claim
-    const role = user.UserRoles?.[0]?.Role?.Name || 'USER_ROLE';
+    const role = user.UserRoles?.[0]?.Role?.Name || 'CLIENT_ROLE';
     const token = await generateJWT(user.Id.toString(), { role });
+
+    // Build full user response for later use
+    const fullUser = buildUserResponse(user);
 
     // Calcular fecha de expiración basada en la configuración
     const expiresInMs = getExpirationTime(process.env.JWT_EXPIRES_IN || '30m');
     const expiresAt = new Date(Date.now() + expiresInMs);
 
-    // Build compact userDetails object
-    const fullUser = buildUserResponse(user);
+    // Verificar que el restaurante asignado al usuario exista en MongoDB
+    let validRestaurantId = fullUser.restaurantId;
+    if (validRestaurantId) {
+      const exists = await Restaurant.findById(validRestaurantId);
+      if (!exists) {
+        // Si no existe, buscar el primer restaurante activo como fallback
+        const fallback = await Restaurant.findOne({ isActive: true });
+        validRestaurantId = fallback ? fallback._id.toString() : null;
+        // Actualizar el registro del usuario en PostgreSQL
+        await user.update({ RestaurantId: validRestaurantId });
+      }
+    } else {
+      // Si el usuario no tenía restaurantId asignado, asignar uno válido
+      const fallback = await Restaurant.findOne({ isActive: true });
+      validRestaurantId = fallback ? fallback._id.toString() : null;
+      await user.update({ RestaurantId: validRestaurantId });
+    }
+
+    // Reconstruir userDetails con el ID corregido
     const userDetails = {
       id: fullUser.id,
       username: fullUser.username,
       profilePicture: fullUser.profilePicture,
       role: fullUser.role,
+      restaurantId: validRestaurantId,
     };
 
     // AuthResponseDto equivalent structure

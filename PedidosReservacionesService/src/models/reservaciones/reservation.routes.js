@@ -11,9 +11,9 @@ import {
   checkAvailability,
   getTodayReservations,
 } from './reservation.controller.js';
-import { validateJWT } from '../../middlewares/validate-JWT.js';
-import { requireAdmin } from '../../middlewares/require-role.js';
-import { validateUuidParam } from '../../middlewares/validate-params.js';
+import { validateJWT } from '../../../middlewares/validate-JWT.js';
+import { requireRole } from '../../../middlewares/require-role.js';
+import { validateUuidParam } from '../../../middlewares/validate-params.js';
 import {
   validateReservationCreation,
   validateReservationUpdate,
@@ -21,18 +21,15 @@ import {
 } from './reservation.validation.js';
 
 const router = Router();
+const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
 
 router.get('/check-availability', validateCheckAvailability, checkAvailability);
-
-/** Rutas para usuario autenticado (USER_ROLE puede crear/ver/actualizar/cancelar reservas) */
 router.post('/', [validateJWT, validateReservationCreation], createReservation);
-router.get('/', validateJWT, getAllReservations);
 router.get('/today', validateJWT, getTodayReservations);
+router.get('/', validateJWT, getAllReservations);
 router.get('/:id', validateJWT, validateUuidParam('id'), getReservationById);
 router.put('/:id', [validateJWT, validateUuidParam('id'), validateReservationUpdate], updateReservation);
 router.delete('/:id', validateJWT, validateUuidParam('id'), cancelReservation);
-
-/** Solo ADMIN_ROLE puede confirmar una reserva */
-router.patch('/:id/confirm', [validateJWT, requireAdmin, validateUuidParam('id')], confirmReservation);
+router.patch('/:id/confirm', [validateJWT, requireOperationalStaff, validateUuidParam('id')], confirmReservation);
 
 export default router;

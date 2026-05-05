@@ -10,9 +10,9 @@ import {
   updateTableStatus,
   getAvailableTables,
 } from './table.controller.js';
-import { validateJWT } from '../../middlewares/validate-JWT.js';
-import { requireAdmin } from '../../middlewares/require-role.js';
-import { validateUuidParam } from '../../middlewares/validate-params.js';
+import { validateJWT } from '../../../middlewares/validate-JWT.js';
+import { requireRole } from '../../../middlewares/require-role.js';
+import { validateUuidParam } from '../../../middlewares/validate-params.js';
 import {
   validateTableCreation,
   validateTableUpdate,
@@ -21,15 +21,15 @@ import {
 } from './table.validation.js';
 
 const router = Router();
+const requireTableAdmin = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE');
+const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
 
-router.get('/', getAllTables);
 router.get('/available', validateGetAvailableTablesQuery, getAvailableTables);
+router.get('/', getAllTables);
 router.get('/:id', validateUuidParam('id'), getTableById);
-
-/** Rutas solo ADMIN_ROLE (gestión de mesas) */
-router.post('/', [validateJWT, requireAdmin, validateTableCreation], createTable);
-router.put('/:id', [validateJWT, requireAdmin, validateUuidParam('id'), validateTableUpdate], updateTable);
-router.delete('/:id', [validateJWT, requireAdmin, validateUuidParam('id')], deleteTable);
-router.patch('/:id/status', [validateJWT, requireAdmin, validateUuidParam('id'), validateTableStatusUpdate], updateTableStatus);
+router.post('/', [validateJWT, requireTableAdmin, validateTableCreation], createTable);
+router.put('/:id', [validateJWT, requireTableAdmin, validateUuidParam('id'), validateTableUpdate], updateTable);
+router.delete('/:id', [validateJWT, requireTableAdmin, validateUuidParam('id')], deleteTable);
+router.patch('/:id/status', [validateJWT, requireOperationalStaff, validateUuidParam('id'), validateTableStatusUpdate], updateTableStatus);
 
 export default router;

@@ -1,6 +1,6 @@
 # 🍽️ BuenProvecho — Plataforma Integral de Gestión Gastronómica
 
-**BuenProvecho** es un ecosistema Full-Stack diseñado para transformar la operación de restaurantes. Conecta a dueños, gerentes, personal y comensales en tiempo real a través de una interfaz premium y una API robusta.
+**BuenProvecho** es un ecosistema Full-Stack diseñado para transformar la operación de restaurantes. Conecta a dueños, gerentes, personal y comensales en tiempo real a través de una interfaz premium y una API robusta basada en microservicios.
 
 ---
 
@@ -8,95 +8,67 @@
 
 | Capa | Tecnología |
 |---|---|
+| **Arquitectura** | Microservicios Autónomos (x4) |
 | **Runtime** | Node.js v24 + ES Modules |
 | **Framework Backend** | Express.js |
-| **ORM** | Sequelize 6 |
+| **ORM / ODM** | Sequelize 6 / Mongoose 8 |
 | **Bases de Datos** | PostgreSQL (Auth) & MongoDB (Negocio) |
-| **Autenticación** | JWT + Argon2 (hashing) |
-| **Tiempo Real** | Socket.io |
+| **Autenticación** | JWT (Shared Secret) |
+| **Tiempo Real** | Socket.io (PedidosService) |
 | **Storage** | Cloudinary |
-| **Email** | Nodemailer (Gmail SMTP) |
-| **Frontend** | React 18 + Vite 8 |
+| **Email** | Nodemailer |
+| **Frontend** | React 18 + Vite |
 | **Estado Global** | Zustand |
-| **Estilos** | Tailwind CSS |
-| **Animaciones** | Framer Motion + Three.js |
+| **Orquestación** | Scripts Node personalizados |
 
 ---
 
 ## 🚀 Instalación y Arranque
 
-### Prerrequisitos
+### 🏗️ Arquitectura de Microservicios
+
+El sistema está dividido en 4 servicios independientes:
+
+| Servicio | Puerto | Base Path | Responsabilidad |
+|---|---|---|---|
+| **AuthService** | `3006` | `/api/v1` | Usuarios, Roles, Staff y Seguridad |
+| **RestaurantesService** | `3007` | `/api/v1` | Sedes, Menús, Mesas y Reseñas |
+| **PedidosService** | `3008` | `/api/v1` | Órdenes, Reservas y Sockets (Real-time) |
+| **EventosService** | `3009` | `/api/v1` | Eventos, Estadísticas y Reportes |
+
+### 🛠️ Instalación y Arranque
+
+#### Prerrequisitos
 - Node.js 20+
 - pnpm
-- PostgreSQL & MongoDB corriendo localmente
+- PostgreSQL & MongoDB (Locales o Docker)
 
-### 1️⃣ Instalar dependencias en cada servicio
+#### Instalación Automática
+Hemos centralizado la instalación de dependencias de todos los servicios:
 ```bash
-# AuthService
-cd AuthService && pnpm install && cd ..
-
-# RestaurantesService
-cd RestaurantesService && pnpm install && cd ..
-
-# PedidosReservacionesService
-cd PedidosReservacionesService && pnpm install && cd ..
-
-# EventosReportesService
-cd EventosReportesService && pnpm install && cd ..
-
-# Frontend
-cd frontend && pnpm install && cd ..
+# En la raíz del proyecto
+pnpm install
+pnpm run install:services
 ```
 
-### 2️⃣ Ejecutar los servicios (5 terminales separadas)
-
-**Terminal 1 — AuthService**
+#### Ejecución en Desarrollo
+Inicia todos los microservicios simultáneamente con un solo comando:
 ```bash
-cd AuthService
-pnpm dev           # Puerto 3001
-```
+# Inicia los 4 servicios backend
+pnpm run dev
 
-**Terminal 2 — RestaurantesService**
-```bash
-cd RestaurantesService
-pnpm dev           # Puerto 3002
-```
-
-**Terminal 3 — PedidosReservacionesService**
-```bash
-cd PedidosReservacionesService
-pnpm dev           # Puerto 3003
-```
-
-**Terminal 4 — EventosReportesService**
-```bash
-cd EventosReportesService
-pnpm dev           # Puerto 3004
-```
-
-**Terminal 5 — Frontend**
-```bash
+# En otra terminal, inicia el frontend
 cd frontend
-pnpm dev           # Puerto 5173 → http://localhost:5173
+pnpm run dev
 ```
 
-### 3️⃣ Verificar que los servicios estén corriendo
-```bash
-# Cada servicio responde a:
-curl http://localhost:3001/api/v1/health   # AuthService
-curl http://localhost:3002/api/v1/health   # RestaurantesService
-curl http://localhost:3003/api/v1/health   # PedidosReservacionesService
-curl http://localhost:3004/api/v1/health   # EventosReportesService
-```
-
-### 4️⃣ Variables de entorno
-Cada servicio tiene su propio `.env` con:
-- `PORT` — Puerto del servicio
-- `DATABASE_URL` — PostgreSQL (compartida)
-- `MONGO_URI` — MongoDB (compartida)
-- `JWT_SECRET` — Secreto JWT (compartido)
-- `CLOUDINARY_*` — Credenciales de Cloudinary
-- `EMAIL_USER`, `EMAIL_PASS` — Gmail para notificaciones
+### Variables de entorno
+Configura tu archivo `.env` con las siguientes claves:
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` — PostgreSQL
+- `MONGODB_URI` — MongoDB
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+- `EMAIL_USER`, `EMAIL_PASS`
+- `JWT_SECRET`
 
 ---
 
@@ -134,93 +106,35 @@ El sistema trabaja con 4 roles conectados entre backend y frontend. La separaci�
 	- `SUPER_ADMIN_ROLE` entra al panel global.
 5. El backend bloquea rutas sensibles con `requireRole`, evitando acceso fuera de permiso.
 
-### Qué puede hacer cada rol
-
-#### 1. `SUPER_ADMIN_ROLE`
-
-Es el administrador global de la plataforma.
-
-Puede:
-- Crear y verificar restaurantes.
-- Eliminar restaurantes.
-- Ver estadísticas globales.
-- Gestionar usuarios por rol.
-- Asignar o cambiar roles administrativos.
-
-En el backend tiene acceso a rutas como:
-- `/restaurants/admin/:adminId`
-- `/restaurants/:id/verify`
-- `/users/by-role/:roleName`
-- `/users/:userId/role`
-- `/statistics/platform/summary`
-- `/statistics/global/overview`
-
-#### 2. `RESTAURANT_ADMIN_ROLE`
-
-Es el gerente de una sede específica.
-
-Puede:
-- Administrar su restaurante.
-- Gestionar menú, mesas, staff, órdenes, eventos y reportes.
-- Ver estadísticas operativas de su sede.
-- Crear staff dentro de su restaurante.
-
-En el frontend ve el menú del restaurante asociado y el sistema lo lleva a ese `restaurantId`.
-
-#### 3. `STAFF_ROLE`
-
-Es el personal operativo del restaurante.
-
-Puede:
-- Ver el resumen de la sede.
-- Gestionar órdenes y cocina.
-- Consultar el estado de mesas.
-- Trabajar solo dentro del restaurante asignado.
-
-No administra la plataforma completa ni modifica datos globales.
-
-#### 4. `CLIENT_ROLE`
-
-Es el cliente final.
-
-Puede:
-- Explorar menús públicos.
-- Hacer pedidos.
-- Ver su historial.
-- Dejar reseñas.
-- Consultar eventos.
-
-No administra restaurantes ni personal.
-
 ---
 
-## 📡 API — Endpoints Principales
+## 📡 API — Endpoints por Servicio
 
-### Autenticación (`/auth`)
+### 🔑 AuthService (`:3006`)
 | Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/login` | Login con email o username |
-| POST | `/register` | Registro de nuevo cliente |
-| GET | `/profile` | Perfil del usuario autenticado |
-| POST | `/forgot-password` | Solicitud de reset por correo |
+| POST | `/auth/login` | Login universal |
+| POST | `/auth/register` | Registro de clientes |
+| GET | `/users/staff` | Gestión de personal (Gerentes) |
 
-### Restaurantes (`/restaurants`)
-| Método | Ruta | Acceso |
+### 🍴 RestaurantesService (`:3007`)
+| Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/` | Público |
-| POST | `/` | Super Admin |
-| DELETE | `/:id` | Super Admin (Borrado en Cascada) |
-| GET | `/:id/stats` | Admin / Gerente / Staff |
-| GET | `/:id/staff` | Admin / Gerente |
-| POST | `/:id/staff` | Admin / Gerente |
+| GET | `/restaurants` | Listado público |
+| POST | `/restaurants` | Alta de sedes (Super Admin) |
+| GET | `/menus` | Gestión de platillos |
 
-### Estadísticas (`/statistics`)
-| Ruta | Acceso |
-|---|---|
-| `/restaurant/:id/overview` | Admin / Gerente |
-| `/restaurant/:id/orders` | Admin / Gerente |
-| `/restaurant/:id/export-excel` | Admin / Gerente |
-| `/global/overview` | Super Admin |
+### 📦 PedidosReservacionesService (`:3008`)
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/orders` | Creación de pedidos |
+| GET | `/socket.io` | Conexión para KDS (Monitor de Cocina) |
+
+### 📊 EventosReportesService (`:3009`)
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/statistics/restaurant/:id/overview` | Dashboard de analíticas |
+| GET | `/statistics/global/overview` | Resumen para Super Admin |
 
 ---
 
@@ -239,7 +153,7 @@ No administra restaurantes ni personal.
 4. Consulta analíticas y reportes.
 
 ### 3. Staff / Mesero
-1. Entra a la sede asignada.
+1. Entra la sede asignada.
 2. Atiende órdenes y cocina.
 3. Gestiona mesas y reservaciones.
 4. Opera solo dentro de su restaurante.
@@ -252,106 +166,18 @@ No administra restaurantes ni personal.
 
 ---
 
-## 📦 Arquitectura de Microservicios
+## 📦 Estructura del Proyecto
 
 ```
 Gestion-Restaurantes/
-├── AuthService/                          (Puerto 3001)
-│   ├── src/
-│   │   ├── auth/                         # Login, JWT, roles
-│   │   └── users/                        # Gestión de usuarios
-│   ├── helpers/                          # Operaciones de auth
-│   ├── middlewares/                      # Validación JWT, roles
-│   ├── configs/                          # DB, CORS, Helmet
-│   ├── index.js                          # Entry point
-│   ├── package.json
-│   └── .env
-│
-├── RestaurantesService/                  (Puerto 3002)
-│   ├── src/
-│   │   └── models/
-│   │       ├── restaurantes/             # CRUD restaurantes
-│   │       ├── menus/                    # Categorías y ítems
-│   │       ├── platos/                   # Platillos
-│   │       ├── mesas/                    # Gestión de mesas
-│   │       ├── inventario/               # Stock
-│   │       └── reseñas/                  # Reseñas de clientes
-│   ├── helpers/                          # Cloudinary, file-upload
-│   ├── middlewares/                      # Validación, roles
-│   ├── configs/                          # DB, CORS, Helmet
-│   ├── index.js
-│   ├── package.json
-│   └── .env
-│
-├── PedidosReservacionesService/          (Puerto 3003)
-│   ├── src/
-│   │   └── models/
-│   │       ├── pedidos/                  # Órdenes y KDS
-│   │       ├── reservaciones/            # Reservas de mesas
-│   │       ├── detallePedidos/           # Items de orden
-│   │       ├── facturas/                 # Facturación
-│   │       ├── mesas/ (ref)              # Referencias
-│   │       └── restaurantes/ (ref)
-│   ├── helpers/                          # Email service
-│   ├── middlewares/
-│   ├── configs/
-│   ├── index.js
-│   ├── package.json
-│   └── .env
-│
-├── EventosReportesService/               (Puerto 3004)
-│   ├── src/
-│   │   └── models/
-│   │       ├── eventos/                  # Eventos del restaurante
-│   │       ├── reportes/                 # Reportes y analíticas
-│   │       └── estadisticas/             # KPIs y dashboards
-│   ├── helpers/                          # Email, Excel export
-│   ├── middlewares/
-│   ├── configs/
-│   ├── index.js
-│   ├── package.json
-│   └── .env
-│
-├── frontend/                             (Puerto 5173)
-│   ├── src/
-│   │   ├── shared/
-│   │   │   ├── components/               # UI System (Button, Modal, Card, etc)
-│   │   │   ├── constants/                # Design tokens
-│   │   │   └── hooks/                    # useToastStore, etc
-│   │   ├── features/                     # Módulos por feature
-│   │   │   ├── auth/
-│   │   │   ├── restaurants/
-│   │   │   ├── orders/
-│   │   │   ├── reservations/
-│   │   │   └── events/
-│   │   └── app/
-│   │       ├── router/                   # Rutas y permisos
-│   │       └── layouts/                  # Layouts principales
-│   ├── index.html
-│   ├── vite.config.js
-│   ├── package.json
-│   └── .env
-│
-├── .env                                  # Vars compartidas
-├── .gitignore
-├── .eslintrc.json
-├── eslint.config.js
-├── .prettierrc.json
-├── docker-compose.yml                    # Para PostgreSQL + MongoDB
-├── Gestion_Restaurantes_COMPLETO.postman_collection.json
-└── README.md
+├── AuthService/              # Puerto 3006 (SQL + NoSQL)
+├── RestaurantesService/      # Puerto 3007 (NoSQL)
+├── PedidosReservacionesService/ # Puerto 3008 (NoSQL + Sockets)
+├── EventosReportesService/   # Puerto 3009 (NoSQL + Excel)
+├── scripts/                  # Orquestadores (dev, install)
+├── frontend/                 # React 18 (Vite)
+└── docker-compose.yml        # Infraestructura de DBs
 ```
-
-### 🔄 Comunicación entre Servicios
-
-Los servicios se comunican vía **HTTP REST** usando las siguientes URLs:
-
-- **AuthService** → Valida JWT para otros servicios
-- **RestaurantesService** → Sirve datos de restaurantes a otros servicios  
-- **PedidosReservacionesService** → Consume datos de restaurantes y menús
-- **EventosReportesService** → Consume datos de órdenes para reportes
-
-Cada servicio tiene su propio `.env` con las URLs de los otros servicios si lo requiere.
 
 ---
 
@@ -367,13 +193,13 @@ Cada servicio tiene su propio `.env` con las URLs de los otros servicios si lo r
 
 ## 🗺️ Roadmap
 
-- [x] Autenticación multi-rol
-- [x] Gestión de imágenes con Cloudinary (Upload/Delete)
-- [x] Órdenes en tiempo real (Socket.io)
-- [x] Borrado en cascada de restaurantes
-- [x] Exportación a Excel
+- [x] Autenticación multi-rol (Descentralizada)
+- [x] Arquitectura de 4 Microservicios Autónomos
+- [x] Sincronización de Sockets en PedidosService
+- [x] Scripts de orquestación (pnpm run dev)
+- [x] Exportación a Excel y analíticas
 - [ ] Pasarela de pagos (Stripe)
-- [ ] Notificaciones push
+- [ ] Notificaciones push PWA
 
 ---
 

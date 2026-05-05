@@ -9,13 +9,13 @@ export const validateReservationCreation = [
   body('restaurant_id')
     .notEmpty()
     .withMessage('Restaurant ID is required')
-    .isUUID()
-    .withMessage('Restaurant ID must be a valid UUID'),
+    .isString()
+    .withMessage('Restaurant ID must be a valid String/ID'),
 
   body('user_id')
     .optional()
-    .isUUID()
-    .withMessage('User ID must be a valid UUID'),
+    .isString()
+    .withMessage('User ID must be a valid String/ID'),
 
   body('customer_name')
     .trim()
@@ -175,7 +175,7 @@ export const validateCheckAvailability = [
   query('restaurant_id')
     .notEmpty()
     .withMessage('restaurant_id es requerido')
-    .isUUID()
+    .isString()
     .withMessage('restaurant_id debe ser un UUID válido'),
   query('reservation_date')
     .notEmpty()

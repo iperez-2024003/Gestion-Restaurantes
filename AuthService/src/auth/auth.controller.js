@@ -13,6 +13,7 @@ import { uploadImage, deleteImage } from '../../helpers/cloudinary-service.js';
 import { hashPassword, verifyPassword } from '../../utils/password-utils.js';
 import crypto from 'crypto';
 import path from 'path';
+import Restaurant from '../restaurant/restaurant.model.js';
 
 // ─── REGISTER ─────────────────────────────────────────────────────────────────
 export const register = asyncHandler(async (req, res) => {
@@ -21,6 +22,20 @@ export const register = asyncHandler(async (req, res) => {
       ...req.body,
       profilePicture: req.file ? req.file.path : null,
     };
+
+    // Seguridad de Roles: Solo Super Admin puede asignar roles distintos a CLIENT_ROLE
+    const roleToAssign = req.body.role || 'CLIENT_ROLE';
+    
+    if (roleToAssign !== 'CLIENT_ROLE') {
+      // Si el usuario no está logueado o no es Super Admin, denegar asignación de rol especial
+      const isSuperAdmin = req.userRoleNames?.includes('SUPER_ADMIN_ROLE');
+      if (!isSuperAdmin) {
+        return res.status(403).json({
+          success: false,
+          message: 'No tienes permisos para asignar roles administrativos. Se asignará CLIENT_ROLE por defecto o la operación será denegada.',
+        });
+      }
+    }
 
     const result = await registerUserHelper(userData);
     res.status(201).json(result);
@@ -47,8 +62,18 @@ export const register = asyncHandler(async (req, res) => {
 // ─── LOGIN ────────────────────────────────────────────────────────────────────
 export const login = asyncHandler(async (req, res) => {
   try {
-    const { emailOrUsername, password } = req.body;
-    const result = await loginUserHelper(emailOrUsername, password);
+    // Aceptamos tanto emailOrUsername como simplemente email/username en minúsculas
+    const { emailOrUsername, email, username, password } = req.body;
+    const identifier = emailOrUsername || email || username;
+
+    if (!identifier || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email/Username y contraseña son requeridos'
+      });
+    }
+
+    const result = await loginUserHelper(identifier, password);
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in login controller:', error);
@@ -366,6 +391,55 @@ export const changePassword = asyncHandler(async (req, res) => {
       success: false,
       message: 'Error al cambiar la contraseña',
       error: error.message,
+    });
+  }
+});
+
+// ─── SYNC RESTAURANT ──────────────────────────────────────────────────────────
+// PUT /api/v1/auth/profile/sync-restaurant
+// Auto-repara el restaurant_id del usuario si es inválido
+export const syncRestaurant = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { restaurantId } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+    }
+
+    // Verificar si el restaurante existe en MongoDB
+    let validId = restaurantId;
+    if (validId) {
+      const exists = await Restaurant.findById(validId);
+      if (!exists) validId = null;
+    }
+
+    // Si no se envió un ID o el enviado es inválido, buscar el primero disponible (como fallback)
+    if (!validId) {
+      const firstRest = await Restaurant.findOne({ isActive: true });
+      if (firstRest) {
+        validId = firstRest._id.toString();
+      }
+    }
+
+    if (validId) {
+      await user.update({ RestaurantId: validId });
+    }
+
+    const updatedUser = await getUserProfileHelper(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Sincronización de restaurante completada',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Error in syncRestaurant controller:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error al sincronizar restaurante',
+      error: error.message
     });
   }
 });

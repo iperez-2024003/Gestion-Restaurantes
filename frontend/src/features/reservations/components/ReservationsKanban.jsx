@@ -11,10 +11,9 @@ import {
   CheckCircle2, 
   XCircle, 
   AlertCircle,
+  Loader2,
   Users
 } from 'lucide-react';
-import UnifiedButton from '../../../shared/components/ui/UnifiedButton';
-import LoadingSpinner from '../../../shared/components/states/LoadingSpinner';
 
 const RESERVATION_COLUMNS = [
   { id: 'pending', label: 'Pendientes', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
@@ -52,21 +51,19 @@ export const ReservationsKanban = () => {
            <h1 className="text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none">Reservas <span className="text-[#8b6435]">Kanban</span></h1>
         </div>
         
-        <UnifiedButton
-          variant="secondary"
-          size="md"
-          icon={RefreshCcw}
+        <button
           onClick={() => fetchReservations({ restaurant_id: restaurantId, limit: 100 })}
-          loading={loading}
-          disabled={loading}
+          className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#fffaf3] text-zinc-900 font-black uppercase tracking-widest text-[10px] border border-[#dcc7a5] hover:border-[#b98c52] transition-all shadow-2xl"
         >
+          <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Sincronizar
-        </UnifiedButton>
+        </button>
       </div>
 
       {loading && reservations.length === 0 ? (
         <div className="h-[50vh] flex flex-col items-center justify-center gap-6">
-          <LoadingSpinner size="lg" text="Cargando Reservas Premium..." />
+          <Loader2 className="w-12 h-12 text-[#b98c52] animate-spin" />
+          <p className="text-zinc-500 font-black uppercase tracking-[0.3em] text-[10px]">Cargando Reservas Premium...</p>
         </div>
       ) : (
         <div className="flex gap-6 md:gap-8 overflow-x-auto pb-10 items-start h-[calc(100vh-280px)] md:h-[calc(100vh-220px)] scrollbar-thin scrollbar-thumb-zinc-800">
@@ -133,47 +130,35 @@ export const ReservationsKanban = () => {
                           <div className="flex flex-wrap gap-3">
                             {reservation.status === 'pending' && (
                               <>
-                                <UnifiedButton
-                                  variant="primary"
-                                  size="sm"
-                                  icon={CheckCircle2}
+                                <button
                                   onClick={() => confirmReservation(reservation.id)}
-                                  className="flex-1"
+                                  className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black uppercase tracking-widest text-[9px] hover:to-[#a97d45] transition-all flex items-center justify-center gap-2"
                                 >
-                                  Confirmar
-                                </UnifiedButton>
-                                <UnifiedButton
-                                  variant="danger"
-                                  size="sm"
-                                  icon={XCircle}
+                                  <CheckCircle2 className="w-4 h-4" /> Confirmar
+                                </button>
+                                <button
                                   onClick={() => cancelReservation(reservation.id)}
-                                  className="flex-1"
+                                  className="flex-1 py-4 rounded-2xl bg-[#fffaf3] text-zinc-600 font-black uppercase tracking-widest text-[9px] hover:bg-rose-500 hover:text-white transition-all border border-[#dcc7a5] hover:border-rose-500 flex items-center justify-center gap-2"
                                 >
-                                  Cancelar
-                                </UnifiedButton>
+                                  <XCircle className="w-4 h-4" /> Cancelar
+                                </button>
                               </>
                             )}
 
                             {reservation.status === 'confirmed' && (
                               <>
-                                <UnifiedButton
-                                  variant="primary"
-                                  size="sm"
-                                  icon={CheckCircle2}
+                                <button
                                   onClick={() => updateReservationStatus(reservation.id, 'completed')}
-                                  className="flex-1"
+                                  className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black uppercase tracking-widest text-[9px] hover:to-[#a97d45] transition-all flex items-center justify-center gap-2"
                                 >
-                                  Finalizar
-                                </UnifiedButton>
-                                <UnifiedButton
-                                  variant="outline"
-                                  size="sm"
-                                  icon={AlertCircle}
+                                  <CheckCircle2 className="w-4 h-4" /> Finalizar
+                                </button>
+                                <button
                                   onClick={() => updateReservationStatus(reservation.id, 'no_show')}
-                                  className="flex-1"
+                                  className="flex-1 py-4 rounded-2xl bg-[#fffaf3] text-zinc-600 font-black uppercase tracking-widest text-[9px] hover:bg-amber-500 hover:text-white transition-all border border-[#dcc7a5] hover:border-amber-500 flex items-center justify-center gap-2"
                                 >
-                                  No asistió
-                                </UnifiedButton>
+                                  <AlertCircle className="w-4 h-4" /> No asistió
+                                </button>
                               </>
                             )}
                           </div>

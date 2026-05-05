@@ -19,7 +19,7 @@ export const validateTableCreation = [
   body('capacity').notEmpty().withMessage('Capacity is required').isInt({ min: 1, max: 20 }).withMessage('Capacity must be between 1 and 20'),
   body('location').optional().isIn(['interior', 'terrace', 'vip', 'bar', 'window', 'private']).withMessage('Invalid location'),
   body('floor').optional().isInt({ min: 1 }).withMessage('Floor must be at least 1'),
-  body('restaurant_id').notEmpty().withMessage('Restaurant ID is required').isUUID().withMessage('Restaurant ID must be a valid UUID'),
+  body('restaurant_id').notEmpty().withMessage('Restaurant ID is required').isString().withMessage('Restaurant ID must be a valid String/ID'),
   handleErrors,
 ];
 
@@ -47,7 +47,7 @@ export const validateGetAvailableTablesQuery = [
   query('restaurant_id')
     .notEmpty()
     .withMessage('restaurant_id es requerido')
-    .isUUID()
+    .isString()
     .withMessage('restaurant_id debe ser un UUID válido'),
   query('capacity').optional().isInt({ min: 1, max: 20 }).withMessage('capacity debe ser entre 1 y 20'),
   query('location').optional().isIn(['interior', 'terrace', 'vip', 'bar', 'window', 'private']).withMessage('location no válida'),

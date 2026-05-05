@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import api from '../../../shared/api/axios';
+import { restaurantesApi as api } from '../../../shared/api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOrderStore } from '../../orders/store/useOrderStore';
 import { CartDrawer } from '../../orders/components/CartDrawer';
@@ -25,8 +25,6 @@ import {
   Info,
   UtensilsCrossed
 } from 'lucide-react';
-import LoadingSpinner from '../../../shared/components/states/LoadingSpinner';
-import UnifiedButton from '../../../shared/components/ui/UnifiedButton';
 
 export const PublicMenu = () => {
   const { restaurant_id } = useParams();
@@ -223,7 +221,13 @@ export const PublicMenu = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center font-outfit p-4">
-        <LoadingSpinner size="lg" text="Preparando Experiencia..." variant="light" />
+        <div className="relative">
+          <div className="w-14 h-14 md:w-20 md:h-20 border-4 border-[#d7b77f]/20 border-t-[#d7b77f] rounded-full animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ChefHat className="w-6 h-6 md:w-8 md:h-8 text-[#b98c52]" />
+          </div>
+        </div>
+        <p className="text-zinc-500 font-black uppercase tracking-[0.4em] text-[10px] mt-6 animate-pulse">Preparando Experiencia...</p>
       </div>
     );
   }
@@ -236,14 +240,12 @@ export const PublicMenu = () => {
         </div>
         <h2 className="text-4xl font-black text-white tracking-tighter uppercase">No Disponible</h2>
         <p className="text-zinc-500 mt-4 max-w-sm font-medium">Este restaurante no se encuentra activo en nuestra red gourmet en este momento.</p>
-        <UnifiedButton
+        <button
           onClick={() => window.location.href = '/'}
-          variant="primary"
-          size="md"
-          className="mt-10"
+          className="mt-10 px-10 py-4 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black rounded-2xl shadow-2xl shadow-[rgba(185,140,82,0.2)] uppercase tracking-widest text-xs"
         >
           Volver al Inicio
-        </UnifiedButton>
+        </button>
       </div>
     );
   }
@@ -349,24 +351,26 @@ export const PublicMenu = () => {
       {/* ── CATEGORIES NAV ───────────────────────────────────────────────────────── */}
       <div className="sticky top-0 z-40 bg-[#fffaf3]/80 backdrop-blur-3xl border-b border-[#dcc7a5] px-4 md:px-8 py-6 md:py-8">
         <div className="max-w-6xl mx-auto flex gap-6 overflow-x-auto scrollbar-hide px-2 md:px-0">
-          <UnifiedButton
+          <button
             onClick={() => setActiveCategory(null)}
-            variant={!activeCategory ? 'primary' : 'outline'}
-            size="md"
-            className="whitespace-nowrap"
+            className={`px-10 py-5 rounded-[2rem] text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 transform active:scale-95 border ${!activeCategory
+                ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white shadow-2xl shadow-[rgba(185,140,82,0.2)] border-[#b98c52]'
+                : 'bg-[#fffaf3]/60 text-zinc-900 border-[#dcc7a5] hover:border-[#d7b77f]/30'
+              }`}
           >
             ✨ Toda la Carta
-          </UnifiedButton>
+          </button>
           {menus.map((m) => (
-            <UnifiedButton
+            <button
               key={m.id}
               onClick={() => setActiveCategory(m.id)}
-              variant={activeCategory === m.id ? 'primary' : 'outline'}
-              size="md"
-              className="whitespace-nowrap"
+              className={`px-10 py-5 rounded-[2rem] text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 transform active:scale-95 border ${activeCategory === m.id
+                  ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white shadow-2xl shadow-[rgba(185,140,82,0.2)] border-[#b98c52]'
+                  : 'bg-[#fffaf3]/60 text-zinc-900 border-[#dcc7a5] hover:border-[#d7b77f]/30'
+                }`}
             >
               {m.name}
-            </UnifiedButton>
+            </button>
           ))}
         </div>
       </div>
@@ -387,13 +391,12 @@ export const PublicMenu = () => {
               <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-[1.1]">Asegura tu <span className="text-zinc-600">Experiencia</span></h2>
               <p className="text-zinc-500 mt-4 font-bold uppercase tracking-widest text-[10px]">Atención personalizada y las mejores ubicaciones garantizadas.</p>
             </div>
-            <UnifiedButton
+            <button
               onClick={() => setReservationOpen(true)}
-              variant="secondary"
-              size="lg"
+              className="px-12 py-6 rounded-[2rem] bg-white text-black font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-2xl"
             >
               Reservar Mesa ✨
-            </UnifiedButton>
+            </button>
           </div>
         </motion.div>
       </div>
@@ -461,34 +464,23 @@ export const PublicMenu = () => {
                             className="flex-1 bg-transparent border-none text-[10px] font-bold text-zinc-400 placeholder:text-zinc-800 focus:ring-0 px-4"
                           />
                           <div className="flex bg-zinc-900 rounded-2xl items-center p-1 border border-zinc-800">
-                            <UnifiedButton
+                            <button
                               onClick={() => handleQuantityChange(item.id, -1)}
-                              variant="outline"
-                              size="sm"
-                              className="w-10 h-10 p-0"
-                            >
-                              -
-                            </UnifiedButton>
+                              className="w-10 h-10 text-white hover:text-[#b98c52] font-black text-lg transition-colors"
+                            >-</button>
                             <span className="w-10 text-center font-black text-sm text-white">{itemQuantities[item.id] || 1}</span>
-                            <UnifiedButton
+                            <button
                               onClick={() => handleQuantityChange(item.id, 1)}
-                              variant="outline"
-                              size="sm"
-                              className="w-10 h-10 p-0"
-                            >
-                              +
-                            </UnifiedButton>
+                              className="w-10 h-10 text-white hover:text-[#b98c52] font-black text-lg transition-colors"
+                            >+</button>
                           </div>
                         </div>
-                        <UnifiedButton
+                        <button
                           onClick={() => handleAddToCart(item)}
-                          variant="primary"
-                          size="md"
-                          icon={ShoppingBag}
-                          className="w-full"
+                          className="w-full py-5 bg-[#fffaf3]/80 text-zinc-900 font-black rounded-[1.5rem] text-[10px] uppercase tracking-[0.4em] hover:bg-gradient-to-r hover:from-[#d7b77f] hover:to-[#b98c52] hover:text-white transition-all border border-[#dcc7a5] hover:border-[#b98c52] shadow-2xl flex items-center justify-center gap-3"
                         >
-                          Añadir Orden
-                        </UnifiedButton>
+                          <ShoppingBag className="w-4 h-4" /> Añadir Orden
+                        </button>
                       </div>
                     )}
                   </div>
@@ -678,22 +670,18 @@ export const PublicMenu = () => {
               </div>
 
               <div className="flex gap-4">
-                <UnifiedButton
+                <button
                   onClick={() => setReservationOpen(false)}
-                  variant="outline"
-                  size="md"
-                  className="flex-1"
+                  className="flex-1 py-6 rounded-[2rem] border border-zinc-800 text-zinc-500 font-black uppercase tracking-widest text-[10px] hover:text-white transition-all"
                 >
                   Cancelar
-                </UnifiedButton>
-                <UnifiedButton
+                </button>
+                <button
                   onClick={submitReservation}
-                  variant="primary"
-                  size="md"
-                  className="flex-1"
+                  className="flex-1 py-6 rounded-[2rem] bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black uppercase tracking-widest text-xs hover:to-[#a97d45] transition-all shadow-2xl shadow-[rgba(185,140,82,0.2)]"
                 >
                   Confirmar Reserva ✨
-                </UnifiedButton>
+                </button>
               </div>
             </motion.div>
           </div>

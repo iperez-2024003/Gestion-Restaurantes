@@ -1,10 +1,12 @@
 'use strict';
 
 import { Sequelize } from 'sequelize';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
+// ─── PostgreSQL (Auth & Users) ──────────────────────────────────────────────
 export const sequelize = new Sequelize({
   dialect: 'postgres',
   host: process.env.DB_HOST,
@@ -28,35 +30,46 @@ export const sequelize = new Sequelize({
   },
 });
 
+// ─── MongoDB (para validar restaurantes) ────────────────────────────────────
+const connectMongo = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 5,
+    });
+    console.log('MongoDB | Conectado (AuthService - read-only para restaurantes)');
+  } catch (error) {
+    console.warn('MongoDB | No se pudo conectar (login sin validación de restaurante):', error.message);
+  }
+};
+
 export const dbConnection = async () => {
   try {
-    console.log('PostgreSQL | Trying to connect...');
-
     await sequelize.authenticate();
-    console.log('PostgreSQL | Connected to PostgreSQL');
-    console.log('PostgreSQL | Connection to database established');
+    console.log('PostgreSQL | Conectado a PostgreSQL');
 
     if (process.env.NODE_ENV === 'development') {
       const syncLogging = process.env.DB_SQL_LOGGING === 'true' ? console.log : false;
       await sequelize.sync({ force: false, logging: syncLogging });
-      console.log('PostgreSQL | Models synchronized with database');
+      console.log('PostgreSQL | Esquema sincronizado en desarrollo');
     }
   } catch (error) {
-    console.error('PostgreSQL | Could not connect to PostgreSQL');
-    console.error('PostgreSQL | Error:', error.message);
-    console.error('Stack trace:', error.stack);
+    console.error(`Error al conectar PostgreSQL: ${error}`);
     process.exit(1);
   }
+
+  await connectMongo();
 };
 
 const gracefulShutdown = async (signal) => {
-  console.log(`PostgreSQL | Received ${signal}. Closing database connection...`);
+  console.log(`Received ${signal}. Closing database connections...`);
   try {
     await sequelize.close();
-    console.log('PostgreSQL | Database connection closed successfully');
+    await mongoose.connection.close();
+    console.log('Database connections closed successfully');
     process.exit(0);
   } catch (error) {
-    console.error('PostgreSQL | Error during graceful shutdown:', error.message);
+    console.error('Error during graceful shutdown:', error.message);
     process.exit(1);
   }
 };

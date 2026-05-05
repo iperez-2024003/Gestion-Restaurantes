@@ -77,6 +77,11 @@ export const validateRegister = [
     .matches(/^\d{8}$/)
     .withMessage('El número de teléfono debe tener exactamente 8 dígitos'),
 
+  body('role')
+    .optional()
+    .isString()
+    .withMessage('El rol debe ser una cadena de texto'),
+
   handleValidationErrors,
 ];
 
@@ -84,10 +89,13 @@ export const validateRegister = [
  * Validaciones para el login
  */
 export const validateLogin = [
-  body('emailOrUsername')
-    .trim()
-    .notEmpty()
-    .withMessage('Email o nombre de usuario es requerido'),
+  body()
+    .custom((value, { req }) => {
+      if (!req.body.emailOrUsername && !req.body.email && !req.body.username) {
+        throw new Error('Email o nombre de usuario es requerido');
+      }
+      return true;
+    }),
 
   body('password').notEmpty().withMessage('La contraseña es requerida'),
 

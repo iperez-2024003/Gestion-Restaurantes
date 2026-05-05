@@ -32,7 +32,6 @@ import { KitchenDisplay } from '../../features/orders/pages/KitchenDisplay';
 import { ActionButton } from '../../shared/components/ui/ActionButton';
 import { TransactionCard } from '../../shared/components/ui/TransactionCard';
 import { BrandLogo } from '../../shared/components/ui/BrandLogo';
-import UnifiedButton from '../../shared/components/ui/UnifiedButton';
 import { 
   PlusCircle, 
   Search, 
@@ -132,13 +131,9 @@ const DashboardIndex = () => {
                <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest leading-relaxed">Domina todas las herramientas de la plataforma con nuestra guía técnica.</p>
             </div>
          </div>
-        <UnifiedButton
-          variant="primary"
-          size="md"
-          onClick={() => {}}
-        >
-          Abrir Tutorial
-        </UnifiedButton>
+        <button className="px-10 py-5 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:to-[#a97d45] active:scale-95 transition-all shadow-2xl shadow-[rgba(185,140,82,0.18)] border border-[#d7b77f]/30">
+            Abrir Tutorial
+         </button>
       </motion.div>
     </motion.div>
   );

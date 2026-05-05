@@ -4,8 +4,6 @@ import { useAuthStore } from '../../auth/store/useAuthStore';
 import { showError, showSuccess } from '../../../shared/utils/toast';
 import { translateEventType } from '../../../shared/utils/i18n';
 import { motion, AnimatePresence } from 'framer-motion';
-import LoadingSpinner from '../../../shared/components/states/LoadingSpinner';
-import UnifiedButton from '../../../shared/components/ui/UnifiedButton';
 import { 
   Calendar, 
   Clock, 
@@ -61,7 +59,8 @@ export const EventsFeed = () => {
   if (loading) {
     return (
       <div className="h-[70vh] flex flex-col justify-center items-center font-outfit">
-        <LoadingSpinner size="lg" text="Sincronizando Experiencias..." />
+        <Loader2 className="w-12 h-12 text-[#b98c52] animate-spin" />
+        <p className="mt-6 text-zinc-500 font-black animate-pulse uppercase tracking-[0.4em] text-[10px]">Sincronizando Experiencias...</p>
       </div>
     );
   }
@@ -131,21 +130,23 @@ export const EventsFeed = () => {
                     </div>
                   </div>
 
-                  <UnifiedButton
+                  <button
                     onClick={() => handleRegister(event)}
                     disabled={soldOut || registeringId === event.id}
-                    variant={soldOut ? 'outline' : 'primary'}
-                    size="md"
-                    className="w-full"
+                    className={`w-full py-5 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 border ${
+                      soldOut 
+                      ? 'bg-zinc-900 text-zinc-600 border-zinc-800 cursor-not-allowed opacity-50' 
+                      : 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white border-[#d7b77f]/30 hover:to-[#a97d45] shadow-2xl hover:shadow-[rgba(185,140,82,0.18)]'
+                    }`}
                   >
                     {registeringId === event.id ? (
-                      <LoadingSpinner size="sm" text="" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : soldOut ? (
                       'Capacidad Máxima'
                     ) : (
                       <>Reservar Cupo <Sparkles className="w-4 h-4" /></>
                     )}
-                  </UnifiedButton>
+                  </button>
                 </div>
               </motion.article>
             );

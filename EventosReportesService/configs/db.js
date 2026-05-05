@@ -1,62 +1,52 @@
 'use strict';
 
-import { Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-export const sequelize = new Sequelize({
-  dialect: 'postgres',
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  logging: process.env.DB_SQL_LOGGING === 'true' ? console.log : false,
-  define: {
-    freezeTableName: true,
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
-    underscored: true,
-  },
-  pool: {
-    max: 10,
-    min: 0,
-    acquire: 30000,
-    idle: 10000,
-  },
-});
+import mongoose from 'mongoose';
 
 export const dbConnection = async () => {
   try {
-    console.log('PostgreSQL | Trying to connect...');
+    mongoose.connection.on('error', () => {
+      console.log('MongoDB | No se pudo conectar a MongoDB');
+      mongoose.disconnect();
+    });
 
-    await sequelize.authenticate();
-    console.log('PostgreSQL | Connected to PostgreSQL');
-    console.log('PostgreSQL | Connection to database established');
+    mongoose.connection.on('connecting', () => {
+      console.log('MongoDB | Intentando conectar a MongoDB');
+    });
 
-    if (process.env.NODE_ENV === 'development') {
-      const syncLogging = process.env.DB_SQL_LOGGING === 'true' ? console.log : false;
-      await sequelize.sync({ force: false, logging: syncLogging });
-      console.log('PostgreSQL | Models synchronized with database');
-    }
+    mongoose.connection.on('connected', () => {
+      console.log('MongoDB | Conectado a MongoDB');
+    });
+
+    mongoose.connection.on('open', () => {
+      console.log('MongoDB | Conexión abierta');
+    });
+
+    mongoose.connection.on('reconnected', () => {
+      console.log('MongoDB | Reconectando a MongoDB');
+    });
+
+    mongoose.connection.on('disconnected', () => {
+      console.log('MongoDB | Desconectando de MongoDB');
+    });
+
+    await mongoose.connect(process.env.URI_MONGO, {
+      serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 10,
+    });
   } catch (error) {
-    console.error('PostgreSQL | Could not connect to PostgreSQL');
-    console.error('PostgreSQL | Error:', error.message);
-    console.error('Stack trace:', error.stack);
+    console.log(`Error al conectar la DB: ${error}`);
     process.exit(1);
   }
 };
 
 const gracefulShutdown = async (signal) => {
-  console.log(`PostgreSQL | Received ${signal}. Closing database connection...`);
+  console.log(`MongoDB | Received ${signal}. Closing database connection...`);
   try {
-    await sequelize.close();
-    console.log('PostgreSQL | Database connection closed successfully');
+    await mongoose.connection.close();
+    console.log('MongoDB | Database connection closed successfully');
     process.exit(0);
   } catch (error) {
-    console.error('PostgreSQL | Error during graceful shutdown:', error.message);
+    console.error('MongoDB | Error during graceful shutdown:', error.message);
     process.exit(1);
   }
 };

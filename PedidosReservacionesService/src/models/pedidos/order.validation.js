@@ -9,14 +9,14 @@ export const validateOrderCreation = [
   body('restaurant_id')
     .notEmpty()
     .withMessage('Restaurant ID is required')
-    .isUUID()
-    .withMessage('Restaurant ID must be a valid UUID'),
+    .isString()
+    .withMessage('Restaurant ID must be a valid String/ID'),
 
   body('user_id')
     .notEmpty()
     .withMessage('User ID is required')
-    .isUUID()
-    .withMessage('User ID must be a valid UUID'),
+    .isString()
+    .withMessage('User ID must be a valid String/ID'),
 
   body('customer_name')
     .optional()
@@ -36,8 +36,8 @@ export const validateOrderCreation = [
   body('items.*.menu_item_id')
     .notEmpty()
     .withMessage('Menu item ID is required for each item')
-    .isUUID()
-    .withMessage('Menu item ID must be a valid UUID'),
+    .isString()
+    .withMessage('Menu item ID must be a valid String/ID'),
 
   body('items.*.quantity')
     .notEmpty()
@@ -71,6 +71,7 @@ export const validateOrderCreation = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Order Validation Errors:', errors.array());
       return res.status(400).json({
         ok: false,
         message: 'Validation errors',
@@ -91,8 +92,8 @@ export const validateAddItem = [
   body('menu_item_id')
     .notEmpty()
     .withMessage('Menu item ID is required')
-    .isUUID()
-    .withMessage('Menu item ID must be a valid UUID'),
+    .isString()
+    .withMessage('Menu item ID must be a valid String/ID'),
 
   body('quantity')
     .notEmpty()
@@ -125,7 +126,7 @@ export const validateAddItem = [
 const VALID_ORDER_STATUSES = ['pending', 'confirmed', 'preparing', 'ready', 'served', 'paid', 'cancelled'];
 
 /**
- * Validación para actualizar estado del pedido (PATCH /:id/status)
+ * ValidaciÃ³n para actualizar estado del pedido (PATCH /:id/status)
  */
 export const validateOrderStatusUpdate = [
   body('status')

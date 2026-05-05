@@ -1,4 +1,4 @@
-import api from './axios';
+import { restaurantesApi as api } from './axios';
 
 /**
  * Obtiene todos los menús (categorías) de un restaurante
@@ -47,3 +47,4 @@ export const deleteMenuItem = (id) =>
  */
 export const toggleMenuItem = (id) => 
   api.patch(`/menus/items/${id}/toggle`);
+

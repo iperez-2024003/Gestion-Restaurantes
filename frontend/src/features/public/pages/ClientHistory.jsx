@@ -6,8 +6,6 @@ import { useAuthStore } from '../../auth/store/useAuthStore';
 import { showError, showSuccess } from '../../../shared/utils/toast';
 import { translateStatus } from '../../../shared/utils/i18n';
 import { motion, AnimatePresence } from 'framer-motion';
-import LoadingSpinner from '../../../shared/components/states/LoadingSpinner';
-import UnifiedButton from '../../../shared/components/ui/UnifiedButton';
 import { 
   History, 
   Star, 
@@ -119,20 +117,25 @@ export const ClientHistory = () => {
   if (loading) {
     return (
       <div className="h-72 md:h-96 flex flex-col items-center justify-center gap-6">
-        <LoadingSpinner size="lg" text="Sincronizando Bitácora..." />
+        <Loader2 className="w-10 md:w-12 h-10 md:h-12 text-[#b98c52] animate-spin" />
+        <p className="text-zinc-500 font-black uppercase tracking-[0.3em] text-[10px]">Sincronizando Bitácora...</p>
       </div>
     );
   }
 
   const labelClass = "text-[10px] font-black text-zinc-500 uppercase tracking-widest px-2 mb-2 block";
-  const filterBtn = (active, label, onClick) => (
-    <UnifiedButton
+  const filterBtn = (key, active, label, onClick) => (
+    <button
+      key={key}
       onClick={onClick}
-      variant={active ? 'primary' : 'outline'}
-      size="sm"
+      className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
+        active 
+        ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white border-[#d7b77f] shadow-lg shadow-[rgba(185,140,82,0.2)]' 
+        : 'bg-zinc-900/40 text-zinc-500 border-zinc-800 hover:text-[#b98c52]'
+      }`}
     >
       {label}
-    </UnifiedButton>
+    </button>
   );
 
   return (
@@ -162,7 +165,7 @@ export const ClientHistory = () => {
           
           <div className="flex flex-wrap gap-2 mb-6 px-2">
             {['all', 'pending', 'served', 'paid', 'cancelled'].map((status) => (
-              filterBtn(orderFilter === status, status === 'all' ? 'Todos' : translateStatus(status), () => setOrderFilter(status))
+              filterBtn(status, orderFilter === status, status === 'all' ? 'Todos' : translateStatus(status), () => setOrderFilter(status))
             ))}
           </div>
 
@@ -211,7 +214,7 @@ export const ClientHistory = () => {
 
           <div className="flex flex-wrap gap-2 mb-6 px-2">
             {['all', 'confirmed', 'completed', 'cancelled'].map((status) => (
-              filterBtn(reservationFilter === status, status === 'all' ? 'Todos' : translateStatus(status), () => setReservationFilter(status))
+              filterBtn(status, reservationFilter === status, status === 'all' ? 'Todos' : translateStatus(status), () => setReservationFilter(status))
             ))}
           </div>
 

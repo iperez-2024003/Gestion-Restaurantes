@@ -1,7 +1,12 @@
 'use strict';
 
 import { getUserRoleNames } from '../helpers/role-db.js';
-import { ADMIN_ROLE } from '../helpers/role-constants.js';
+import {
+  SUPER_ADMIN_ROLE,
+  RESTAURANT_ADMIN_ROLE,
+  STAFF_ROLE,
+  CLIENT_ROLE,
+} from '../helpers/role-constants.js';
 
 /**
  * Obtiene los nombres de rol del usuario actual (req.user o por userId).
@@ -48,7 +53,28 @@ export const requireRole = (...allowedRoles) => {
 };
 
 /**
- * Middleware que exige que el usuario tenga el rol ADMIN_ROLE.
+ * Middleware que exige que el usuario tenga el rol SUPER_ADMIN_ROLE.
  * Debe usarse después de validateJWT.
  */
-export const requireAdmin = requireRole(ADMIN_ROLE);
+export const requireSuperAdmin = requireRole(SUPER_ADMIN_ROLE);
+
+/**
+ * Middleware que exige que el usuario tenga el rol RESTAURANT_ADMIN_ROLE.
+ */
+export const requireRestaurantAdmin = requireRole(RESTAURANT_ADMIN_ROLE);
+
+/**
+ * Middleware que exige que el usuario tenga el rol STAFF_ROLE.
+ */
+export const requireStaff = requireRole(STAFF_ROLE);
+
+/**
+ * Middleware que exige que el usuario tenga el rol CLIENT_ROLE.
+ */
+export const requireClient = requireRole(CLIENT_ROLE);
+
+/**
+ * Para retrocompatibilidad y ciertas rutas viejas que usaban requireAdmin
+ * temporalmente apuntará a requireSuperAdmin hasta que sean remplazadas
+ */
+export const requireAdmin = requireRole(SUPER_ADMIN_ROLE);

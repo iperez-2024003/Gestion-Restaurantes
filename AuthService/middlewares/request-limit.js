@@ -3,12 +3,12 @@ import { config } from '../configs/config.js';
 
 // Rate limiter general para la API
 export const requestLimit = rateLimit({
-  windowMs: config.rateLimit.windowMs,
-  max: config.rateLimit.maxRequests,
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 200, // 200 peticiones por ventana (generoso pero protector)
   message: {
     success: false,
     message: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde.',
-    retryAfter: Math.ceil(config.rateLimit.windowMs / 1000),
+    retryAfter: 900,
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -17,7 +17,7 @@ export const requestLimit = rateLimit({
       success: false,
       message:
         'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde.',
-      retryAfter: Math.ceil(config.rateLimit.windowMs / 1000),
+      retryAfter: 900,
     });
   },
 });

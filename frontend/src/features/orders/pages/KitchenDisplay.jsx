@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import api from '../../../shared/api/axios';
+import { pedidosApi as api } from '../../../shared/api/axios';
 import { useSocket, useSocketEvent } from '../../../shared/hooks/useSocket';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
