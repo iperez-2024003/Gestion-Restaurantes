@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import api from '../../../shared/api/axios';
+import { pedidosApi as api } from '../../../shared/api/axios';
 import { showSuccess, showError } from '../../../shared/utils/toast';
 
 export const useOrderStore = create(

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../../shared/api/axios';
+import { restaurantesApi as api } from '../../../shared/api/axios';
 import { useRestaurantStore } from '../../restaurants/store/useRestaurantStore';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';

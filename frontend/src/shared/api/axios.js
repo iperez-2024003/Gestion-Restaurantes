@@ -2,64 +2,86 @@ import axios from 'axios';
 import { useAuthStore } from '../../features/auth/store/useAuthStore';
 import { translateApiMessage } from '../utils/i18n';
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3005/api/v1',
+// ─── Microservices API Instances ────────────────────────────────────────────
+const authApi = axios.create({
+  baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3006/api/v1',
 });
 
-api.interceptors.request.use((config) => {
-  // Rutas públicas que NO requieren token (o donde NO debe enviarse)
-  const publicRoutes = ['/auth/login', '/auth/register', '/auth/resend-verification', '/auth/verify-email', '/auth/forgot-password', '/auth/reset-password'];
-  const isPublicRoute = publicRoutes.some(route => config.url?.includes(route));
-
-  // Solo añadir token si NO es una ruta pública
-  if (!isPublicRoute) {
-    const token = useAuthStore.getState().token || localStorage.getItem('token');
-    
-    // Validar que el token sea un string real y no "undefined" / "null"
-    const isValidToken = token && token !== 'undefined' && token !== 'null';
-
-    if (isValidToken) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-
-  // Solo añadir Content-Type si hay un body, no es FormData y es un método que lo permite
-  const methodsWithBody = ['post', 'put', 'patch'];
-  if (config.data && !(config.data instanceof FormData) && methodsWithBody.includes(config.method?.toLowerCase())) {
-    config.headers['Content-Type'] = 'application/json';
-  }
-
-  return config;
-}, (error) => {
-  return Promise.reject(error);
+const restaurantesApi = axios.create({
+  baseURL: import.meta.env.VITE_RESTAURANTES_URL || 'http://localhost:3007/api/v1',
 });
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // Si el token expiró o es inválido, cerrar sesión automáticamente
-    if (error?.response?.status === 401) {
-      const currentPath = window.location.pathname;
-      // No redirigir si ya estamos en login/register para evitar bucle
-      if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
-        useAuthStore.getState().logout?.();
-        window.location.href = '/login';
-        return Promise.reject(error);
+const pedidosApi = axios.create({
+  baseURL: import.meta.env.VITE_PEDIDOS_URL || 'http://localhost:3008/api/v1',
+});
+
+const eventosApi = axios.create({
+  baseURL: import.meta.env.VITE_EVENTOS_URL || 'http://localhost:3009/api/v1',
+});
+
+// ─── Shared Interceptors ────────────────────────────────────────────────────
+const setupInterceptors = (instance) => {
+  instance.interceptors.request.use((config) => {
+    const publicRoutes = ['/auth/login', '/auth/register', '/auth/resend-verification', '/auth/verify-email', '/auth/forgot-password', '/auth/reset-password'];
+    const isPublicRoute = publicRoutes.some(route => config.url?.includes(route));
+
+    if (!isPublicRoute) {
+      const token = useAuthStore.getState().token || localStorage.getItem('token');
+      const isValidToken = token && token !== 'undefined' && token !== 'null';
+
+      if (isValidToken) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
     }
 
-    const backendMessage = error?.response?.data?.message;
-    if (backendMessage && error.response?.data) {
-      error.response.data.message = translateApiMessage(backendMessage);
+    const methodsWithBody = ['post', 'put', 'patch'];
+    if (config.data && !(config.data instanceof FormData) && methodsWithBody.includes(config.method?.toLowerCase())) {
+      config.headers['Content-Type'] = 'application/json';
     }
-    if (Array.isArray(error?.response?.data?.errors)) {
-      error.response.data.errors = error.response.data.errors.map((item) => ({
-        ...item,
-        message: translateApiMessage(item?.message || ''),
-      }));
-    }
-    return Promise.reject(error);
-  }
-);
 
+    return config;
+  }, (error) => {
+    return Promise.reject(error);
+  });
+
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error?.response?.status === 401) {
+        const currentPath = window.location.pathname;
+        if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+          useAuthStore.getState().logout?.();
+          window.location.href = '/login';
+          return Promise.reject(error);
+        }
+      }
+
+      const backendMessage = error?.response?.data?.message;
+      if (backendMessage && error.response?.data) {
+        error.response.data.message = translateApiMessage(backendMessage);
+      }
+      if (Array.isArray(error?.response?.data?.errors)) {
+        error.response.data.errors = error.response.data.errors.map((item) => ({
+          ...item,
+          message: translateApiMessage(item?.message || ''),
+        }));
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  return instance;
+};
+
+// Apply interceptors to all instances
+setupInterceptors(authApi);
+setupInterceptors(restaurantesApi);
+setupInterceptors(pedidosApi);
+setupInterceptors(eventosApi);
+
+// Default export = authApi for backward compatibility (stores that import `api` directly)
+const api = authApi;
 export default api;
+
+// Named exports for specific services
+export { authApi, restaurantesApi, pedidosApi, eventosApi };

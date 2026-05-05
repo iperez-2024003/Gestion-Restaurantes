@@ -1,4 +1,4 @@
-import api from './axios';
+import { restaurantesApi as api } from './axios';
 
 /**
  * Obtiene todos los restaurantes activos con paginación y filtros opcionales
@@ -49,3 +49,4 @@ export const verifyRestaurant = (id) =>
  */
 export const getRestaurantStats = (id) =>
   api.get(`/restaurants/${id}/stats`);
+

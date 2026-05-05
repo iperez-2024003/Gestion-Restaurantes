@@ -1,4 +1,4 @@
-import api from './axios';
+import { eventosApi as api } from './axios';
 
 export const getRestaurantOverview = (id) => api.get(`/statistics/restaurant/${id}/overview`);
 export const getOrdersStats = (id, period = 'month') => api.get(`/statistics/restaurant/${id}/orders`, { params: { period } });
@@ -12,3 +12,4 @@ export const downloadOrderPdfUrl = (id, token) => `${api.defaults.baseURL}/order
 
 export const getGlobalOverview = () => api.get('/statistics/global/overview');
 export const getGlobalVipClients = () => api.get('/statistics/global/vip-clients');
+

@@ -124,8 +124,9 @@ export const ClientHistory = () => {
   }
 
   const labelClass = "text-[10px] font-black text-zinc-500 uppercase tracking-widest px-2 mb-2 block";
-  const filterBtn = (active, label, onClick) => (
+  const filterBtn = (key, active, label, onClick) => (
     <button
+      key={key}
       onClick={onClick}
       className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
         active 
@@ -164,7 +165,7 @@ export const ClientHistory = () => {
           
           <div className="flex flex-wrap gap-2 mb-6 px-2">
             {['all', 'pending', 'served', 'paid', 'cancelled'].map((status) => (
-              filterBtn(orderFilter === status, status === 'all' ? 'Todos' : translateStatus(status), () => setOrderFilter(status))
+              filterBtn(status, orderFilter === status, status === 'all' ? 'Todos' : translateStatus(status), () => setOrderFilter(status))
             ))}
           </div>
 
@@ -213,7 +214,7 @@ export const ClientHistory = () => {
 
           <div className="flex flex-wrap gap-2 mb-6 px-2">
             {['all', 'confirmed', 'completed', 'cancelled'].map((status) => (
-              filterBtn(reservationFilter === status, status === 'all' ? 'Todos' : translateStatus(status), () => setReservationFilter(status))
+              filterBtn(status, reservationFilter === status, status === 'all' ? 'Todos' : translateStatus(status), () => setReservationFilter(status))
             ))}
           </div>
 

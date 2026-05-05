@@ -1,6 +1,6 @@
 # 🍽️ BuenProvecho — Plataforma Integral de Gestión Gastronómica
 
-**BuenProvecho** es un ecosistema Full-Stack diseñado para transformar la operación de restaurantes. Conecta a dueños, gerentes, personal y comensales en tiempo real a través de una interfaz premium y una API robusta.
+**BuenProvecho** es un ecosistema Full-Stack diseñado para transformar la operación de restaurantes. Conecta a dueños, gerentes, personal y comensales en tiempo real a través de una interfaz premium y una API robusta basada en microservicios.
 
 ---
 
@@ -8,40 +8,58 @@
 
 | Capa | Tecnología |
 |---|---|
+| **Arquitectura** | Microservicios Autónomos (x4) |
 | **Runtime** | Node.js v24 + ES Modules |
 | **Framework Backend** | Express.js |
-| **ORM** | Sequelize 6 |
+| **ORM / ODM** | Sequelize 6 / Mongoose 8 |
 | **Bases de Datos** | PostgreSQL (Auth) & MongoDB (Negocio) |
-| **Autenticación** | JWT + Argon2 (hashing) |
-| **Tiempo Real** | Socket.io |
+| **Autenticación** | JWT (Shared Secret) |
+| **Tiempo Real** | Socket.io (PedidosService) |
 | **Storage** | Cloudinary |
-| **Email** | Nodemailer (Gmail SMTP) |
-| **Frontend** | React 18 + Vite 8 |
+| **Email** | Nodemailer |
+| **Frontend** | React 18 + Vite |
 | **Estado Global** | Zustand |
-| **Estilos** | Tailwind CSS |
-| **Animaciones** | Framer Motion + Three.js |
+| **Orquestación** | Scripts Node personalizados |
 
 ---
 
 ## 🚀 Instalación y Arranque
 
-### Prerrequisitos
+### 🏗️ Arquitectura de Microservicios
+
+El sistema está dividido en 4 servicios independientes:
+
+| Servicio | Puerto | Base Path | Responsabilidad |
+|---|---|---|---|
+| **AuthService** | `3006` | `/api/v1` | Usuarios, Roles, Staff y Seguridad |
+| **RestaurantesService** | `3007` | `/api/v1` | Sedes, Menús, Mesas y Reseñas |
+| **PedidosService** | `3008` | `/api/v1` | Órdenes, Reservas y Sockets (Real-time) |
+| **EventosService** | `3009` | `/api/v1` | Eventos, Estadísticas y Reportes |
+
+### 🛠️ Instalación y Arranque
+
+#### Prerrequisitos
 - Node.js 20+
 - pnpm
-- PostgreSQL & MongoDB corriendo localmente
+- PostgreSQL & MongoDB (Locales o Docker)
 
-### Backend
+#### Instalación Automática
+Hemos centralizado la instalación de dependencias de todos los servicios:
 ```bash
 # En la raíz del proyecto
 pnpm install
-pnpm run dev         # Puerto 3005
+pnpm run install:services
 ```
 
-### Frontend
+#### Ejecución en Desarrollo
+Inicia todos los microservicios simultáneamente con un solo comando:
 ```bash
+# Inicia los 4 servicios backend
+pnpm run dev
+
+# En otra terminal, inicia el frontend
 cd frontend
-pnpm install
-pnpm run dev         # Puerto 5173
+pnpm run dev
 ```
 
 ### Variables de entorno
@@ -88,93 +106,35 @@ El sistema trabaja con 4 roles conectados entre backend y frontend. La separaci�
 	- `SUPER_ADMIN_ROLE` entra al panel global.
 5. El backend bloquea rutas sensibles con `requireRole`, evitando acceso fuera de permiso.
 
-### Qué puede hacer cada rol
-
-#### 1. `SUPER_ADMIN_ROLE`
-
-Es el administrador global de la plataforma.
-
-Puede:
-- Crear y verificar restaurantes.
-- Eliminar restaurantes.
-- Ver estadísticas globales.
-- Gestionar usuarios por rol.
-- Asignar o cambiar roles administrativos.
-
-En el backend tiene acceso a rutas como:
-- `/restaurants/admin/:adminId`
-- `/restaurants/:id/verify`
-- `/users/by-role/:roleName`
-- `/users/:userId/role`
-- `/statistics/platform/summary`
-- `/statistics/global/overview`
-
-#### 2. `RESTAURANT_ADMIN_ROLE`
-
-Es el gerente de una sede específica.
-
-Puede:
-- Administrar su restaurante.
-- Gestionar menú, mesas, staff, órdenes, eventos y reportes.
-- Ver estadísticas operativas de su sede.
-- Crear staff dentro de su restaurante.
-
-En el frontend ve el menú del restaurante asociado y el sistema lo lleva a ese `restaurantId`.
-
-#### 3. `STAFF_ROLE`
-
-Es el personal operativo del restaurante.
-
-Puede:
-- Ver el resumen de la sede.
-- Gestionar órdenes y cocina.
-- Consultar el estado de mesas.
-- Trabajar solo dentro del restaurante asignado.
-
-No administra la plataforma completa ni modifica datos globales.
-
-#### 4. `CLIENT_ROLE`
-
-Es el cliente final.
-
-Puede:
-- Explorar menús públicos.
-- Hacer pedidos.
-- Ver su historial.
-- Dejar reseñas.
-- Consultar eventos.
-
-No administra restaurantes ni personal.
-
 ---
 
-## 📡 API — Endpoints Principales
+## 📡 API — Endpoints por Servicio
 
-### Autenticación (`/auth`)
+### 🔑 AuthService (`:3006`)
 | Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/login` | Login con email o username |
-| POST | `/register` | Registro de nuevo cliente |
-| GET | `/profile` | Perfil del usuario autenticado |
-| POST | `/forgot-password` | Solicitud de reset por correo |
+| POST | `/auth/login` | Login universal |
+| POST | `/auth/register` | Registro de clientes |
+| GET | `/users/staff` | Gestión de personal (Gerentes) |
 
-### Restaurantes (`/restaurants`)
-| Método | Ruta | Acceso |
+### 🍴 RestaurantesService (`:3007`)
+| Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/` | Público |
-| POST | `/` | Super Admin |
-| DELETE | `/:id` | Super Admin (Borrado en Cascada) |
-| GET | `/:id/stats` | Admin / Gerente / Staff |
-| GET | `/:id/staff` | Admin / Gerente |
-| POST | `/:id/staff` | Admin / Gerente |
+| GET | `/restaurants` | Listado público |
+| POST | `/restaurants` | Alta de sedes (Super Admin) |
+| GET | `/menus` | Gestión de platillos |
 
-### Estadísticas (`/statistics`)
-| Ruta | Acceso |
-|---|---|
-| `/restaurant/:id/overview` | Admin / Gerente |
-| `/restaurant/:id/orders` | Admin / Gerente |
-| `/restaurant/:id/export-excel` | Admin / Gerente |
-| `/global/overview` | Super Admin |
+### 📦 PedidosReservacionesService (`:3008`)
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/orders` | Creación de pedidos |
+| GET | `/socket.io` | Conexión para KDS (Monitor de Cocina) |
+
+### 📊 EventosReportesService (`:3009`)
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/statistics/restaurant/:id/overview` | Dashboard de analíticas |
+| GET | `/statistics/global/overview` | Resumen para Super Admin |
 
 ---
 
@@ -193,7 +153,7 @@ No administra restaurantes ni personal.
 4. Consulta analíticas y reportes.
 
 ### 3. Staff / Mesero
-1. Entra a la sede asignada.
+1. Entra la sede asignada.
 2. Atiende órdenes y cocina.
 3. Gestiona mesas y reservaciones.
 4. Opera solo dentro de su restaurante.
@@ -210,17 +170,13 @@ No administra restaurantes ni personal.
 
 ```
 Gestion-Restaurantes/
-├── src/                    # Módulos del backend
-│   ├── auth/               # Login, JWT, roles
-│   ├── restaurant/         # CRUD, stats, staff
-│   ├── menu/               # Categorías, ítems, inventario
-│   ├── order/              # Pedidos, estados (KDS)
-│   ├── statistics/         # Analíticas y reportes Excel
-│   └── ...
-├── helpers/                # Cloudinary, Email, JWT
-├── middlewares/            # Auth, validación, roles
-├── configs/                # Conexión DB y App
-└── frontend/               # React 18 + Vite
+├── AuthService/              # Puerto 3006 (SQL + NoSQL)
+├── RestaurantesService/      # Puerto 3007 (NoSQL)
+├── PedidosReservacionesService/ # Puerto 3008 (NoSQL + Sockets)
+├── EventosReportesService/   # Puerto 3009 (NoSQL + Excel)
+├── scripts/                  # Orquestadores (dev, install)
+├── frontend/                 # React 18 (Vite)
+└── docker-compose.yml        # Infraestructura de DBs
 ```
 
 ---
@@ -237,13 +193,13 @@ Gestion-Restaurantes/
 
 ## 🗺️ Roadmap
 
-- [x] Autenticación multi-rol
-- [x] Gestión de imágenes con Cloudinary (Upload/Delete)
-- [x] Órdenes en tiempo real (Socket.io)
-- [x] Borrado en cascada de restaurantes
-- [x] Exportación a Excel
+- [x] Autenticación multi-rol (Descentralizada)
+- [x] Arquitectura de 4 Microservicios Autónomos
+- [x] Sincronización de Sockets en PedidosService
+- [x] Scripts de orquestación (pnpm run dev)
+- [x] Exportación a Excel y analíticas
 - [ ] Pasarela de pagos (Stripe)
-- [ ] Notificaciones push
+- [ ] Notificaciones push PWA
 
 ---
 

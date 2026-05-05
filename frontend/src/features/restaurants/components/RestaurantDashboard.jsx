@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import api from '../../../shared/api/axios';
+import { restaurantesApi as api, eventosApi } from '../../../shared/api/axios';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { useRestaurantStore } from '../store/useRestaurantStore';
 import { AnalyticsCard } from '../../../shared/components/ui/AnalyticsCard';
@@ -30,7 +30,7 @@ export const RestaurantDashboard = () => {
         setLoading(true);
         setError(null);
         // Usar el endpoint mejorado de estadísticas
-        const res = await api.get(`/statistics/restaurant/${id}/overview`);
+        const res = await eventosApi.get(`/statistics/restaurant/${id}/overview`);
         setStats(res.data.data);
       } catch (error) {
         console.error('Error fetching stats:', error);

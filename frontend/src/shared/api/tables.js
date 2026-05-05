@@ -1,4 +1,4 @@
-import api from './axios';
+import { restaurantesApi as api } from './axios';
 
 /**
  * Obtiene todas las mesas de un restaurante
@@ -29,3 +29,4 @@ export const updateTableStatus = (id, status) =>
  */
 export const deleteTable = (id) => 
   api.delete(`/tables/${id}`);
+

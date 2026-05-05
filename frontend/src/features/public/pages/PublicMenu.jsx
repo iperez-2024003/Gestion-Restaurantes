@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import api from '../../../shared/api/axios';
+import { restaurantesApi as api } from '../../../shared/api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOrderStore } from '../../orders/store/useOrderStore';
 import { CartDrawer } from '../../orders/components/CartDrawer';
