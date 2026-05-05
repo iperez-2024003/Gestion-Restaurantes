@@ -1,0 +1,33 @@
+{
+  "name": "eventos-reportes-service",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Eventos y Reportes Service for BuenProvecho Restaurant Management System",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "events",
+    "reports",
+    "statistics",
+    "express",
+    "microservice"
+  ],
+  "author": "BuenProvecho Team",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.1",
+    "mongoose": "^8.9.4",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "eslint": "^8.56.0"
+  }
+}
