@@ -1,19 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { toast } from 'react-hot-toast';
-import { User, Key, Mail, Phone, Camera, Shield, Trash2, Loader2, Save } from 'lucide-react';
+import { User, Key, Mail, Phone, Camera, Shield, Trash2, Loader2, Save, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Card } from '../../../shared/components/ui/Card';
+import { Input } from '../../../shared/components/ui/Input';
+import { Button } from '../../../shared/components/ui/Button';
+import { Badge } from '../../../shared/components/ui/Badge';
 
 export const ProfilePage = () => {
   const { user, getProfile, updateProfile, changePassword, isLoading } = useAuthStore();
   
-  const [profileData, setProfileData] = useState({
-    name: '', surname: '', phone: '', profilePicture: null
-  });
-  
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '', newPassword: '', confirmPassword: ''
-  });
+  const [profileData, setProfileData] = useState({ name: '', surname: '', phone: '', profilePicture: null });
+  const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -28,7 +27,7 @@ export const ProfilePage = () => {
       }
     };
     fetchProfile();
-  }, []);
+  }, [getProfile]);
 
   const handleProfileChange = (e) => {
     const { name, value, files } = e.target;
@@ -51,7 +50,7 @@ export const ProfilePage = () => {
 
     const result = await updateProfile(formData);
     if (result.success) {
-      toast.success('Perfil actualizado con éxito');
+      toast.success('Perfil actualizado');
       if (document.getElementById('profilePicture')) document.getElementById('profilePicture').value = '';
       setProfileData(prev => ({ ...prev, profilePicture: null }));
     } else toast.error(result.error);
@@ -59,10 +58,7 @@ export const ProfilePage = () => {
 
   const submitPassword = async (e) => {
     e.preventDefault();
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error('Las contraseñas nuevas no coinciden');
-      return;
-    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) return toast.error('Las contraseñas no coinciden');
     const result = await changePassword(passwordData.currentPassword, passwordData.newPassword);
     if (result.success) {
       toast.success('Contraseña actualizada');
@@ -71,166 +67,134 @@ export const ProfilePage = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in duration-700 px-4 md:px-0">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+    <div className="max-w-6xl mx-auto space-y-10">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-[1.1] mb-2">
-            Mi <span className="text-[#b98c52]">Perfil</span>
+          <Badge variant="primary" className="mb-2">Configuración de Usuario</Badge>
+          <h1 className="text-4xl md:text-5xl font-black text-ink tracking-tighter uppercase leading-none">
+            Mi <span className="text-primary-500">Perfil</span>
           </h1>
-          <p className="text-zinc-600 font-bold uppercase tracking-widest text-xs">
-            Gestiona tu identidad y seguridad en la plataforma
-          </p>
+          <p className="text-muted-brown font-medium mt-2">Gestiona tu identidad y seguridad en BuenProvecho.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Perfil Card */}
-        <div className="lg:col-span-4">
-          <div className="bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/70 p-6 md:p-10 flex flex-col items-center text-center shadow-[0_30px_100px_rgba(110,80,45,0.14)] relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#f4e7cf] to-transparent" />
-            
-            <div className="relative mb-8 group">
-              <div className="w-24 h-24 md:w-32 md:h-32 rounded-[2.5rem] bg-[#fffaf3] border-4 border-[#dcc7a5] overflow-hidden shadow-2xl group-hover:scale-105 transition-transform duration-500">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Info Lateral */}
+        <div className="lg:col-span-4 space-y-6">
+          <Card className="text-center p-8">
+            <div className="relative inline-block mb-6 group">
+              <div className="w-32 h-32 rounded-3xl bg-primary-100 border-2 border-primary-200 overflow-hidden shadow-gold">
                 {user?.profilePicture ? (
                   <img src={user.profilePicture} alt="Perfil" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-[#fffaf3] text-[#b98c52]">
-                    <User className="w-12 h-12" />
+                  <div className="w-full h-full flex items-center justify-center text-primary-600">
+                    <User size={48} />
                   </div>
                 )}
               </div>
-              <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-[#d7b77f] rounded-2xl flex items-center justify-center border-4 border-white text-white shadow-lg">
-                <Camera className="w-4 h-4" />
+              <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary-500 rounded-2xl flex items-center justify-center border-4 border-primary-50 text-white shadow-lg">
+                <Camera size={16} />
               </div>
             </div>
 
-            <h3 className="text-xl md:text-2xl font-black text-zinc-900 uppercase tracking-tight mb-1">{user?.name} {user?.surname}</h3>
-            <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.2em] mb-8">@{user?.username}</p>
+            <h3 className="text-2xl font-black text-ink uppercase tracking-tight leading-none mb-1">{user?.name} {user?.surname}</h3>
+            <p className="text-xs font-bold text-primary-500 uppercase tracking-widest mb-6">@{user?.username}</p>
             
-            <div className="w-full space-y-4">
-              <div className="flex items-center gap-4 p-4 bg-[#fffaf3] rounded-2xl border border-[#dcc7a5] text-left">
-                <Mail className="w-4 h-4 text-[#b98c52]" />
-                  <div className="flex flex-col">
-                    <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Email</span>
-                  <span className="text-xs font-bold text-zinc-700 truncate">{user?.email}</span>
-                  </div>
-               </div>
-              <div className="flex items-center gap-4 p-4 bg-[#fffaf3] rounded-2xl border border-[#dcc7a5] text-left">
-                <Shield className="w-4 h-4 text-[#b98c52]" />
-                  <div className="flex flex-col">
-                    <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Estado</span>
-                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Verificado</span>
-                  </div>
-               </div>
+            <div className="space-y-3 text-left">
+              <div className="p-4 bg-primary-50/50 rounded-2xl border border-primary-100 flex items-center gap-3">
+                <Mail size={16} className="text-primary-500" />
+                <div className="min-w-0">
+                  <p className="text-[8px] font-black uppercase text-muted-brown tracking-widest">Email</p>
+                  <p className="text-xs font-bold text-ink truncate">{user?.email}</p>
+                </div>
+              </div>
+              <div className="p-4 bg-primary-50/50 rounded-2xl border border-primary-100 flex items-center gap-3">
+                <Shield size={16} className="text-primary-500" />
+                <div className="min-w-0">
+                  <p className="text-[8px] font-black uppercase text-muted-brown tracking-widest">Rol del Sistema</p>
+                  <p className="text-xs font-bold text-ink uppercase">{user?.role?.replace('_ROLE', '')}</p>
+                </div>
+              </div>
             </div>
-          </div>
+          </Card>
+
+          <Card className="bg-ink border-none p-6">
+            <div className="flex items-center gap-4 text-white">
+              <div className="p-2 bg-white/10 rounded-xl"><Sparkles size={20} className="text-primary-400" /></div>
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest">Club BuenProvecho</p>
+                <p className="text-[10px] text-primary-200/60 font-medium">Miembro desde {new Date(user?.createdAt).getFullYear() || '2024'}</p>
+              </div>
+            </div>
+          </Card>
         </div>
 
         {/* Formularios */}
-        <div className="lg:col-span-8 space-y-12">
-          
-          {/* Actualizar Perfil */}
-            <div className="bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/70 overflow-hidden shadow-[0_30px_100px_rgba(110,80,45,0.14)]">
-            <div className="px-6 md:px-10 py-6 md:py-8 border-b border-[#dcc7a5]/70 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#f3e4ca] flex items-center justify-center text-[#b98c52]">
-                <User className="w-5 h-5" />
+        <div className="lg:col-span-8 space-y-8">
+          <Card className="p-8">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600">
+                <User size={20} />
               </div>
-              <h3 className="text-xl font-black text-zinc-900 uppercase tracking-tight">Datos Personales</h3>
+              <h3 className="text-xl font-black text-ink uppercase tracking-tight">Datos Personales</h3>
             </div>
-            <div className="p-6 md:p-10">
-              <form onSubmit={submitProfile} className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Nombre</label>
-                    <input type="text" name="name" required value={profileData.name} onChange={handleProfileChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl px-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Apellido</label>
-                    <input type="text" name="surname" required value={profileData.surname} onChange={handleProfileChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl px-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Teléfono Móvil</label>
-                  <div className="relative">
-                    <Phone className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700" />
-                    <input type="text" name="phone" required pattern="\d{8}" value={profileData.phone} onChange={handleProfileChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl pl-14 pr-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all" placeholder="12345678" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Imagen de Perfil</label>
-                  <input type="file" id="profilePicture" name="profilePicture" accept="image/*" onChange={handleProfileChange} className="w-full text-[10px] text-zinc-500 font-black uppercase tracking-widest file:mr-6 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-[#f3e4ca] file:text-[#8b6435] hover:file:bg-[#d7b77f] hover:file:text-white transition-all file:cursor-pointer" />
-                </div>
-
-                <div className="flex justify-end pt-4">
-                  <button type="submit" disabled={isLoading} className="px-6 md:px-10 py-3 md:py-4 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:to-[#a97d45] transition-all shadow-lg shadow-[rgba(185,140,82,0.18)] disabled:opacity-50 flex items-center gap-3">
-                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    Guardar Cambios
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          {/* Seguridad */}
-          <div className="bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/70 overflow-hidden shadow-[0_30px_100px_rgba(110,80,45,0.14)]">
-            <div className="px-6 md:px-10 py-6 md:py-8 border-b border-[#dcc7a5]/70 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#f3e4ca] flex items-center justify-center text-[#b98c52]">
-                <Key className="w-5 h-5" />
+            
+            <form onSubmit={submitProfile} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Input label="Nombre" name="name" value={profileData.name} onChange={handleProfileChange} required />
+                <Input label="Apellido" name="surname" value={profileData.surname} onChange={handleProfileChange} required />
               </div>
-              <h3 className="text-xl font-black text-zinc-900 uppercase tracking-tight">Seguridad</h3>
-            </div>
-            <div className="p-6 md:p-10">
-              <form onSubmit={submitPassword} className="space-y-8">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Contraseña Actual</label>
-                  <input type="password" name="currentPassword" required value={passwordData.currentPassword} onChange={handlePasswordChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl px-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all placeholder:text-zinc-500" placeholder="••••••••" />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Nueva Contraseña</label>
-                    <input type="password" name="newPassword" required minLength="8" value={passwordData.newPassword} onChange={handlePasswordChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl px-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all placeholder:text-zinc-500" placeholder="Min. 8 caracteres" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Confirmar Nueva</label>
-                    <input type="password" name="confirmPassword" required minLength="8" value={passwordData.confirmPassword} onChange={handlePasswordChange} className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl px-6 py-4 text-sm font-bold text-zinc-900 focus:border-[#b98c52] outline-none transition-all placeholder:text-zinc-500" placeholder="Repite la contraseña" />
-                  </div>
-                </div>
+              <Input label="Teléfono Móvil" name="phone" value={profileData.phone} onChange={handleProfileChange} required icon={Phone} placeholder="12345678" />
+              
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-muted-brown uppercase tracking-widest ml-1">Imagen de Perfil</label>
+                <input type="file" id="profilePicture" name="profilePicture" accept="image/*" onChange={handleProfileChange} className="w-full text-[10px] text-muted-brown font-black file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:bg-primary-100 file:text-primary-700 hover:file:bg-primary-500 hover:file:text-white transition-all cursor-pointer" />
+              </div>
 
-                <div className="flex justify-end pt-4">
-                  <button type="submit" disabled={isLoading} className="px-10 py-4 bg-[#fffaf3] text-zinc-900 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#f4e8d3] transition-all border border-[#dcc7a5] disabled:opacity-50">
-                    {isLoading ? 'Sincronizando...' : 'Actualizar Contraseña'}
-                  </button>
-                </div>
-              </form>
+              <div className="flex justify-end pt-4">
+                <Button type="submit" isLoading={isLoading} className="px-10">
+                  <Save size={18} className="mr-2" /> Guardar Cambios
+                </Button>
+              </div>
+            </form>
+          </Card>
+
+          <Card className="p-8">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600">
+                <Key size={20} />
+              </div>
+              <h3 className="text-xl font-black text-ink uppercase tracking-tight">Seguridad</h3>
             </div>
-          </div>
+            
+            <form onSubmit={submitPassword} className="space-y-6">
+              <Input label="Contraseña Actual" name="currentPassword" type="password" value={passwordData.currentPassword} onChange={handlePasswordChange} required placeholder="••••••••" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Input label="Nueva Contraseña" name="newPassword" type="password" value={passwordData.newPassword} onChange={handlePasswordChange} required placeholder="Min. 8 caracteres" />
+                <Input label="Confirmar Nueva" name="confirmPassword" type="password" value={passwordData.confirmPassword} onChange={handlePasswordChange} required placeholder="Repite contraseña" />
+              </div>
+              <div className="flex justify-end pt-4">
+                <Button type="submit" variant="ghost" isLoading={isLoading} className="px-10 border-primary-200">
+                  Actualizar Contraseña
+                </Button>
+              </div>
+            </form>
+          </Card>
 
           {/* Peligro */}
-          <div className="bg-rose-500/5 rounded-[3rem] border border-rose-500/20 p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
-             <div className="flex items-center gap-6">
-                <div className="w-16 h-16 rounded-[1.5rem] bg-red-600/10 flex items-center justify-center text-red-500 shrink-0">
-                  <Trash2 className="w-8 h-8" />
-                </div>
-                <div>
-                   <h4 className="text-xl font-black text-zinc-900 uppercase tracking-tight">Zona de Peligro</h4>
-                   <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">La eliminación de cuenta es irreversible</p>
-                </div>
-             </div>
-             <button
-               onClick={() => {
-                 if (window.confirm('¿ESTÁS ABSOLUTAMENTE SEGURO?')) {
-                   toast.error('Acción restringida. Contacta a soporte.');
-                 }
-               }}
-               className="px-8 py-4 bg-rose-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-400 transition-all shadow-lg shadow-rose-600/10"
-             >
-               Eliminar Mi Cuenta
-             </button>
+          <div className="bg-red-50 rounded-[2.5rem] border border-red-100 p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-6 text-center md:text-left">
+              <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center text-red-500"><Trash2 size={32} /></div>
+              <div>
+                <h4 className="text-xl font-black text-ink uppercase tracking-tight">Zona de Peligro</h4>
+                <p className="text-xs text-red-600/70 font-medium mt-1 uppercase tracking-widest">La eliminación es irreversible</p>
+              </div>
+            </div>
+            <Button variant="danger" className="px-8" onClick={() => toast.error('Contacta a soporte para eliminar tu cuenta')}>
+              Eliminar Cuenta
+            </Button>
           </div>
-
         </div>
       </div>
     </div>

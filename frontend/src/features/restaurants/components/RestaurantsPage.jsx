@@ -4,41 +4,21 @@ import { useRestaurantStore } from '../store/useRestaurantStore';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { RestaurantModal } from './RestaurantModal';
 import { showSuccess, showError } from '../../../shared/utils/toast';
-import { ActionButton } from '../../../shared/components/ui/ActionButton';
 import { getImageUrl } from '../../../shared/utils/getImageUrl';
-import { PlusCircle, Search, MapPin, Phone, Clock, Utensils, Star, Trash2, Edit3, CheckCircle2, Loader2 } from 'lucide-react';
+import { 
+  PlusCircle, Search, MapPin, Phone, Clock, 
+  Utensils, Trash2, Edit3, CheckCircle2, Loader2, Sparkles, ChevronRight 
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Card } from '../../../shared/components/ui/Card';
+import { Button } from '../../../shared/components/ui/Button';
+import { Badge } from '../../../shared/components/ui/Badge';
 
 const CATEGORY_LABELS = {
-  casual: 'Casual', fine_dining: 'Fine Dining', fast_food: 'Comida Rápida',
-  cafe: 'Café', bakery: 'Panadería', bar: 'Bar', food_truck: 'Food Truck',
+  casual: 'Casual', fine_dining: 'Fine Dining', fast_food: 'Rápida',
+  cafe: 'Café', bakery: 'Panadería', bar: 'Bar', food_truck: 'Truck',
   buffet: 'Buffet', family_style: 'Familiar', gourmet: 'Gourmet', other: 'Otro',
 };
-
-const CATEGORY_COLORS = {
-  casual: 'border-blue-500/20 text-blue-400 bg-blue-500/5',
-  fine_dining: 'border-[#dcc7a5]/20 text-[#8b6435] bg-[#dcc7a5]/5',
-  fast_food: 'border-orange-500/20 text-orange-400 bg-orange-500/5',
-  cafe: 'border-amber-500/20 text-amber-400 bg-amber-500/5',
-  bakery: 'border-yellow-500/20 text-yellow-400 bg-yellow-500/5',
-  bar: 'border-red-500/20 text-red-400 bg-red-500/5',
-  food_truck: 'border-green-500/20 text-green-400 bg-green-500/5',
-  buffet: 'border-teal-500/20 text-teal-400 bg-teal-500/5',
-  family_style: 'border-pink-500/20 text-pink-400 bg-pink-500/5',
-  gourmet: 'border-indigo-500/20 text-indigo-400 bg-indigo-500/5',
-  other: 'border-zinc-500/20 text-zinc-400 bg-zinc-500/5',
-};
-
-const VerifiedBadge = ({ verified }) =>
-  verified ? (
-    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-widest">
-      <CheckCircle2 className="w-3 h-3" /> Verificado
-    </div>
-  ) : (
-    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-black uppercase tracking-widest">
-      <Clock className="w-3 h-3" /> Pendiente
-    </div>
-  );
 
 export const RestaurantsPage = () => {
   const navigate = useNavigate();
@@ -49,30 +29,20 @@ export const RestaurantsPage = () => {
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState(null);
 
-  useEffect(() => {
-    getRestaurants();
-  }, []);
+  useEffect(() => { getRestaurants(); }, []);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     if (!q) return restaurants;
-    return restaurants.filter(
-      (r) =>
-        r.name?.toLowerCase().includes(q) ||
-        r.address?.toLowerCase().includes(q) ||
-        r.cuisine_type?.toLowerCase().includes(q)
+    return restaurants.filter(r => 
+      r.name?.toLowerCase().includes(q) || 
+      r.address?.toLowerCase().includes(q) || 
+      r.cuisine_type?.toLowerCase().includes(q)
     );
   }, [restaurants, search]);
 
-  const handleEdit = (restaurant) => {
-    setSelectedRestaurant(restaurant);
-    setModalOpen(true);
-  };
-
-  const handleNew = () => {
-    setSelectedRestaurant(null);
-    setModalOpen(true);
-  };
+  const handleEdit = (restaurant) => { setSelectedRestaurant(restaurant); setModalOpen(true); };
+  const handleNew = () => { setSelectedRestaurant(null); setModalOpen(true); };
 
   const handleDelete = async (id, name) => {
     if (!window.confirm(`¿Seguro que deseas eliminar "${name}"?`)) return;
@@ -90,36 +60,30 @@ export const RestaurantsPage = () => {
   };
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700">
+    <div className="space-y-10">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-[1.1] mb-2">
-            Gestión de <span className="text-[#b98c52]">Sedes</span>
+          <Badge variant="primary" className="mb-2">Red de Negocios</Badge>
+          <h1 className="text-4xl md:text-5xl font-black text-ink tracking-tighter uppercase leading-none">
+            Gestión de <span className="text-primary-500">Sedes</span>
           </h1>
-          <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">
-            {restaurants.length} establecimientos registrados en la red
-          </p>
+          <p className="text-muted-brown font-medium mt-2">Supervisa y controla todos los establecimientos activos.</p>
         </div>
         {role === 'SUPER_ADMIN_ROLE' && (
-          <ActionButton 
-            label="Nuevo Restaurante" 
-            icon={PlusCircle} 
-            color="purple" 
-            onClick={handleNew} 
-          />
+          <Button onClick={handleNew} className="px-8">
+            <PlusCircle size={18} className="mr-2" /> Nueva Sede
+          </Button>
         )}
       </div>
 
-      {/* Search Bar */}
+      {/* Buscador */}
       <div className="relative group max-w-2xl">
-        <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-          <Search className="w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
-        </div>
+        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-primary-400 group-focus-within:text-primary-600 transition-colors" size={20} />
         <input
           type="text"
-          placeholder="Buscar sede, dirección o especialidad..."
-          className="w-full pl-14 pr-6 py-5 bg-zinc-900/40 backdrop-blur-xl border border-[#dcc7a5]/10 rounded-[2rem] text-white font-medium focus:outline-none focus:border-[#dcc7a5]/40 focus:ring-4 focus:ring-[#d7b77f]/5 transition-all placeholder:text-zinc-700"
+          placeholder="Buscar por nombre, dirección o especialidad..."
+          className="w-full pl-14 pr-6 py-4 bg-white border border-primary-200 rounded-2xl text-ink font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 transition-all outline-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -128,104 +92,80 @@ export const RestaurantsPage = () => {
       {/* Grid */}
       <div className="min-h-[400px]">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 gap-6">
-            <Loader2 className="w-12 h-12 text-[#b98c52] animate-spin" />
-            <p className="text-zinc-500 font-black uppercase tracking-[0.3em] text-[10px]">Sincronizando Base de Datos...</p>
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <Loader2 className="w-10 h-10 text-primary-500 animate-spin" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-brown">Sincronizando Sedes...</p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-32 bg-zinc-900/20 rounded-[4rem] border border-dashed border-zinc-800">
-            <Utensils className="w-20 h-20 text-zinc-800 mx-auto mb-8" />
-            <h3 className="text-2xl font-black text-white uppercase tracking-tight">Sin Resultados</h3>
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-2">No se encontraron sedes con ese criterio.</p>
-          </div>
+          <Card className="text-center py-20 border-dashed">
+            <Utensils className="w-16 h-16 text-primary-100 mx-auto mb-4" />
+            <h3 className="text-xl font-black text-ink uppercase tracking-tight">Sin Resultados</h3>
+            <p className="text-muted-brown text-sm font-medium">No hay sedes que coincidan con tu búsqueda.</p>
+          </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence>
-              {filtered.map((r, index) => (
-                <motion.div
-                  key={r.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="group relative bg-zinc-900/40 backdrop-blur-3xl rounded-[3rem] overflow-hidden border border-[#dcc7a5]/10 hover:border-[#dcc7a5]/30 transition-all shadow-2xl"
-                >
-                  {/* Image/Cover */}
-                  <div className="h-44 bg-zinc-800 relative overflow-hidden">
-                    <img
-                      src={getImageUrl(r.cover_image_url) || getImageUrl(r.logo_url) || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80'}
-                      alt={r.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                    <div className="absolute top-6 right-6">
-                      <VerifiedBadge verified={r.is_verified} />
-                    </div>
-                  </div>
-
-                  <div className="p-8">
-                    <div className="flex justify-between items-start mb-4 gap-4">
-                      <h2 className="text-2xl font-black text-white uppercase tracking-tight line-clamp-1">{r.name}</h2>
-                      <span className="shrink-0 bg-[#b98c52] text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-[rgba(185,140,82,0.2)]">
-                        {r.price_range}
-                      </span>
+              {filtered.map((r, i) => (
+                <motion.div key={r.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                  <Card className="overflow-hidden p-0 group border-primary-100 hover:border-primary-400">
+                    <div className="h-40 relative">
+                      <img 
+                        src={getImageUrl(r.cover_image_url) || getImageUrl(r.logo_url) || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80'} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        alt={r.name}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent opacity-40" />
+                      <div className="absolute top-4 right-4">
+                        <Badge variant={r.is_verified ? 'success' : 'warning'}>
+                          {r.is_verified ? 'Verificada' : 'Pendiente'}
+                        </Badge>
+                      </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      <span className={`text-[9px] px-3 py-1 rounded-lg border font-black uppercase tracking-widest ${CATEGORY_COLORS[r.category] || 'border-zinc-800 text-zinc-500'}`}>
-                        {CATEGORY_LABELS[r.category] || r.category}
-                      </span>
-                      {r.cuisine_type && (
-                        <span className="text-[9px] px-3 py-1 rounded-lg bg-zinc-800 text-zinc-400 font-black uppercase tracking-widest border border-zinc-700">
-                          {r.cuisine_type}
-                        </span>
-                      )}
-                    </div>
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <h2 className="text-xl font-black text-ink uppercase tracking-tight truncate flex-1 mr-2">{r.name}</h2>
+                        <span className="text-[10px] font-black text-primary-600 bg-primary-50 px-2 py-1 rounded-md">{r.price_range}</span>
+                      </div>
 
-                    <div className="space-y-3 text-[11px] text-zinc-500 font-bold uppercase tracking-widest mb-8">
-                      <div className="flex items-center gap-3"><MapPin className="w-4 h-4 text-[#b98c52]" /> <span className="truncate">{r.address || 'Ubicación Premium'}</span></div>
-                      <div className="flex items-center gap-3"><Phone className="w-4 h-4 text-[#b98c52]" /> {r.phone || 'S/T'}</div>
-                      <div className="flex items-center gap-3"><Clock className="w-4 h-4 text-[#b98c52]" /> {r.opening_time?.slice(0, 5)} - {r.closing_time?.slice(0, 5)}</div>
-                    </div>
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        <Badge variant="primary" className="bg-primary-100 text-primary-700 border-none">{CATEGORY_LABELS[r.category]}</Badge>
+                        {r.cuisine_type && <Badge variant="secondary" className="opacity-70">{r.cuisine_type}</Badge>}
+                      </div>
 
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <button
-                        onClick={() => navigate(`/dashboard/restaurants/${r.id}`)}
-                        className="py-3 bg-zinc-800 text-white rounded-xl text-[9px] font-black uppercase tracking-widest border border-zinc-700 hover:bg-zinc-700 transition-all"
-                      >
-                        Resumen
-                      </button>
-                      <button
-                        onClick={() => navigate(`/dashboard/restaurants/${r.id}/menu`)}
-                        className="py-3 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:to-[#a97d45] transition-all shadow-lg shadow-[rgba(185,140,82,0.1)]"
-                      >
-                        Menú
-                      </button>
-                    </div>
+                      <div className="space-y-3 mb-8">
+                        <div className="flex items-center gap-3 text-[11px] text-muted-brown font-bold uppercase tracking-widest">
+                          <MapPin size={14} className="text-primary-500" /> <span className="truncate">{r.address}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-[11px] text-muted-brown font-bold uppercase tracking-widest">
+                          <Clock size={14} className="text-primary-500" /> {r.opening_time?.slice(0, 5)} - {r.closing_time?.slice(0, 5)}
+                        </div>
+                      </div>
 
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => handleEdit(r)}
-                        className="flex-1 py-3 bg-zinc-900/60 text-zinc-400 rounded-xl text-[9px] font-black uppercase tracking-widest border border-zinc-800 hover:text-white hover:border-zinc-600 transition-all"
-                      >
-                        <Edit3 className="w-3.5 h-3.5 mx-auto" />
-                      </button>
-                      {!r.is_verified && (
-                        <button
-                          onClick={() => handleVerify(r.id, r.name)}
-                          className="flex-[2] py-3 bg-emerald-600/10 text-emerald-500 rounded-xl text-[9px] font-black uppercase tracking-widest border border-emerald-500/20 hover:bg-emerald-600 hover:text-white transition-all"
-                        >
-                          Verificar
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleDelete(r.id, r.name)}
-                        disabled={deletingId === r.id}
-                        className="flex-1 py-3 bg-red-600/10 text-red-500 rounded-xl text-[9px] font-black uppercase tracking-widest border border-red-500/20 hover:bg-red-600 hover:text-white transition-all disabled:opacity-50"
-                      >
-                        <Trash2 className="w-3.5 h-3.5 mx-auto" />
-                      </button>
+                      <div className="grid grid-cols-2 gap-3 pt-4 border-t border-primary-50">
+                        <Button variant="ghost" onClick={() => navigate(`/dashboard/restaurants/${r.id}`)} className="text-[9px] py-2">
+                          Dashboard
+                        </Button>
+                        <Button onClick={() => navigate(`/dashboard/restaurants/${r.id}/menu`)} className="text-[9px] py-2">
+                          Menú <ChevronRight size={14} />
+                        </Button>
+                      </div>
+
+                      <div className="flex gap-2 mt-3">
+                        <Button variant="ghost" className="flex-1 py-2 text-muted-brown" onClick={() => handleEdit(r)}>
+                          <Edit3 size={14} />
+                        </Button>
+                        {!r.is_verified && (
+                          <Button variant="primary" className="flex-[2] py-2 bg-emerald-500 border-emerald-500 hover:bg-emerald-600" onClick={() => handleVerify(r.id, r.name)}>
+                            Verificar
+                          </Button>
+                        )}
+                        <Button variant="danger" className="flex-1 py-2" onClick={() => handleDelete(r.id, r.name)} disabled={deletingId === r.id}>
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  </Card>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -234,8 +174,7 @@ export const RestaurantsPage = () => {
       </div>
 
       <RestaurantModal
-        isOpen={modalOpen}
-        onClose={() => { setModalOpen(false); setSelectedRestaurant(null); }}
+        isOpen={modalOpen} onClose={() => { setModalOpen(false); setSelectedRestaurant(null); }}
         restaurant={selectedRestaurant}
       />
     </div>

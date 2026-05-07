@@ -1,10 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { restaurantesApi as api, eventosApi } from '../../../shared/api/axios';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { useRestaurantStore } from '../store/useRestaurantStore';
 import { AnalyticsCard } from '../../../shared/components/ui/AnalyticsCard';
-import { Utensils, Users, LayoutDashboard, Rocket, DollarSign, ShoppingBag, ChevronRight } from 'lucide-react';
+import { Card } from '../../../shared/components/ui/Card';
+import { Button } from '../../../shared/components/ui/Button';
+import { Badge } from '../../../shared/components/ui/Badge';
+import { 
+  Utensils, Users, LayoutDashboard, Rocket, DollarSign, 
+  ShoppingBag, ChevronRight, PlusCircle, ClipboardList, 
+  Flame, Calendar, Sparkles
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const RestaurantDashboard = () => {
@@ -19,7 +26,6 @@ export const RestaurantDashboard = () => {
   const restaurant = restaurants.find(r => r.id === id);
 
   useEffect(() => {
-    // Si el usuario es Staff o Gerente y está en un ID que no es el suyo, redirigir automáticamente
     if ((role === 'STAFF_ROLE' || role === 'RESTAURANT_ADMIN_ROLE') && user?.restaurantId && id !== user.restaurantId) {
        navigate(`/dashboard/restaurants/${user.restaurantId}`, { replace: true });
        return;
@@ -28,17 +34,11 @@ export const RestaurantDashboard = () => {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        setError(null);
-        // Usar el endpoint mejorado de estadísticas
         const res = await eventosApi.get(`/statistics/restaurant/${id}/overview`);
         setStats(res.data.data);
       } catch (error) {
         console.error('Error fetching stats:', error);
-        if (error.response?.status === 404) {
-          setError('El restaurante solicitado no existe o ha sido eliminado.');
-        } else {
-          setError(error.response?.data?.message || 'Error al cargar estadísticas');
-        }
+        setError('No se pudieron cargar las estadísticas actuales.');
       } finally {
         setLoading(false);
       }
@@ -47,159 +47,124 @@ export const RestaurantDashboard = () => {
     if (id) fetchStats();
   }, [id, role, user?.restaurantId, navigate]);
 
-    if (loading) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] md:min-h-[400px]">
-        <div className="w-10 h-10 md:w-12 md:h-12 border-4 border-[#dcc7a5]/10 border-t-[#b98c52] rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-12 bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-rose-500/10">
-        <div className="text-6xl mb-6">⚠️</div>
-        <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-tighter">Fallo de Vinculación</h2>
-        <p className="text-zinc-600 mt-2 max-w-md font-medium">
-          {error}. <br/>
-          Tu cuenta está asociada al ID <span className="text-[#b98c52]">{user?.restaurantId}</span>, el cual no parece existir en el sistema actual.
-        </p>
-        <button 
-          onClick={() => navigate('/dashboard/restaurants')} 
-          className="mt-8 px-8 py-4 bg-[#b98c52] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:brightness-95 shadow-2xl transition-all"
-        >
-          Volver a Selección de Sedes
-        </button>
-      </div>
-    );
-  }
-
-  if (!id) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-12 bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/10">
-        <div className="text-6xl mb-6">🏜️</div>
-        <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-tighter">Sin restaurante asignado</h2>
-        <p className="text-zinc-600 mt-2 max-w-md font-medium">
-          Tu cuenta aún no está vinculada a un establecimiento específico. 
-        </p>
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <div className="w-12 h-12 border-4 border-primary-100 border-t-primary-500 rounded-full animate-spin" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-brown">Sincronizando Datos...</p>
       </div>
     );
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-10"
-    >
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+    <div className="space-y-10">
+      {/* Header de Sede */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <div className="flex items-center gap-3 mb-4">
-             <div className="w-2 h-8 bg-[#b98c52] rounded-full" />
-             <h1 className="text-4xl font-black text-zinc-900 tracking-tighter uppercase">
-               {restaurant?.name || 'Dashboard'}
-             </h1>
+          <div className="flex items-center gap-3 mb-2">
+            <Badge variant="primary">Sede Activa</Badge>
+            <span className="text-[10px] font-black text-muted-brown uppercase tracking-widest">ID: {id?.slice(-6)}</span>
           </div>
-          <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">Resumen Operativo en Tiempo Real</p>
+          <h1 className="text-4xl md:text-5xl font-black text-ink tracking-tighter uppercase leading-none">
+            {restaurant?.name || 'Restaurante'}
+          </h1>
+          <p className="text-muted-brown font-medium mt-2 flex items-center gap-2">
+            <Sparkles size={16} className="text-primary-500" />
+            Panel de control operativo y analítico.
+          </p>
         </div>
         
-        <div className="flex items-center gap-4 bg-white/70 backdrop-blur-xl p-4 rounded-3xl border border-[#dcc7a5]/10">
-           <div className="text-right">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Estado</p>
-              <p className="text-emerald-500 font-black uppercase text-xs">En Línea / Activo</p>
-           </div>
-           <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
-              <Rocket className="w-5 h-5 text-emerald-500" />
-           </div>
+        <div className="flex gap-3">
+          <Button variant="ghost" onClick={() => navigate(`/dashboard/restaurants/${id}/menu`)}>
+            <Utensils size={18} /> Menú
+          </Button>
+          <Button variant="primary" onClick={() => navigate(`/dashboard/restaurants/${id}/orders`)}>
+            <ClipboardList size={18} /> Ver Órdenes
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      {/* Grid de Estadísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <AnalyticsCard 
-          title="Mesas Totales" 
-          value={stats?.summary?.tables || 0} 
-          percentage="+5.2%" 
-          icon={LayoutDashboard}
-          chartData={[30, 45, 60, 40, 70, 50, 80]}
+          title="Ventas Hoy" 
+          value={`Q${stats?.salesToday?.toFixed(2) || '0.00'}`} 
+          icon={DollarSign} 
+          trend="up" trendValue={12} color="gold"
         />
         <AnalyticsCard 
-          title="Platos en Menú" 
-          value={stats?.summary?.dishes || 0} 
-          percentage="+12.4%" 
-          icon={Utensils}
-          chartData={[50, 40, 70, 85, 60, 90, 75]}
+          title="Órdenes Activas" 
+          value={stats?.activeOrders || '0'} 
+          icon={ShoppingBag} 
+          color="blue"
         />
         <AnalyticsCard 
-          title="Personal Activo" 
-          value={stats?.summary?.staff || 0} 
-          percentage="Estable" 
-          icon={Users}
-          chartData={[80, 80, 80, 80, 80, 80, 80]}
+          title="Reservas" 
+          value={stats?.upcomingReservations || '0'} 
+          icon={Calendar} 
+          color="purple"
+        />
+        <AnalyticsCard 
+          title="Staff en Turno" 
+          value={stats?.staffCount || '0'} 
+          icon={Users} 
+          color="green"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Revenue Banner */}
-        <div className="lg:col-span-2 bg-white/80 backdrop-blur-3xl border border-[#dcc7a5]/20 rounded-[3rem] p-12 text-zinc-900 relative overflow-hidden group shadow-2xl">
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 h-full">
-            <div className="max-w-md text-center md:text-left">
-              <div className="flex items-center gap-4 mb-6 justify-center md:justify-start">
-                  <div className="w-14 h-14 bg-[#f3e4ca] rounded-2xl flex items-center justify-center border border-[#dcc7a5]/30">
-                    <DollarSign className="w-8 h-8 text-[#b98c52]" />
-                  </div>
-                  <h2 className="text-3xl font-black tracking-tighter uppercase leading-tight">Métricas de <br/><span className="text-[#b98c52]">Rendimiento</span></h2>
-              </div>
-              <p className="text-zinc-500 font-bold uppercase tracking-widest text-[11px] leading-loose mb-10 max-w-sm">
-                Monitorea el flujo de capital y la eficiencia operativa de tu sede en tiempo real.
-              </p>
-              <a 
-                href={`/dashboard/restaurants/${id}/analytics`}
-                className="inline-flex items-center gap-3 bg-[#b98c52] text-white px-10 py-5 rounded-[2rem] font-black hover:brightness-95 active:scale-95 transition-all shadow-2xl uppercase tracking-[0.2em] text-[10px] border border-[#b98c52]/20"
-              >
-                Auditar Analíticas <ChevronRight className="w-4 h-4" />
-              </a>
-            </div>
-            
-            <div className="flex flex-col gap-6 w-full md:w-auto">
-              <div className="bg-white/70 backdrop-blur-xl p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-[#dcc7a5] text-center min-w-[160px] md:min-w-[240px] transition-colors">
-                <p className="text-4xl md:text-6xl font-black mb-2 tracking-tighter text-zinc-900">Q{stats?.summary?.today_revenue || 0}</p>
-                <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em]">Ingresos Brutos Hoy</p>
-              </div>
-              <div className="bg-white/70 backdrop-blur-xl p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-[#dcc7a5] text-center min-w-[160px] md:min-w-[240px] transition-colors">
-                <p className="text-4xl md:text-6xl font-black mb-2 tracking-tighter text-zinc-900">{stats?.summary?.today_orders || 0}</p>
-                <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em]">Volumen de Órdenes</p>
-              </div>
+        {/* Acciones de Turno */}
+        <Card className="lg:col-span-2">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-xl font-black text-ink uppercase tracking-tight">Gestión Operativa</h3>
+            <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
+              <Rocket size={20} />
             </div>
           </div>
           
-          {/* Decorative element */}
-          <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-[#d7b77f]/5 rounded-full blur-[100px] opacity-20 group-hover:opacity-40 transition-opacity" />
-        </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { label: 'Órdenes', icon: PlusCircle, to: `/dashboard/restaurants/${id}/orders` },
+              { label: 'Cocina', icon: Flame, to: `/dashboard/restaurants/${id}/kitchen` },
+              { label: 'Mesas', icon: LayoutDashboard, to: `/dashboard/restaurants/${id}/tables` },
+              { label: 'Menú', icon: Utensils, to: `/dashboard/restaurants/${id}/menu` },
+            ].map((action, i) => (
+              <Link key={i} to={action.to} className="group">
+                <div className="flex flex-col items-center p-6 bg-primary-50/30 border border-primary-100 rounded-[2rem] group-hover:bg-primary-500 group-hover:text-white group-hover:border-primary-500 transition-all duration-300">
+                  <action.icon size={28} className="mb-3 text-primary-500 group-hover:text-white transition-colors" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-center">{action.label}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </Card>
 
-        {/* Quick Info Card */}
-        <div className="bg-[#fffaf3]/60 backdrop-blur-3xl rounded-[3rem] p-10 border border-[#dcc7a5] flex flex-col justify-between">
-           <div>
-              <div className="w-16 h-16 bg-[#d7b77f]/20 rounded-2xl flex items-center justify-center mb-8 border border-[#dcc7a5]/30">
-                 <ShoppingBag className="w-8 h-8 text-[#b98c52]" />
+        {/* Resumen Staff */}
+        <Card>
+          <h3 className="text-xl font-black text-ink uppercase tracking-tight mb-6">Staff Activo</h3>
+          <div className="space-y-4">
+            {stats?.recentStaff?.length > 0 ? stats.recentStaff.map((member, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 bg-white rounded-2xl border border-primary-100">
+                <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center text-primary-600 font-black">
+                  {member.name[0]}
+                </div>
+                <div>
+                  <p className="text-xs font-black text-ink uppercase">{member.name}</p>
+                  <p className="text-[9px] text-muted-brown font-bold uppercase tracking-widest">{member.role}</p>
+                </div>
               </div>
-              <h3 className="text-2xl font-black text-white mb-4 tracking-tight uppercase">Estatus de Marca</h3>
-              <div className="space-y-4">
-                 <div className="flex items-center justify-between p-4 bg-black/40 rounded-2xl border border-zinc-800">
-                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Rating</span>
-                    <span className="text-white font-black">{stats?.basic_info?.rating || '0.0'} ⭐</span>
-                 </div>
-                 <div className="flex items-center justify-between p-4 bg-black/40 rounded-2xl border border-zinc-800">
-                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Categoría</span>
-                    <span className="text-[#b98c52] font-black uppercase text-[10px]">{stats?.basic_info?.category || 'General'}</span>
-                 </div>
+            )) : (
+              <div className="text-center py-10 opacity-40 grayscale">
+                <Users size={32} className="mx-auto mb-2" />
+                <p className="text-[10px] font-black uppercase tracking-widest">Sin personal activo</p>
               </div>
-           </div>
-           
-           <p className="text-zinc-600 text-[10px] font-black uppercase tracking-widest mt-8 text-center italic">
-              Actualizado: {new Date().toLocaleTimeString()}
-           </p>
-        </div>
+            )}
+          </div>
+          <Button variant="ghost" className="w-full mt-6 text-[10px]" onClick={() => navigate(`/dashboard/restaurants/${id}/staff`)}>
+            Ver Todo el Equipo <ChevronRight size={14} />
+          </Button>
+        </Card>
       </div>
-    </motion.div>
+    </div>
   );
 };

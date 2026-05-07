@@ -1,57 +1,49 @@
 import React from 'react';
-import { TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
-export const AnalyticsCard = ({ title, value, percentage, icon: Icon, chartData = [40, 60, 75, 45, 85, 65, 95] }) => {
+export const AnalyticsCard = ({ title, value, icon: Icon, trend, trendValue, color = 'gold' }) => {
+  const colors = {
+    gold: 'text-primary-500 bg-primary-50 border-primary-100',
+    blue: 'text-blue-500 bg-blue-50 border-blue-100',
+    green: 'text-green-500 bg-green-50 border-green-100',
+    purple: 'text-purple-500 bg-purple-50 border-purple-100',
+  };
+
+  const selectedColor = colors[color] || colors.gold;
+
   return (
-    <div className="group relative flex w-full max-w-full md:max-w-sm flex-col rounded-3xl bg-white/80 p-4 md:p-6 shadow-[0_30px_100px_rgba(110,80,45,0.14)] transition-all duration-500 hover:scale-[1.02] border border-[#dcc7a5]/70 backdrop-blur-3xl">
-      {/* Background Gradient Effect */}
-      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#d7b77f]/10 via-transparent to-[#b98c52]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-primary-200/50 shadow-premium group relative overflow-hidden"
+    >
+      <div className="absolute top-0 right-0 w-24 h-24 bg-primary-500/5 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110" />
       
-      <div className="relative z-10">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#d7b77f] to-[#b98c52] shadow-lg shadow-[rgba(185,140,82,0.18)]">
-              <Icon className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h3 className="text-xs font-black text-[#8b6435] uppercase tracking-widest">{title}</h3>
-              <p className="text-3xl font-black text-zinc-900 mt-1">{value}</p>
-            </div>
-          </div>
-          <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 text-[10px] font-black text-emerald-500 uppercase tracking-wider border border-emerald-500/20">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            {percentage}
-          </span>
+      <div className="flex items-start justify-between mb-4">
+        <div className={`p-3 rounded-2xl border ${selectedColor}`}>
+          <Icon size={24} />
         </div>
-
-        {/* Mini Chart Visualization */}
-        <div className="mb-6 h-20 w-full overflow-hidden rounded-2xl bg-[#fffaf3] p-4 border border-[#dcc7a5]">
-          <div className="flex h-16 w-full items-end justify-between gap-2">
-            {chartData.map((height, i) => (
-              <div key={i} className="group/bar relative flex-1 h-full flex items-end">
-                 <div 
-                   style={{ height: `${height}%` }}
-                   className="w-full rounded-full bg-[#d7b77f]/30 group-hover/bar:bg-[#b98c52]/45 transition-all duration-300" 
-                 />
-                 <div 
-                   style={{ height: `${height * 0.7}%` }}
-                   className="absolute bottom-0 w-full rounded-full bg-gradient-to-t from-[#d7b77f] to-[#b98c52] shadow-[0_0_10px_rgba(185,140,82,0.22)] transition-all duration-500" 
-                 />
-              </div>
-            ))}
+        {trend && (
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-black ${trend === 'up' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+            {trend === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+            {trendValue}%
           </div>
-        </div>
+        )}
+      </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-[#b98c52]" />
-            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Últimos 7 días</span>
-          </div>
-          <button className="px-4 py-2 bg-[#fffaf3] hover:bg-gradient-to-r hover:from-[#d7b77f] hover:to-[#b98c52] hover:text-white text-zinc-900 text-[10px] font-black uppercase tracking-widest rounded-xl border border-[#dcc7a5] hover:border-[#d7b77f]/30 transition-all duration-300">
-            Detalles
-          </button>
+      <div>
+        <p className="text-[10px] font-black text-muted-brown uppercase tracking-[0.2em] mb-1">{title}</p>
+        <h3 className="text-3xl font-black text-ink tracking-tighter">{value}</h3>
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-primary-50 flex items-center justify-between">
+        <span className="text-[9px] font-bold text-muted-brown uppercase tracking-widest">Ver reporte</span>
+        <div className="flex gap-1">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className={`w-1 rounded-full bg-primary-200 h-${i * 2} group-hover:bg-primary-400 transition-all duration-500`} />
+          ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
-}
+};

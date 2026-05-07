@@ -1,30 +1,22 @@
+import { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useAuthStore } from '../../features/auth/store/useAuthStore';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  LayoutDashboard, 
-  Users, 
-  Utensils, 
-  ClipboardList, 
-  Calendar, 
-  BarChart3, 
-  UserCircle, 
-  LogOut,
-  Flame,
-  Settings,
-  Star
+  LayoutDashboard, Users, Utensils, ClipboardList, Calendar, 
+  BarChart3, UserCircle, LogOut, Flame, Settings, Star, 
+  ChevronLeft, ChevronRight, Menu
 } from 'lucide-react';
 import { getImageUrl } from '../utils/getImageUrl';
 import { BrandLogo } from './ui/BrandLogo';
+import { Badge } from './ui/Badge';
 
 export const Sidebar = () => {
   const { role, user, logout } = useAuthStore();
   const location = useLocation();
   const { id: urlId } = useParams();
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const id = urlId || user?.restaurantId;
-
-  const handleLogout = () => {
-    logout();
-  };
 
   const roleMapper = {
     'SUPER_ADMIN_ROLE': 'Admin Global',
@@ -46,97 +38,116 @@ export const Sidebar = () => {
     return (
       <Link 
         to={to} 
-        className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 group font-black uppercase tracking-widest text-[10px] ${
-          active 
-            ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white shadow-lg shadow-[rgba(153,114,58,0.22)]' 
-            : 'text-zinc-500 hover:text-[#94673a] hover:bg-[#f0e4d2]'
-        }`}
+        className={`
+          flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-300 group relative
+          ${active 
+            ? 'bg-primary-500 text-white shadow-gold' 
+            : 'text-muted-brown hover:bg-primary-100/50 hover:text-ink'
+          }
+        `}
       >
-        <Icon className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${active ? 'text-white' : 'text-zinc-600 group-hover:text-[#b98c52]'}`} />
-        <span>{children}</span>
+        <Icon className={`w-5 h-5 shrink-0 transition-transform ${active ? 'scale-110' : 'group-hover:scale-110'}`} />
+        {!isCollapsed && (
+          <motion.span 
+            initial={{ opacity: 0, x: -10 }} 
+            animate={{ opacity: 1, x: 0 }}
+            className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap"
+          >
+            {children}
+          </motion.span>
+        )}
+        {active && !isCollapsed && (
+          <motion.div layoutId="active-pill" className="absolute left-[-12px] w-1 h-6 bg-primary-500 rounded-r-full" />
+        )}
       </Link>
     );
   };
 
   return (
-    <aside className="hidden md:flex md:w-72 h-screen bg-[#f6efe4] border-r border-[#dcc7a5] flex-col relative z-30 shadow-[0_20px_80px_rgba(119,89,52,0.08)]">
-      <div className="h-20 md:h-24 flex items-center px-4 md:px-6 border-b border-[#dcc7a5]/80 bg-[#fffaf2]/90 backdrop-blur-3xl">
-        <BrandLogo size="sm" className="mx-auto md:mx-0 w-full max-w-[13rem]" imageClassName="p-1" />
+    <motion.aside 
+      animate={{ width: isCollapsed ? 80 : 280 }}
+      className="hidden md:flex h-screen bg-white/80 backdrop-blur-2xl border-r border-primary-200/50 flex-col relative z-40 shadow-premium"
+    >
+      {/* Botón de Colapso */}
+      <button 
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute -right-3 top-24 w-6 h-6 bg-white border border-primary-200 rounded-full flex items-center justify-center text-primary-600 shadow-sm hover:bg-primary-50 transition-colors z-50"
+      >
+        {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+      </button>
+
+      <div className="h-20 flex items-center px-6 overflow-hidden">
+        <BrandLogo size={isCollapsed ? 'sm' : 'md'} className="transition-all duration-300" />
       </div>
 
       <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2 scrollbar-hide">
         <NavLink to="/dashboard" icon={LayoutDashboard}>Inicio</NavLink>
 
-        {/* --- SUPER ADMIN --- */}
-        {role === 'SUPER_ADMIN_ROLE' && (
-          <div className="space-y-1 mt-6">
-            <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Plataforma</p>
-            <NavLink to="/dashboard/analytics" icon={BarChart3}>Estadísticas</NavLink>
-            <NavLink to="/dashboard/restaurants" icon={Utensils}>Restaurantes</NavLink>
-            <NavLink to="/dashboard/users" icon={Users}>Usuarios</NavLink>
-            <NavLink to="/dashboard/vip-clients" icon={Star}>Clientes VIP</NavLink>
-          </div>
-        )}
+        <div className="space-y-4 mt-6">
+          {!isCollapsed && <p className="px-3 text-[9px] font-black text-primary-600/50 uppercase tracking-[0.2em]">Menú Principal</p>}
+          
+          {role === 'SUPER_ADMIN_ROLE' && (
+            <div className="space-y-1">
+              <NavLink to="/dashboard/analytics" icon={BarChart3}>Estadísticas</NavLink>
+              <NavLink to="/dashboard/restaurants" icon={Utensils}>Restaurantes</NavLink>
+              <NavLink to="/dashboard/users" icon={Users}>Usuarios</NavLink>
+              <NavLink to="/dashboard/vip-clients" icon={Star}>Clientes VIP</NavLink>
+            </div>
+          )}
 
-        {/* --- RESTAURANT ADMIN --- */}
-        {role === 'RESTAURANT_ADMIN_ROLE' && id && (
-          <div className="space-y-1 mt-6">
-            <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Mi Restaurante</p>
-            <NavLink to={`/dashboard/restaurants/${id}`} icon={LayoutDashboard}>Resumen</NavLink>
-            <NavLink to={`/dashboard/restaurants/${id}/menu`} icon={Utensils}>Menú</NavLink>
-            <NavLink to={`/dashboard/restaurants/${id}/staff`} icon={Users}>Empleados</NavLink>
-            <NavLink to={`/dashboard/restaurants/${id}/orders`} icon={ClipboardList}>Órdenes</NavLink>
-            <NavLink to={`/dashboard/restaurants/${id}/kitchen`} icon={Flame}>Cocina</NavLink>
-            <NavLink to={`/dashboard/restaurants/${id}/tables`} icon={LayoutDashboard}>Mesas</NavLink>
-            <NavLink to={`/dashboard/restaurants/${id}/events`} icon={Calendar}>Eventos</NavLink>
-            <NavLink to={`/dashboard/restaurants/${id}/analytics`} icon={BarChart3}>Reportes</NavLink>
-          </div>
-        )}
+          {(role === 'RESTAURANT_ADMIN_ROLE' || role === 'STAFF_ROLE') && id && (
+            <div className="space-y-1">
+              <NavLink to={`/dashboard/restaurants/${id}`} icon={LayoutDashboard}>Resumen</NavLink>
+              <NavLink to={`/dashboard/restaurants/${id}/menu`} icon={Utensils}>Menú</NavLink>
+              <NavLink to={`/dashboard/restaurants/${id}/orders`} icon={ClipboardList}>Órdenes</NavLink>
+              <NavLink to={`/dashboard/restaurants/${id}/kitchen`} icon={Flame}>Cocina</NavLink>
+              {role === 'RESTAURANT_ADMIN_ROLE' && (
+                <>
+                  <NavLink to={`/dashboard/restaurants/${id}/staff`} icon={Users}>Empleados</NavLink>
+                  <NavLink to={`/dashboard/restaurants/${id}/tables`} icon={LayoutDashboard}>Mesas</NavLink>
+                  <NavLink to={`/dashboard/restaurants/${id}/events`} icon={Calendar}>Eventos</NavLink>
+                </>
+              )}
+            </div>
+          )}
 
-        {/* --- STAFF --- */}
-        {role === 'STAFF_ROLE' && id && (
-          <div className="space-y-1 mt-6">
-            <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Operaciones</p>
-            <NavLink to={`/dashboard/restaurants/${id}`} icon={LayoutDashboard}>Resumen</NavLink>
-            <NavLink to={`/dashboard/restaurants/${id}/orders`} icon={ClipboardList}>Órdenes</NavLink>
-            <NavLink to={`/dashboard/restaurants/${id}/kitchen`} icon={Flame}>Monitor Cocina</NavLink>
-            <NavLink to={`/dashboard/restaurants/${id}/tables`} icon={LayoutDashboard}>Estado Mesas</NavLink>
-          </div>
-        )}
-
-        {/* --- CLIENT --- */}
-        {role === 'CLIENT_ROLE' && (
-          <div className="space-y-1 mt-6">
-            <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Mi Experiencia</p>
-            <NavLink to="/dashboard/history" icon={ClipboardList}>Historial</NavLink>
-            <NavLink to="/dashboard/events" icon={Calendar}>Eventos</NavLink>
-          </div>
-        )}
+          {role === 'CLIENT_ROLE' && (
+            <div className="space-y-1">
+              <NavLink to="/dashboard/history" icon={ClipboardList}>Mis Pedidos</NavLink>
+              <NavLink to="/dashboard/events" icon={Calendar}>Eventos</NavLink>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="p-4 border-t border-[#dcc7a5]/80 bg-[#fffaf2]/80 backdrop-blur-xl">
-        <Link to="/dashboard/profile" className="flex items-center gap-3 mb-4 p-3 rounded-2xl hover:bg-[#efe1c9] transition-all group border border-transparent hover:border-[#d5b57b]/40">
-          <div className="w-10 h-10 rounded-xl bg-[#d9bb88]/20 flex items-center justify-center text-[#94673a] font-black border border-[#d5b57b]/30 overflow-hidden">
+      <div className="p-4 border-t border-primary-100 bg-primary-50/50">
+        <Link 
+          to="/dashboard/profile" 
+          className={`flex items-center gap-3 p-2 rounded-xl hover:bg-white transition-all group ${isCollapsed ? 'justify-center' : ''}`}
+        >
+          <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center border border-primary-200 overflow-hidden shrink-0">
             {user?.profilePicture ? (
               <img src={getImageUrl(user.profilePicture)} alt="Perfil" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-lg">{user?.name?.charAt(0) || 'U'}</span>
+              <span className="text-sm font-black text-primary-600">{user?.name?.charAt(0) || 'U'}</span>
             )}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-black text-zinc-900 truncate uppercase tracking-tighter">{user?.name || user?.username}</p>
-            <p className="text-[10px] text-[#9f7642] font-black uppercase tracking-widest">{friendlyRole}</p>
-          </div>
-          <Settings className="w-4 h-4 text-zinc-600 group-hover:text-[#b98c52]" />
+          {!isCollapsed && (
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-black text-ink truncate uppercase tracking-tighter">{user?.name || user?.username}</p>
+              <Badge variant="primary" className="mt-0.5 text-[8px]">{friendlyRole}</Badge>
+            </div>
+          )}
         </Link>
+        
         <button 
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[#7f5530] hover:bg-[#eddcc0] transition-all font-black uppercase tracking-widest text-[10px] border border-[#dcc7a5]/70"
+          onClick={logout}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 mt-2 rounded-xl text-red-600 hover:bg-red-50 transition-all font-black uppercase tracking-widest text-[10px] ${isCollapsed ? 'justify-center' : ''}`}
         >
-          <LogOut className="w-5 h-5" />
-          <span>Cerrar Sesión</span>
+          <LogOut className="w-5 h-5 shrink-0" />
+          {!isCollapsed && <span>Cerrar Sesión</span>}
         </button>
       </div>
-    </aside>
+    </motion.aside>
   );
 };

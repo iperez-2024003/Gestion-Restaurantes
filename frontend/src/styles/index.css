@@ -1,10 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary-500: #caa56d;
+  /* Tokens de Color BuenProvecho */
+  --color-primary-50: #fefcf8;
+  --color-primary-100: #faf5ec;
+  --color-primary-200: #f7f0e2;
+  --color-primary-300: #f1e4cd;
+  --color-primary-400: #e8c97f;
+  --color-primary-500: #caa56d; /* Dorado Principal */
   --color-primary-600: #a98042;
-  --color-secondary-500: #8f6a43;
+  --color-primary-700: #8f6a43;
+
+  --color-ink: #1c1712; /* Negro cálido */
+  --color-muted-brown: #6b5e4e; /* Texto secundario */
+  
+  /* Sombras Premium */
+  --shadow-premium: 0 20px 50px rgba(28, 23, 18, 0.05);
+  --shadow-gold: 0 10px 30px rgba(202, 165, 109, 0.15);
 }
 
 @layer base {
@@ -13,19 +25,20 @@
     font-family: 'Outfit', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background:
-      radial-gradient(circle at top left, rgba(202, 165, 109, 0.18), transparent 34%),
-      radial-gradient(circle at bottom right, rgba(248, 241, 228, 0.95), rgba(244, 236, 223, 0.98) 55%, #f7f1e7 100%);
-    @apply text-zinc-900;
+    background-color: var(--color-primary-50);
+    background-image: 
+      radial-gradient(circle at 0% 0%, rgba(202, 165, 109, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(241, 228, 205, 0.4) 0%, transparent 40%);
+    @apply text-ink;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-black tracking-tight;
+    @apply font-black tracking-tighter text-ink;
   }
 
   ::selection {
-    background: rgba(202, 165, 109, 0.28);
-    color: #2f2317;
+    background: rgba(202, 165, 109, 0.2);
+    color: #1c1712;
   }
 }
 
@@ -38,3 +51,4 @@
     scrollbar-width: none;
   }
 }
+

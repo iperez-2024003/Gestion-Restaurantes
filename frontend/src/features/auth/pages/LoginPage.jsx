@@ -3,12 +3,14 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, Sparkles, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
 import Restaurante1 from '../../../assets/img/Restaurante1.webp';
 import Restaurante2 from '../../../assets/img/Restaurante2.webp';
 import Restaurante3 from '../../../assets/img/Restaurante3.webp';
-import Grainient from '../../../shared/components/ui/Grainient';
 import { BrandLogo } from '../../../shared/components/ui/BrandLogo';
+import { Button } from '../../../shared/components/ui/Button';
+import { Input } from '../../../shared/components/ui/Input';
+import { Card } from '../../../shared/components/ui/Card';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -24,30 +26,22 @@ export const LoginPage = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % uploadImages.length);
-    }, 6500);
-
+    }, 6000);
     return () => clearInterval(timer);
   }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setNeedsVerification(false);
-
     if (!email || !password) {
       toast.error('Por favor, completa todos los campos');
       return;
     }
 
     const result = await login(email, password);
-
     if (result.success) {
       toast.success('¡Bienvenido de nuevo!');
       const loggedUser = useAuthStore.getState().user;
-      if (loggedUser?.restaurantId) {
-        navigate(`/dashboard/restaurants/${loggedUser.restaurantId}`);
-      } else {
-        navigate('/dashboard');
-      }
+      navigate(loggedUser?.restaurantId ? `/dashboard/restaurants/${loggedUser.restaurantId}` : '/dashboard');
       return;
     }
 
@@ -57,190 +51,131 @@ export const LoginPage = () => {
     }
   };
 
-  const handleResend = async () => {
-    if (!email) return;
-
-    const result = await resendVerification(email);
-    if (result.success) {
-      toast.success(result.message);
-      setNeedsVerification(false);
-      return;
-    }
-
-    toast.error(result.error);
-  };
-
   return (
-    <div className="relative min-h-screen bg-[#f7f1e7] flex items-center justify-center overflow-hidden font-inter text-zinc-900">
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Grainient
-          timeSpeed={0.2}
-          colorBalance={0.0}
-          warpStrength={0.9}
-          warpFrequency={5.0}
-          warpSpeed={1.8}
-          warpAmplitude={42.0}
-          blendAngle={0.0}
-          blendSoftness={0.06}
-          rotationAmount={320.0}
-          noiseScale={1.8}
-          grainAmount={0.08}
-          grainScale={1.8}
-          contrast={1.35}
-          gamma={1.0}
-          saturation={1.0}
-          color1="#f8ecd7"
-          color2="#d6b47a"
-          color3="#ead9bf"
-        />
+    <div className="relative min-h-screen bg-primary-50 flex items-center justify-center overflow-hidden">
+      {/* Fondo CSS Premium (Sin Lag) */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-300/20 blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-400/10 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between h-screen p-6 lg:p-12 gap-12">
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between p-6 lg:p-12 gap-8 lg:gap-16">
+        {/* Lado Izquierdo: Formulario */}
         <motion.div
-          initial={{ opacity: 0, x: -50 }}
+          initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="w-full max-w-md lg:w-[480px] mx-auto"
+          className="w-full max-w-md"
         >
-          <div className="bg-white/80 backdrop-blur-3xl p-8 lg:p-10 rounded-[2.5rem] border border-[#dcc7a5]/70 shadow-[0_30px_100px_rgba(110,80,45,0.14)] relative overflow-hidden group">
-            <div className="relative z-10 text-center lg:text-left mb-8">
-              <div className="mb-6">
-                <BrandLogo size="xl" className="mx-auto lg:mx-0 mb-5" imageClassName="p-0" />
-                <h1 className="text-2xl font-black text-zinc-900 tracking-tighter">BuenProvecho</h1>
-                <p className="text-[#a97d45] text-[10px] font-black uppercase tracking-[0.2em]">Gestión Profesional</p>
-              </div>
-              <h2 className="text-4xl font-black text-zinc-900 mb-2 tracking-tight">Iniciar Sesión</h2>
-              <p className="text-zinc-600 text-sm font-medium">Bienvenido al centro de control gastronómico.</p>
+          <Card className="p-8 lg:p-10 border-primary-200/50">
+            <div className="text-center mb-8">
+              <BrandLogo size="lg" className="mb-4" />
+              <h1 className="text-3xl font-black text-ink mb-1">Bienvenido</h1>
+              <p className="text-muted-brown text-sm font-medium">Gestiona tu restaurante con elegancia.</p>
             </div>
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="space-y-4">
-                <div className="group">
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Identificador / Email</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
-                    <input
-                      type="text"
-                      required
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl bg-[#fffaf3] border border-[#dcc7a5] text-zinc-900 placeholder-zinc-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
-                      placeholder="admin@restaurante.com"
-                      value={email}
-                      onChange={(event) => setEmail(event.target.value)}
-                    />
-                  </div>
-                </div>
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <Input
+                label="Correo Electrónico"
+                icon={Mail}
+                type="email"
+                placeholder="admin@buenprovecho.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
 
-                <div className="group">
-                  <div className="flex items-center justify-between mb-2 px-1">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Contraseña</label>
-                    <Link to="/forgot-password" size="sm" className="text-xs font-bold text-[#a97d45] hover:text-[#8b6435]">¿La olvidaste?</Link>
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      className="w-full pl-12 pr-12 py-4 rounded-2xl bg-[#fffaf3] border border-[#dcc7a5] text-zinc-900 placeholder-zinc-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-[#b98c52]"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
+              <div className="space-y-1">
+                <div className="flex justify-between px-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-brown">Contraseña</label>
+                  <Link to="/forgot-password" hidden className="text-[10px] font-bold text-primary-600 hover:underline">¿Olvidaste tu contraseña?</Link>
+                </div>
+                <div className="relative">
+                  <Input
+                    icon={Lock}
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-brown hover:text-primary-500 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.01, boxShadow: '0 0 20px rgba(185,140,82,0.25)' }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-4 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] hover:to-[#a97d45] text-white font-black rounded-2xl shadow-xl shadow-[rgba(185,140,82,0.18)] flex items-center justify-center gap-3 transition-all disabled:opacity-50"
-              >
-                {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
-                  <>
-                    <span>Acceder al Sistema</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </>
-                )}
-              </motion.button>
+              <Button type="submit" isLoading={isLoading} className="w-full py-3.5 mt-2">
+                Acceder al Sistema <ArrowRight size={18} />
+              </Button>
 
               <AnimatePresence>
                 {needsVerification && (
                   <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className="p-4 bg-[#f1e4cd] border border-[#d7b77f]/30 rounded-2xl text-center"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-primary-100 rounded-xl text-center border border-primary-200"
                   >
-                    <p className="text-xs text-[#8b6435] mb-3 font-bold uppercase tracking-widest">Verificación Pendiente</p>
-                    <button type="button" onClick={handleResend} className="text-xs text-zinc-900 font-black hover:text-[#a97d45] transition-colors flex items-center justify-center gap-2 mx-auto">
-                      <Sparkles className="w-4 h-4" />
-                      Reenviar Enlace
+                    <p className="text-xs text-muted-brown font-medium mb-2">Verificación pendiente</p>
+                    <button type="button" onClick={() => useAuthStore.getState().resendVerification(email)} className="text-xs font-black text-ink hover:text-primary-600 flex items-center justify-center gap-1 mx-auto">
+                      <Sparkles size={14} /> Reenviar enlace
                     </button>
                   </motion.div>
                 )}
               </AnimatePresence>
             </form>
 
-            <div className="mt-10 pt-6 border-t border-[#dcc7a5]/70 flex items-center justify-between">
-              <p className="text-zinc-500 text-sm font-medium">¿Nuevo usuario?</p>
-              <Link to="/register" className="text-[#a97d45] font-black hover:text-[#8b6435] transition-colors flex items-center gap-2">
-                Regístrate
-                <ArrowRight className="w-4 h-4" />
+            <div className="mt-8 pt-6 border-t border-primary-100 flex items-center justify-between">
+              <span className="text-muted-brown text-sm">¿No tienes cuenta?</span>
+              <Link to="/register" className="text-primary-600 font-black text-sm hover:underline flex items-center gap-1">
+                Regístrate <ArrowRight size={14} />
               </Link>
             </div>
-          </div>
+          </Card>
         </motion.div>
 
-        <div className="hidden lg:flex flex-1 h-[80vh] relative items-center justify-center">
-          <div className="relative w-full h-full max-w-2xl rounded-[3rem] overflow-hidden border border-[#dcc7a5]/60 shadow-[0_35px_120px_rgba(110,80,45,0.12)] bg-[#fffaf3]">
+        {/* Lado Derecho: Visual Showcase */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="hidden lg:block flex-1 h-[600px] relative"
+        >
+          <div className="w-full h-full rounded-[2.5rem] overflow-hidden border border-primary-200/50 shadow-premium relative group">
             <AnimatePresence mode="wait">
               <motion.img
                 key={currentImage}
                 src={uploadImages[currentImage]}
-                initial={{ opacity: 0, scale: 1.04, x: 12 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.98, x: -12 }}
-                transition={{ duration: 0.75, ease: 'easeOut' }}
+                initial={{ opacity: 0, scale: 1.1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1 }}
                 className="absolute inset-0 w-full h-full object-cover"
-                loading="eager"
-                decoding="async"
               />
             </AnimatePresence>
-
-            <div className="absolute inset-0 bg-gradient-to-t from-[#3a2a1a]/80 via-[#3a2a1a]/24 to-transparent" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(215,183,127,0.18),transparent_34%)]" />
-
-            <div className="absolute top-10 left-10 z-20">
-              <BrandLogo size="lg" className="w-full max-w-[18rem]" imageClassName="p-0" />
-            </div>
-
-            <div className="absolute bottom-12 left-12 right-12 text-white z-20">
-              <div className="flex items-center gap-2 mb-4">
-                <ShieldCheck className="w-5 h-5 text-[#d7b77f]" />
-                <span className="text-xs font-black uppercase tracking-widest text-[#f0ddbf]">Plataforma Segura</span>
+            <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent" />
+            
+            <div className="absolute bottom-10 left-10 right-10 text-white">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-1.5 bg-primary-500 rounded-lg">
+                  <ShieldCheck size={16} className="text-white" />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-200">Plataforma Certificada</span>
               </div>
-              <h3 className="text-4xl font-black mb-4 leading-tight">Experiencia premium, fluida y elegante</h3>
-              <p className="text-zinc-200 text-lg font-medium max-w-xl">Tres escenas visuales, una carga más suave y sin perder presencia.</p>
+              <h3 className="text-4xl font-black mb-3 leading-tight tracking-tighter">Sabor y Gestión <br /> en un solo lugar</h3>
+              <p className="text-primary-100/80 text-lg font-medium max-w-md">La herramienta definitiva para el éxito de tu restaurante.</p>
             </div>
 
-            <div className="absolute top-12 right-12 flex gap-2 z-20">
+            <div className="absolute top-10 right-10 flex gap-2">
               {uploadImages.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-2 rounded-full transition-all duration-500 ${i === currentImage ? 'w-8 bg-[#d7b77f]' : 'w-2 bg-white/45'}`}
-                />
+                <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentImage ? 'w-8 bg-primary-400' : 'w-2 bg-white/30'}`} />
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
-};
+};

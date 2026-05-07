@@ -79,8 +79,8 @@ Estas cuentas se sincronizan automáticamente al iniciar el servidor:
 | Rol | Usuario / Email | Contraseña |
 |---|---|---|
 | Super Admin | `admin` / `admin@restaurantes.com` | `Admin123!` |
-| Gerente | `gerente` / `gerente@manager.com` | `Admin123!` |
-| Staff | `staff` / `staff@manager.com` | `Admin123!` |
+| Gerente | `gerente` / `gerente@kinal.com` | `Admin123!` |
+| Staff | `staff` / `staff@kinal.com` | `Admin123!` |
 
 ---
 

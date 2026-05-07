@@ -3,9 +3,11 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, Phone, Upload, Sparkles, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
-import Grainient from '../../../shared/components/ui/Grainient';
+import { User, Mail, Lock, Phone, Upload, ArrowRight, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
 import { BrandLogo } from '../../../shared/components/ui/BrandLogo';
+import { Button } from '../../../shared/components/ui/Button';
+import { Input } from '../../../shared/components/ui/Input';
+import { Card } from '../../../shared/components/ui/Card';
 
 export const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -32,213 +34,106 @@ export const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     const data = new FormData();
-    data.append('name', formData.name);
-    data.append('surname', formData.surname);
-    data.append('username', formData.username);
-    data.append('email', formData.email);
-    data.append('password', formData.password);
-    data.append('phone', formData.phone);
-    if (formData.profilePicture) {
-      data.append('profilePicture', formData.profilePicture);
-    }
+    Object.keys(formData).forEach(key => {
+      if (formData[key]) data.append(key, formData[key]);
+    });
 
     const result = await register(data);
-    
     if (result.success) {
-      toast.success(result.message || '¡Registro exitoso! Por favor verifica tu correo.');
+      toast.success(result.message || '¡Registro exitoso! Verifica tu correo.');
       navigate('/login');
     } else {
       toast.error(result.error);
-      if (result.details && result.details.length > 0) {
-        toast.error(result.details[0].message);
-      }
     }
   };
 
   return (
-    <div className="relative min-h-screen bg-[#f7f1e7] flex items-center justify-center overflow-hidden font-inter py-12 px-6 text-zinc-900">
-      {/* Background Effect */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Grainient
-          timeSpeed={0.25}
-          colorBalance={0.0}
-          warpStrength={1.0}
-          warpFrequency={5.0}
-          warpSpeed={2.0}
-          warpAmplitude={50.0}
-          blendAngle={0.0}
-          blendSoftness={0.05}
-          rotationAmount={500.0}
-          noiseScale={2.0}
-          grainAmount={0.1}
-          grainScale={2.0}
-          contrast={1.5}
-          gamma={1.0}
-          saturation={1.0}
-          color1="#f8ecd7"
-          color2="#d6b47a"
-          color3="#ead9bf"
-        />
+    <div className="relative min-h-screen bg-primary-50 flex items-center justify-center overflow-hidden py-12 px-6">
+      {/* Fondo CSS Premium */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-300/20 blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-400/10 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-stretch justify-center gap-12">
-        
-        {/* Form Section */}
         <motion.div 
-          initial={{ opacity: 0, x: -50 }}
+          initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
-          className="w-full lg:w-[600px]"
+          className="w-full lg:w-[650px]"
         >
-          <div className="bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/70 shadow-[0_30px_100px_rgba(110,80,45,0.14)] p-8 lg:p-12 h-full">
-            <div className="mb-10">
-              <div className="flex items-center gap-4 mb-6">
-                <BrandLogo size="md" className="mx-auto lg:mx-0 mb-0" imageClassName="p-0" />
-                <h2 className="text-3xl font-black text-zinc-900 tracking-tight">Crear Cuenta</h2>
+          <Card className="p-8 lg:p-12 border-primary-200/50">
+            <div className="flex items-center justify-between mb-10">
+              <div>
+                <h1 className="text-3xl font-black text-ink mb-1">Crea tu Cuenta</h1>
+                <p className="text-muted-brown text-sm font-medium">Únete a la elite de la gestión gastronómica.</p>
               </div>
-              <p className="text-zinc-600 font-medium">Únete a la plataforma de gestión gastronómica líder.</p>
+              <BrandLogo size="md" />
             </div>
 
             <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="group">
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Nombre</label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
-                    <input
-                      name="name" type="text" required
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
-                      placeholder="Tu nombre"
-                      value={formData.name} onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="group">
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Apellido</label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
-                    <input
-                      name="surname" type="text" required
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
-                      placeholder="Tu apellido"
-                      value={formData.surname} onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="group">
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Usuario</label>
-                  <div className="relative">
-                    <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
-                    <input
-                      name="username" type="text" required
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
-                      placeholder="usuario_123"
-                      value={formData.username} onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="group">
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Teléfono</label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
-                    <input
-                      name="phone" type="text" required pattern="\d{8}"
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
-                      placeholder="12345678"
-                      value={formData.phone} onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="group md:col-span-2">
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Email Corporativo</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
-                    <input
-                      name="email" type="email" required
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
-                      placeholder="tu@email.com"
-                      value={formData.email} onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="group md:col-span-2">
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Contraseña de Acceso</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[#b98c52] transition-colors" />
-                    <input
-                      name="password" type="password" required minLength="8"
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border border-[#dcc7a5] bg-[#fffaf3] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all"
-                      placeholder="••••••••"
-                      value={formData.password} onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="group md:col-span-2">
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Foto de Perfil (Opcional)</label>
-                  <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-[#d8c19b] rounded-3xl cursor-pointer bg-[#fffaf3] hover:bg-[#f6ead4] hover:border-[#b98c52] transition-all">
-                    <Upload className="w-6 h-6 text-zinc-600 mb-1" />
-                    <p className="text-[10px] text-zinc-600 font-bold uppercase">Subir Imagen</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <Input label="Nombre" name="name" icon={User} placeholder="Ej. Juan" value={formData.name} onChange={handleChange} required />
+                <Input label="Apellido" name="surname" icon={User} placeholder="Ej. Pérez" value={formData.surname} onChange={handleChange} required />
+                <Input label="Usuario" name="username" icon={Sparkles} placeholder="juanp_24" value={formData.username} onChange={handleChange} required />
+                <Input label="Teléfono" name="phone" icon={Phone} placeholder="12345678" value={formData.phone} onChange={handleChange} required />
+                <Input label="Email Corporativo" name="email" type="email" icon={Mail} placeholder="admin@restaurante.com" value={formData.email} onChange={handleChange} required className="md:col-span-2" />
+                <Input label="Contraseña" name="password" type="password" icon={Lock} placeholder="••••••••" value={formData.password} onChange={handleChange} required className="md:col-span-2" />
+                
+                <div className="md:col-span-2 space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-brown ml-1">Foto de Perfil</label>
+                  <label className="flex items-center gap-4 p-4 border-2 border-dashed border-primary-200 rounded-xl cursor-pointer hover:bg-primary-100/50 transition-all group">
+                    <div className="p-2 bg-primary-100 rounded-lg group-hover:bg-primary-200 transition-colors">
+                      <Upload size={20} className="text-primary-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-ink">Sube tu imagen</p>
+                      <p className="text-[10px] text-muted-brown font-medium italic">Formatos: JPG, PNG, WEBP</p>
+                    </div>
                     <input name="profilePicture" type="file" className="hidden" onChange={handleChange} />
                   </label>
                 </div>
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.01, boxShadow: "0 0 20px rgba(185,140,82,0.25)" }}
-                whileTap={{ scale: 0.98 }}
-                type="submit" disabled={isLoading}
-                className="w-full py-5 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black rounded-2xl flex items-center justify-center gap-3 transition-all"
-              >
-                {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
-                  <>
-                    <span>Registrarse</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </>
-                )}
-              </motion.button>
+              <Button type="submit" isLoading={isLoading} className="w-full py-4 mt-4">
+                Comenzar ahora <ArrowRight size={18} />
+              </Button>
               
-              <div className="text-center">
-                <p className="text-zinc-500 text-sm font-medium">
-                  ¿Ya tienes cuenta?{' '}
-                  <Link to="/login" className="text-[#a97d45] font-black hover:text-[#8b6435]">
-                    Inicia Sesión
-                  </Link>
-                </p>
-              </div>
+              <p className="text-center text-muted-brown text-sm">
+                ¿Ya eres parte?{' '}
+                <Link to="/login" className="text-primary-600 font-black hover:underline">Inicia Sesión</Link>
+              </p>
             </form>
-          </div>
+          </Card>
         </motion.div>
 
-        {/* Right Section (Visual) */}
-        <div className="hidden lg:flex flex-1 flex-col justify-center items-start text-white">
-          <div className="p-8 bg-white/80 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/70 max-w-md shadow-[0_20px_80px_rgba(110,80,45,0.12)]">
-            <div className="mb-6">
-              <BrandLogo size="md" className="mx-auto lg:mx-0" imageClassName="p-0" />
+        {/* Lado Derecho Visual */}
+        <div className="hidden lg:flex flex-1 flex-col justify-center max-w-sm">
+          <div className="space-y-12">
+            <div className="space-y-4">
+              <ShieldCheck size={48} className="text-primary-500" />
+              <h3 className="text-4xl font-black text-ink leading-tight tracking-tighter">Tu negocio merece el <span className="text-primary-500 italic">máximo</span> nivel.</h3>
             </div>
-            <ShieldCheck className="w-12 h-12 text-[#b98c52] mb-6" />
-            <h3 className="text-4xl font-black mb-6 leading-tight text-zinc-900">Seguridad y Control <br /> en un solo <span className="text-[#b98c52] italic">Lugar</span></h3>
-            <ul className="space-y-6">
+            
+            <div className="space-y-6">
               {[
-                "Protección de datos AES-256",
-                "Gestión multi-restaurante",
-                "Analítica avanzada en tiempo real"
-              ].map((text, i) => (
-                <li key={i} className="flex items-center gap-4">
-                  <div className="w-2 h-2 bg-[#b98c52] rounded-full" />
-                  <span className="text-zinc-700 font-medium">{text}</span>
-                </li>
+                { title: "Seguridad de Grado Bancario", desc: "Tus datos y órdenes están protegidos." },
+                { title: "Gestión en Tiempo Real", desc: "Control total desde cualquier dispositivo." },
+                { title: "Diseño Intuitivo", desc: "Pensado para la rapidez del servicio." }
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4">
+                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0" />
+                  <div>
+                    <h4 className="font-bold text-ink">{item.title}</h4>
+                    <p className="text-sm text-muted-brown font-medium leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
