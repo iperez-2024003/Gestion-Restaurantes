@@ -52,14 +52,64 @@ pnpm run install:services
 ```
 
 #### Ejecución en Desarrollo
+
+##### Opción 1: Arranque Rápido (Recomendado para desarrollo)
 Inicia todos los microservicios simultáneamente con un solo comando:
 ```bash
-# Inicia los 4 servicios backend
+# En la raíz, inicia los 4 servicios backend
 pnpm run dev
 
 # En otra terminal, inicia el frontend
 cd frontend
 pnpm run dev
+```
+
+##### Opción 2: Microservicios en Terminales Separadas (Recomendado para producción/revisión)
+Ejecuta cada servicio en su propia terminal para visualizar procesos independientes:
+
+**Terminal 1 — AuthService (Puerto 3006)**
+```bash
+cd AuthService
+pnpm install  # Solo la primera vez
+pnpm run dev
+```
+
+**Terminal 2 — RestaurantesService (Puerto 3007)**
+```bash
+cd RestaurantesService
+pnpm install  # Solo la primera vez
+pnpm run dev
+```
+
+**Terminal 3 — PedidosReservacionesService (Puerto 3008)**
+```bash
+cd PedidosReservacionesService
+pnpm install  # Solo la primera vez
+pnpm run dev
+```
+
+**Terminal 4 — EventosReportesService (Puerto 3009)**
+```bash
+cd EventosReportesService
+pnpm install  # Solo la primera vez
+pnpm run dev
+```
+
+**Terminal 5 — Frontend (Puerto 5173)**
+```bash
+cd frontend
+pnpm install  # Solo la primera vez
+pnpm run dev
+```
+
+#### Scripts por Servicio
+Si prefieres ejecutar un servicio específico desde la raíz:
+```bash
+pnpm run dev:auth        # AuthService
+pnpm run dev:restaurantes # RestaurantesService
+pnpm run dev:pedidos     # PedidosReservacionesService
+pnpm run dev:eventos     # EventosReportesService
+pnpm run dev:frontend    # Frontend
 ```
 
 ### Variables de entorno
