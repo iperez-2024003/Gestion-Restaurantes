@@ -6,6 +6,12 @@
   "packageManager": "pnpm@10.29.2",
   "scripts": {
     "install:services": "node scripts/install.js",
-    "dev": "node scripts/dev.js"
+    "dev": "node scripts/dev.js",
+    "dev:auth": "pnpm --dir AuthService dev",
+    "dev:restaurantes": "pnpm --dir RestaurantesService dev",
+    "dev:pedidos": "pnpm --dir PedidosReservacionesService dev",
+    "dev:eventos": "pnpm --dir EventosReportesService dev",
+    "dev:frontend": "pnpm --dir frontend dev",
+    "dev:all": "node scripts/dev.js"
   }
 }
