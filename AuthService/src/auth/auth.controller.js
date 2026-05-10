@@ -6,14 +6,34 @@ import {
   forgotPasswordHelper,
   resetPasswordHelper,
 } from '../../helpers/auth-operations.js';
+import { findRefreshToken, revokeRefreshToken, createRefreshToken, revokeRefreshTokenFamily } from '../../helpers/refresh-token-db.js';
+import { findUserById } from '../../helpers/user-db.js';
+import { generateJWT } from '../../helpers/generate-jwt.js';
 import { getUserProfileHelper } from '../../helpers/profile-operations.js';
 import { asyncHandler } from '../../middlewares/server-genericError-handler.js';
+import { extractRefreshTokenFromRequest } from '../../middlewares/refresh-token.js';
+import { config } from '../../configs/config.js';
 import { User, UserProfile } from '../users/user.model.js';
 import { uploadImage, deleteImage } from '../../helpers/cloudinary-service.js';
 import { hashPassword, verifyPassword } from '../../utils/password-utils.js';
 import crypto from 'crypto';
 import path from 'path';
 import Restaurant from '../restaurant/restaurant.model.js';
+
+const buildRefreshCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  path: '/api/v1/auth',
+  maxAge: (() => {
+    const expiresIn = config.jwt.refreshExpiresIn || '7d';
+    const value = parseInt(expiresIn, 10) || 7;
+    if (expiresIn.endsWith('m')) return value * 60 * 1000;
+    if (expiresIn.endsWith('h')) return value * 60 * 60 * 1000;
+    if (expiresIn.endsWith('d')) return value * 24 * 60 * 60 * 1000;
+    return 7 * 24 * 60 * 60 * 1000;
+  })(),
+});
 
 // ─── REGISTER ─────────────────────────────────────────────────────────────────
 export const register = asyncHandler(async (req, res) => {
@@ -74,7 +94,16 @@ export const login = asyncHandler(async (req, res) => {
     }
 
     const result = await loginUserHelper(identifier, password);
-    res.status(200).json(result);
+
+    if (result.refreshToken) {
+      res.cookie('refreshToken', result.refreshToken, buildRefreshCookieOptions());
+    }
+
+    res.status(200).json({
+      ...result,
+      refreshToken: undefined,
+      refreshTokenSet: true,
+    });
   } catch (error) {
     console.error('Error in login controller:', error);
 
@@ -442,4 +471,57 @@ export const syncRestaurant = asyncHandler(async (req, res) => {
       error: error.message
     });
   }
+});
+
+// POST /auth/refresh
+export const refreshToken = asyncHandler(async (req, res) => {
+  // Preferir registro ya validado por middleware
+  const incomingToken = extractRefreshTokenFromRequest(req);
+  const rt = req.refreshTokenRecord || (await findRefreshToken(incomingToken));
+  if (!rt) return res.status(401).json({ success: false, message: 'Refresh token inválido' });
+  if (rt.Revoked) {
+    await revokeRefreshTokenFamily(rt.UserId);
+    return res.status(401).json({
+      success: false,
+      message: 'Refresh token reutilizado detectado. Todas las sesiones del usuario fueron revocadas.',
+    });
+  }
+  if (new Date(rt.ExpiresAt) < new Date()) return res.status(401).json({ success: false, message: 'Refresh token expirado' });
+
+  // Generar nuevo access token
+  const user = await findUserById(rt.UserId);
+  if (!user) return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+
+  const role = user.UserRoles?.[0]?.Role?.Name || 'CLIENT_ROLE';
+  const token = await generateJWT(user.Id.toString(), { role });
+
+  // Rotación de refresh token: revocar el actual y emitir uno nuevo
+  try {
+    await revokeRefreshToken(rt.Token);
+  } catch (err) {
+    console.warn('No se pudo revocar refresh token viejo:', err);
+  }
+
+  const { token: newRefreshToken, expiresAt: refreshExpiresAt } = await createRefreshToken(user.Id.toString());
+  res.cookie('refreshToken', newRefreshToken, buildRefreshCookieOptions());
+
+  return res.status(200).json({
+    success: true,
+    token,
+    refreshTokenSet: true,
+    refreshExpiresAt,
+  });
+});
+
+// POST /auth/revoke
+export const revokeToken = asyncHandler(async (req, res) => {
+  const refreshToken = extractRefreshTokenFromRequest(req);
+  if (!refreshToken) return res.status(400).json({ success: false, message: 'refreshToken es requerido' });
+
+  const ok = await revokeRefreshToken(refreshToken);
+  if (!ok) return res.status(404).json({ success: false, message: 'Refresh token no encontrado' });
+
+  res.clearCookie('refreshToken', { path: '/api/v1/auth' });
+
+  return res.status(200).json({ success: true, message: 'Refresh token revocado' });
 });

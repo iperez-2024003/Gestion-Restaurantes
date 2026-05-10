@@ -15,9 +15,12 @@ import {
   BarChart3,
   Activity,
   Zap,
-  Target
+  Target,
+  MailCheck,
+  FileSpreadsheet
 } from 'lucide-react';
 import { getOrdersStats, getPopularDishes, getRestaurantOverview, exportOrdersExcelUrl } from '../../../shared/api/statistics';
+import { getDailySummaryReport, downloadDailyExcelUrl } from '../../../shared/api/reports';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { showError, showSuccess } from '../../../shared/utils/toast';
 
@@ -46,6 +49,8 @@ export const AnalyticsDashboard = () => {
   const { token } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [sendingSummary, setSendingSummary] = useState(false);
+  const [downloadingDaily, setDownloadingDaily] = useState(false);
   const [stats, setStats] = useState({
     overview: null,
     orders: [],
@@ -103,6 +108,45 @@ export const AnalyticsDashboard = () => {
     }
   };
 
+  const handleSendDailySummary = async () => {
+    try {
+      setSendingSummary(true);
+      const response = await getDailySummaryReport(id);
+      showSuccess(response?.data?.message || 'Reporte diario enviado al administrador');
+    } catch (error) {
+      showError('No se pudo enviar el resumen diario');
+    } finally {
+      setSendingSummary(false);
+    }
+  };
+
+  const handleDownloadDailyExcel = async () => {
+    try {
+      setDownloadingDaily(true);
+      const response = await fetch(downloadDailyExcelUrl(id), {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to download daily report');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Reporte_Diario_${id}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showSuccess('Reporte diario descargado');
+    } catch (error) {
+      showError('No se pudo descargar el reporte diario');
+    } finally {
+      setDownloadingDaily(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="h-[70vh] flex flex-col justify-center items-center font-outfit">
@@ -132,23 +176,53 @@ export const AnalyticsDashboard = () => {
            <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-2">Business Intelligence</p>
            <h1 className="text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none">Operational <span className="text-zinc-600">Performance</span></h1>
         </div>
-        
-        <button 
-          onClick={handleExportExcel}
-          disabled={exporting}
-          className={`group flex items-center gap-4 px-8 py-4 rounded-2xl font-black transition-all border ${
-            exporting 
-            ? 'bg-[#fffaf3] text-zinc-900 border-[#dcc7a5]' 
-            : 'bg-[#f3e4ca] text-[#b98c52] border-[#dcc7a5]/20 hover:border-[#b98c52] shadow-2xl'
-          } text-[10px] uppercase tracking-widest`}
-        >
-          {exporting ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <DownloadCloud className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
-          )}
-          {exporting ? 'Generando Reporte...' : 'Exportar Auditoría (.xlsx)'}
-        </button>
+
+        <div className="w-full md:w-auto rounded-3xl border border-[#dcc7a5]/30 bg-white/70 p-3 backdrop-blur-2xl shadow-xl">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button
+              onClick={handleExportExcel}
+              disabled={exporting}
+              className={`group flex items-center justify-center gap-3 px-5 py-3 rounded-2xl font-black transition-all border text-[10px] uppercase tracking-widest ${
+                exporting
+                  ? 'bg-[#fffaf3] text-zinc-900 border-[#dcc7a5]'
+                  : 'bg-[#f3e4ca] text-[#b98c52] border-[#dcc7a5]/20 hover:border-[#b98c52]'
+              }`}
+            >
+              {exporting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <DownloadCloud className="w-4 h-4 group-hover:-translate-y-1 transition-transform" />
+              )}
+              {exporting ? 'Generando...' : 'Auditoría'}
+            </button>
+
+            <button
+              onClick={handleSendDailySummary}
+              disabled={sendingSummary}
+              className={`group flex items-center justify-center gap-3 px-5 py-3 rounded-2xl font-black transition-all border text-[10px] uppercase tracking-widest ${
+                sendingSummary
+                  ? 'bg-[#f3ece1] text-zinc-900 border-[#dcc7a5]'
+                  : 'bg-[#eaf4f1] text-[#2f6b5b] border-[#b9d8cc] hover:border-[#2f6b5b]'
+              }`}
+            >
+              {sendingSummary ? <Loader2 className="w-4 h-4 animate-spin" /> : <MailCheck className="w-4 h-4" />}
+              {sendingSummary ? 'Enviando...' : 'Resumen Diario'}
+            </button>
+
+            <button
+              onClick={handleDownloadDailyExcel}
+              disabled={downloadingDaily}
+              className={`group flex items-center justify-center gap-3 px-5 py-3 rounded-2xl font-black transition-all border text-[10px] uppercase tracking-widest ${
+                downloadingDaily
+                  ? 'bg-[#fffaf3] text-zinc-900 border-[#dcc7a5]'
+                  : 'bg-[#f4eefc] text-[#6e4fa6] border-[#d8c9f0] hover:border-[#6e4fa6]'
+              }`}
+            >
+              {downloadingDaily ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
+              {downloadingDaily ? 'Descargando...' : 'Excel Diario'}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* ── KPI CARDS ────────────────────────────────────────────────────────────── */}
@@ -273,7 +347,7 @@ export const AnalyticsDashboard = () => {
                   outerRadius={120}
                   paddingAngle={10}
                   dataKey="total_quantity"
-                  nameKey="menu_item.name"
+                  nameKey="name"
                   stroke="none"
                 >
                   {popularDishes.map((entry, index) => (

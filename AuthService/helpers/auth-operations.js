@@ -20,6 +20,7 @@ import { verifyPassword } from '../utils/password-utils.js';
 import { buildUserResponse } from '../utils/user-helpers.js';
 import { sendVerificationEmail } from './email-service.js';
 import { generateJWT } from './generate-jwt.js';
+import { createRefreshToken } from './refresh-token-db.js';
 import { uploadImage } from './cloudinary-service.js';
 import { config } from '../configs/config.js';
 
@@ -214,11 +215,17 @@ export const loginUserHelper = async (emailOrUsername, password) => {
     // Reconstruir userDetails con el ID corregido
     const userDetails = {
       id: fullUser.id,
+      name: fullUser.name,
+      surname: fullUser.surname,
+      email: fullUser.email,
       username: fullUser.username,
       profilePicture: fullUser.profilePicture,
       role: fullUser.role,
       restaurantId: validRestaurantId,
     };
+
+    // Generate refresh token and include in response
+    const { token: refreshToken, expiresAt: refreshExpiresAt } = await createRefreshToken(user.Id.toString());
 
     // AuthResponseDto equivalent structure
     return {
@@ -227,6 +234,8 @@ export const loginUserHelper = async (emailOrUsername, password) => {
       token,
       userDetails,
       expiresAt,
+      refreshToken,
+      refreshExpiresAt,
     };
   } catch (error) {
     console.error('Error en login:', error);

@@ -5,18 +5,22 @@ import { translateApiMessage } from '../utils/i18n';
 // ─── Microservices API Instances ────────────────────────────────────────────
 const authApi = axios.create({
   baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3006/api/v1',
+  withCredentials: true,
 });
 
 const restaurantesApi = axios.create({
   baseURL: import.meta.env.VITE_RESTAURANTES_URL || 'http://localhost:3007/api/v1',
+  withCredentials: true,
 });
 
 const pedidosApi = axios.create({
   baseURL: import.meta.env.VITE_PEDIDOS_URL || 'http://localhost:3008/api/v1',
+  withCredentials: true,
 });
 
 const eventosApi = axios.create({
   baseURL: import.meta.env.VITE_EVENTOS_URL || 'http://localhost:3009/api/v1',
+  withCredentials: true,
 });
 
 // ─── Shared Interceptors ────────────────────────────────────────────────────
@@ -44,10 +48,32 @@ const setupInterceptors = (instance) => {
     return Promise.reject(error);
   });
 
+  let refreshInFlight = null;
+
   instance.interceptors.response.use(
     (response) => response,
-    (error) => {
-      if (error?.response?.status === 401) {
+    async (error) => {
+      const originalRequest = error.config;
+
+      if (error?.response?.status === 401 && !originalRequest?._retry && !originalRequest?.url?.includes('/auth/refresh')) {
+        originalRequest._retry = true;
+
+        try {
+          refreshInFlight = refreshInFlight || authApi.post('/auth/refresh', {}, { withCredentials: true });
+          const refreshResponse = await refreshInFlight;
+          refreshInFlight = null;
+
+          const newToken = refreshResponse?.data?.token;
+          if (newToken) {
+            useAuthStore.setState({ token: newToken });
+            localStorage.setItem('token', newToken);
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return instance(originalRequest);
+          }
+        } catch (refreshError) {
+          refreshInFlight = null;
+        }
+
         const currentPath = window.location.pathname;
         if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
           useAuthStore.getState().logout?.();

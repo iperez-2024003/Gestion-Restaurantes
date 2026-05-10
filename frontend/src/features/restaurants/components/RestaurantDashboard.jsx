@@ -78,6 +78,9 @@ export const RestaurantDashboard = () => {
           <Button variant="ghost" onClick={() => navigate(`/dashboard/restaurants/${id}/menu`)}>
             <Utensils size={18} /> Menú
           </Button>
+          <Button variant="secondary" onClick={() => navigate(`/dashboard/restaurants/${id}/analytics`)}>
+            <LayoutDashboard size={18} /> Analytics
+          </Button>
           <Button variant="primary" onClick={() => navigate(`/dashboard/restaurants/${id}/orders`)}>
             <ClipboardList size={18} /> Ver Órdenes
           </Button>

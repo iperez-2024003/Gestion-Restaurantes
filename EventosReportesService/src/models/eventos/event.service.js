@@ -1,6 +1,4 @@
- 'use strict';
-
-import mongoose from 'mongoose';
+'use strict';
 import Event from './event.model.js';
 import EventParticipant from './event-participant.model.js';
 import { User } from '../../helpers/auth-user.helper.js';
@@ -59,64 +57,37 @@ export const cancelEventRecord = async (id) => {
 };
 
 export const registerParticipantRecord = async (eventId, participantData) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
-    const event = await Event.findOne({ _id: eventId, isActive: true }).session(session);
-    if (!event) {
-      await session.abortTransaction();
-      session.endSession();
-      return { notFound: true };
-    }
-    if (event.status !== 'scheduled') {
-      await session.abortTransaction();
-      session.endSession();
-      return { badStatus: true };
-    }
-    if (event.currentParticipants >= event.maxParticipants) {
-      await session.abortTransaction();
-      session.endSession();
-      return { full: true };
-    }
+  const event = await Event.findOne({ _id: eventId, isActive: true });
+  if (!event) return { notFound: true };
+  if (event.status !== 'scheduled') return { badStatus: true };
+  if (event.currentParticipants >= event.maxParticipants) return { full: true };
 
-    const existing = await EventParticipant.findOne({ eventId, participantEmail: participantData.participantEmail }).session(session);
-    if (existing) {
-      await session.abortTransaction();
-      session.endSession();
-      return { duplicate: true };
-    }
+  const existing = await EventParticipant.findOne({ eventId, participantEmail: participantData.participantEmail });
+  if (existing) return { duplicate: true };
 
-    if (participantData.userId) {
-      const user = await User.findByPk(participantData.userId);
-      if (!user) {
-        await session.abortTransaction();
-        session.endSession();
-        return { userNotFound: true };
-      }
-    }
-
-    const participant = await EventParticipant.create([{
-      eventId,
-      userId: participantData.userId || null,
-      participantName: participantData.participantName,
-      participantEmail: participantData.participantEmail,
-      participantPhone: participantData.participantPhone,
-      specialNotes: participantData.specialNotes,
-      paymentStatus: 'pending',
-      attendanceStatus: 'registered',
-    }], { session });
-
-    event.currentParticipants = (event.currentParticipants || 0) + 1;
-    await event.save({ session });
-
-    await session.commitTransaction();
-    session.endSession();
-    return { participant: participant[0], event };
-  } catch (err) {
-    await session.abortTransaction();
-    session.endSession();
-    throw err;
+  if (participantData.userId) {
+    const user = await User.findByPk(participantData.userId);
+    if (!user) return { userNotFound: true };
   }
+
+  const participant = await EventParticipant.create({
+    eventId,
+    userId: participantData.userId || null,
+    participantName: participantData.participantName,
+    participantEmail: participantData.participantEmail,
+    participantPhone: participantData.participantPhone,
+    specialNotes: participantData.specialNotes,
+    paymentStatus: 'pending',
+    attendanceStatus: 'registered',
+  });
+
+  const updatedEvent = await Event.findByIdAndUpdate(
+    eventId,
+    { $inc: { currentParticipants: 1 } },
+    { new: true }
+  );
+
+  return { participant, event: updatedEvent };
 };
 
 export const unregisterParticipantRecord = async (eventId, participantEmail) => {

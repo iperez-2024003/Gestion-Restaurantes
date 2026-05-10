@@ -9,7 +9,7 @@ import { requireRole } from '../../middlewares/require-role.js';
 import { validateUuidParam } from '../../middlewares/validate-params.js';
 
 const router = Router();
-const requireAdminOrRestaurantAdmin = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
+const requireAdminOrRestaurantAdmin = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE');
 
 // Montado en /api/v1/restaurants en AuthService
 router.get('/:id/staff', [validateJWT, requireAdminOrRestaurantAdmin, validateUuidParam('id')], getRestaurantStaff);

@@ -17,6 +17,13 @@ export const KitchenDisplay = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const statusFlow = {
+    pending: { next: 'confirmed', label: 'CONFIRMAR PEDIDO', tone: 'bg-[#d7b77f] hover:bg-[#c89d57] text-white' },
+    confirmed: { next: 'preparing', label: 'INICIAR PREPARACIÓN', tone: 'bg-orange-500 hover:bg-orange-400 text-white' },
+    preparing: { next: 'ready', label: 'MARCAR COMO LISTO', tone: 'bg-emerald-600 hover:bg-emerald-500 text-white' },
+    ready: { next: 'served', label: 'MARCAR COMO SERVIDO', tone: 'bg-sky-600 hover:bg-sky-500 text-white' },
+  };
+
   const fetchKitchenOrders = async () => {
     try {
       const res = await api.get(`/orders/kitchen/${restaurantId}`);
@@ -45,9 +52,21 @@ export const KitchenDisplay = () => {
 
   const handleUpdateStatus = async (orderId, currentStatus) => {
     try {
-      const nextStatus = currentStatus === 'pending' ? 'preparing' : 'ready';
+      const nextStatus = statusFlow[currentStatus]?.next;
+      if (!nextStatus) {
+        toast.error('Este pedido ya no se puede mover desde cocina');
+        return;
+      }
       await api.patch(`/orders/${orderId}/status`, { status: nextStatus });
-      toast.success(nextStatus === 'preparing' ? 'Empezando preparación...' : '¡Orden terminada!');
+      toast.success(
+        nextStatus === 'confirmed'
+          ? 'Pedido confirmado'
+          : nextStatus === 'preparing'
+            ? 'Empezando preparación...'
+            : nextStatus === 'ready'
+              ? 'Pedido listo'
+              : 'Pedido servido'
+      );
       fetchKitchenOrders();
     } catch (error) {
       toast.error('Error al actualizar estado');
@@ -102,7 +121,7 @@ export const KitchenDisplay = () => {
                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
                     order.status === 'pending' ? 'bg-white/70 text-[#8b6435]' : 'bg-white/70 text-[#2f2317]'
                   }`}>
-                    {order.status === 'pending' ? 'NUEVO' : 'COCINANDO'}
+                    {order.status === 'pending' ? 'NUEVO' : order.status.toUpperCase()}
                   </span>
                 </div>
                 <p className="text-xs font-bold opacity-70 truncate">{order.customer_name || 'Sin nombre'}</p>
@@ -113,7 +132,7 @@ export const KitchenDisplay = () => {
                 {order.items?.map((item, i) => (
                   <div key={i} className="border-b border-[#dcc7a5]/70 pb-3 last:border-0">
                     <div className="flex justify-between items-start gap-2">
-                       <span className="text-xl font-bold text-zinc-900 flex-1">{item.menu_item?.name}</span>
+                       <span className="text-xl font-bold text-zinc-900 flex-1">{item.MenuItem?.name || item.menu_item?.name || 'Platillo sin nombre'}</span>
                        <span className="bg-[#f3e4ca] text-[#8b6435] w-8 h-8 rounded-lg flex items-center justify-center font-black">x{item.quantity}</span>
                     </div>
                     {item.special_instructions && (
@@ -131,7 +150,7 @@ export const KitchenDisplay = () => {
                 <div className="flex items-center justify-between mb-4 text-zinc-500">
                    <div className="flex items-center gap-1">
                       <ClockIcon className="w-4 h-4" />
-                      <span className="text-xs font-bold">{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-xs font-bold">{new Date(order.createdAt || order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                    </div>
                    {order.order_type === 'delivery' && (
                      <span className="text-[10px] font-black bg-slate-800 px-2 py-1 rounded-md">DOMICILIO</span>
@@ -140,21 +159,17 @@ export const KitchenDisplay = () => {
                 
                 <button
                   onClick={() => handleUpdateStatus(order.id, order.status)}
-                  className={`w-full py-4 rounded-2xl font-black transition-all flex items-center justify-center gap-2 active:scale-95 ${
-                    order.status === 'pending'
-                      ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] hover:to-[#a97d45] shadow-lg shadow-[rgba(185,140,82,0.18)] text-white'
-                      : 'bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/30 text-white'
-                  }`}
+                  className={`w-full py-4 rounded-2xl font-black transition-all flex items-center justify-center gap-2 active:scale-95 ${statusFlow[order.status]?.tone || 'bg-zinc-800 text-white'}`}
                 >
-                  {order.status === 'pending' ? (
+                  {order.status === 'ready' ? (
                     <>
-                      <BeakerIcon className="w-6 h-6" />
-                      EMPEZAR COCINA
+                      <CheckCircleIcon className="w-6 h-6" />
+                      MARCAR COMO SERVIDO
                     </>
                   ) : (
                     <>
-                      <CheckCircleIcon className="w-6 h-6" />
-                      MARCAR COMO LISTO
+                      <BeakerIcon className="w-6 h-6" />
+                      {statusFlow[order.status]?.label || 'AVANZAR ESTADO'}
                     </>
                   )}
                 </button>

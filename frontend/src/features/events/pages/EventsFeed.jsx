@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { getEvents, registerToEvent } from '../../../shared/api/events';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { showError, showSuccess } from '../../../shared/utils/toast';
@@ -18,6 +19,8 @@ import {
 
 export const EventsFeed = () => {
   const { user } = useAuthStore();
+  const [searchParams] = useSearchParams();
+  const eventType = searchParams.get('type');
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [registeringId, setRegisteringId] = useState(null);
@@ -25,8 +28,28 @@ export const EventsFeed = () => {
   const loadEvents = async () => {
     try {
       setLoading(true);
-      const response = await getEvents({ upcoming: true, limit: 50 });
-      setEvents(response.data?.events || []);
+      const params = eventType === 'promotion'
+        ? { event_type: 'promotion', status: 'scheduled', limit: 50 }
+        : { upcoming: true, limit: 50, ...(eventType ? { event_type: eventType } : {}) };
+
+      const response = await getEvents(params);
+      const rawEvents = response.data?.events || [];
+
+      // Normalize backend camelCase fields to frontend snake_case usage.
+      const normalizedEvents = rawEvents.map((event) => ({
+        ...event,
+        id: event.id || event._id,
+        event_type: event.event_type || event.eventType,
+        event_date: event.event_date || (event.eventDate ? String(event.eventDate).slice(0, 10) : ''),
+        start_time: event.start_time || event.startTime,
+        end_time: event.end_time || event.endTime,
+        max_participants: event.max_participants ?? event.maxParticipants,
+        current_participants: event.current_participants ?? event.currentParticipants,
+        price_per_person: event.price_per_person ?? event.pricePerPerson,
+        image_url: event.image_url || event.imageUrl,
+      }));
+
+      setEvents(normalizedEvents);
     } catch (error) {
       showError('No se pudo sincronizar la cartelera de eventos');
     } finally {
@@ -36,21 +59,31 @@ export const EventsFeed = () => {
 
   useEffect(() => {
     loadEvents();
-  }, []);
+  }, [eventType]);
 
   const handleRegister = async (event) => {
     try {
       setRegisteringId(event.id);
+      const fullName = `${user?.name || ''} ${user?.surname || ''}`.trim();
       await registerToEvent(event.id, {
-        user_id: user?.id,
-        participant_name: user?.name || user?.username || 'Cliente',
+        // user_id is optional in backend; omit it to avoid cross-service ID mismatch
+        participant_name: fullName || user?.username || 'Cliente',
         participant_email: user?.email,
         participant_phone: user?.phone || '00000000',
       });
       showSuccess(`¡Confirmado! Te has inscrito en "${event.name}"`);
       await loadEvents();
     } catch (error) {
-      showError('No se pudo completar tu inscripción premium');
+      const status = error?.response?.status;
+      const message = error?.response?.data?.message || '';
+
+      if (status === 409 || /already registered|ya (esta|estás) inscrito/i.test(message)) {
+        showSuccess('Ya estabas inscrito en este evento');
+      } else if (status === 400 && /full|capacidad|no spots/i.test(message)) {
+        showError('Este evento ya no tiene cupos disponibles');
+      } else {
+        showError('No se pudo completar tu inscripción premium');
+      }
     } finally {
       setRegisteringId(null);
     }
@@ -73,8 +106,14 @@ export const EventsFeed = () => {
         </div>
         <div className="relative z-10">
           <p className="text-[10px] uppercase tracking-[0.4em] font-black text-[#b98c52] mb-2">Cartelera Exclusiva</p>
-          <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">Experiencias <span className="text-[#8b6435]">Premium</span></h1>
-          <p className="mt-6 text-zinc-600 font-bold uppercase tracking-widest text-xs max-w-xl leading-loose">Catas, cenas temáticas y masterclasses diseñadas para los paladares más exigentes de nuestra comunidad.</p>
+          <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">
+            {eventType === 'promotion' ? 'Ofertas' : 'Experiencias'} <span className="text-[#8b6435]">Premium</span>
+          </h1>
+          <p className="mt-6 text-zinc-600 font-bold uppercase tracking-widest text-xs max-w-xl leading-loose">
+            {eventType === 'promotion'
+              ? 'Promociones, beneficios y experiencias especiales activas para nuestra comunidad Gourmet.'
+              : 'Catas, cenas temáticas y masterclasses diseñadas para los paladares más exigentes de nuestra comunidad.'}
+          </p>
         </div>
       </div>
 
@@ -155,7 +194,9 @@ export const EventsFeed = () => {
         {events.length === 0 && (
            <div className="col-span-full py-32 bg-white/70 rounded-[4rem] border border-dashed border-[#dcc7a5] text-center">
              <Calendar className="w-16 h-16 text-[#d7b77f] mx-auto mb-6" />
-             <p className="text-zinc-600 font-black uppercase tracking-[0.4em] text-[10px]">No hay eventos programados en este momento</p>
+             <p className="text-zinc-600 font-black uppercase tracking-[0.4em] text-[10px]">
+              {eventType === 'promotion' ? 'No hay ofertas activas en este momento' : 'No hay eventos programados en este momento'}
+             </p>
           </div>
         )}
       </div>

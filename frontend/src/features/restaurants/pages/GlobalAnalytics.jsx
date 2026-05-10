@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   getGlobalOverview 
@@ -24,19 +25,37 @@ const COLORS = ['#A855F7', '#6366F1', '#8B5CF6', '#4F46E5', '#D8B4FE'];
 export const GlobalAnalytics = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const navigate = useNavigate();
+
+  const fetchGlobal = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await getGlobalOverview();
+      setStats(res.data.stats || null);
+    } catch (err) {
+      console.error('Error fetching global stats:', err);
+      const msg = err?.response?.data?.message || err?.message || 'Error desconocido al recuperar estadísticas globales';
+      setError(msg);
+      setStats(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
+    let mounted = true;
+    (async () => {
       try {
-        const res = await getGlobalOverview();
-        setStats(res.data.stats);
-      } catch (error) {
-        console.error('Error fetching global stats:', error);
-      } finally {
-        setLoading(false);
+        if (!mounted) return;
+        await fetchGlobal();
+      } catch (e) {
+        // already handled in fetchGlobal
       }
-    };
-    fetchStats();
+    })();
+    return () => { mounted = false; };
   }, []);
 
   if (loading) return (
@@ -50,24 +69,36 @@ export const GlobalAnalytics = () => {
         <p className="mt-8 text-zinc-500 font-black animate-pulse uppercase tracking-[0.4em] text-[10px]">Sincronizando Plataforma Global...</p>
     </div>
   );
-
-  if (!stats) return (
-    <div className="p-12 text-center font-outfit">
-      <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-         <Globe className="w-10 h-10 text-rose-500" />
-      </div>
-      <p className="text-zinc-900 font-black uppercase tracking-widest text-xl mb-4">Error de Conexión Global</p>
-      <button 
-        onClick={() => window.location.reload()} 
-        className="px-8 py-4 bg-[#fffaf3] text-zinc-900 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-[#dcc7a5] hover:border-[#b98c52]"
-      >
-        Reintentar Protocolo
-      </button>
-    </div>
-  );
+  // If we don't have stats, render the analytics layout but show a banner with the error and actions
+  const topRestaurants = stats?.topRestaurants || [];
+  const totalRestaurants = stats?.totalRestaurants || 0;
+  const totalUsers = stats?.totalUsers || 0;
+  const totalRevenue = stats?.totalRevenue || 0;
+  const totalOrders = stats?.totalOrders || 0;
 
   return (
     <div className="space-y-12 pb-20 font-outfit animate-in fade-in duration-700">
+      {error && (
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-center">
+          <p className="font-black text-rose-700 uppercase tracking-widest">Advertencia: {error}</p>
+          <div className="mt-3 flex items-center justify-center gap-3">
+            {(error.toLowerCase().includes('401') || error.toLowerCase().includes('403') || /permiso|autoriz/i.test(error)) && (
+              <button
+                onClick={() => navigate('/login')}
+                className="px-4 py-2 bg-white border border-rose-300 rounded-lg font-black text-sm"
+              >
+                Reingresar
+              </button>
+            )}
+            <button
+              onClick={() => fetchGlobal()}
+              className="px-4 py-2 bg-primary-500 text-white rounded-lg font-black text-sm"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
            <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-2">Network intelligence</p>
@@ -85,11 +116,11 @@ export const GlobalAnalytics = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {[
-          { label: 'Sedes Activas', value: stats.totalRestaurants, icon: Building2, color: 'purple' },
-          { label: 'Usuarios Red', value: stats.totalUsers, icon: Users, color: 'indigo' },
-          { label: 'Volumen Total', value: `Q${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'purple' },
-          { label: 'Transacciones', value: stats.totalOrders, icon: ShoppingBag, color: 'indigo' },
-        ].map((kpi, i) => (
+            { label: 'Sedes Activas', value: totalRestaurants, icon: Building2, color: 'purple' },
+            { label: 'Usuarios Red', value: totalUsers, icon: Users, color: 'indigo' },
+            { label: 'Volumen Total', value: `Q${totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'purple' },
+            { label: 'Transacciones', value: totalOrders, icon: ShoppingBag, color: 'indigo' },
+          ].map((kpi, i) => (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -120,7 +151,7 @@ export const GlobalAnalytics = () => {
           </div>
           <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.topRestaurants}>
+              <BarChart data={topRestaurants}>
                 <CartesianGrid strokeDasharray="8 8" vertical={false} stroke="#dcc7a5" />
                 <XAxis 
                   dataKey="Restaurant.name" 
@@ -148,7 +179,7 @@ export const GlobalAnalytics = () => {
                   labelStyle={{ marginBottom: '8px', color: '#b98c52', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.2em' }}
                 />
                 <Bar dataKey="revenue" radius={[12, 12, 0, 0]}>
-                  {stats.topRestaurants.map((entry, index) => (
+                  {topRestaurants.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Bar>
@@ -173,7 +204,7 @@ export const GlobalAnalytics = () => {
                  </tr>
                </thead>
                <tbody className="divide-y divide-zinc-800/50">
-                 {stats.topRestaurants.map((rest, i) => (
+                 {topRestaurants.map((rest, i) => (
                    <tr key={i} className="group hover:bg-[#d7b77f]/5 transition-all">
                      <td className="py-6 px-4">
                         <div className="flex flex-col">

@@ -59,7 +59,11 @@ export const ProfilePage = () => {
   const submitPassword = async (e) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) return toast.error('Las contraseñas no coinciden');
-    const result = await changePassword(passwordData.currentPassword, passwordData.newPassword);
+    const result = await changePassword(
+      passwordData.currentPassword,
+      passwordData.newPassword,
+      passwordData.confirmPassword
+    );
     if (result.success) {
       toast.success('Contraseña actualizada');
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });

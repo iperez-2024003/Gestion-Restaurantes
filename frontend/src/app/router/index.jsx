@@ -22,6 +22,7 @@ import { ClientHistory } from '../../features/public/pages/ClientHistory';
 import { AdminEventsPage } from '../../features/events/pages/AdminEventsPage';
 import { AnalyticsDashboard } from '../../features/restaurants/pages/AnalyticsDashboard';
 import { GlobalAnalytics } from '../../features/restaurants/pages/GlobalAnalytics';
+import { ExportAnalytics } from '../../features/restaurants/pages/ExportAnalytics';
 import { GlobalClients } from '../../features/users/pages/GlobalClients';
 import { KitchenDisplay } from '../../features/orders/pages/KitchenDisplay';
 import { DashboardIndex } from '../../features/dashboard/pages/DashboardIndex';
@@ -109,6 +110,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['SUPER_ADMIN_ROLE']}>
             <GlobalAnalytics />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'analytics/export',
+        element: (
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN_ROLE']}>
+            <ExportAnalytics />
           </ProtectedRoute>
         )
       },

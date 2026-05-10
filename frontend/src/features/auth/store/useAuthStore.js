@@ -123,10 +123,14 @@ export const useAuthStore = create(
         }
       },
 
-      changePassword: async (currentPassword, newPassword) => {
+      changePassword: async (currentPassword, newPassword, confirmPassword) => {
         set({ isLoading: true });
         try {
-          const response = await api.put('/auth/profile/change-password', { currentPassword, newPassword });
+          const response = await api.put('/auth/profile/change-password', {
+            currentPassword,
+            newPassword,
+            confirmPassword,
+          });
           set({ isLoading: false });
           return { success: true, message: response.data.message };
         } catch (error) {

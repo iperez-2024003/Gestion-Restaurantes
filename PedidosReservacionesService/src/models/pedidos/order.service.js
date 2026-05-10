@@ -95,36 +95,43 @@ export const createOrderRecord = async (payload) => {
 
   let subtotal = 0;
   const orderItems = [];
-
+  // Usar operaciones atómicas para decrementar stock y evitar condiciones de carrera.
+  const decremented = [];
   for (const item of payload.items) {
-    const menuItem = await MenuItem.findOne({
-      _id: item.menu_item_id,
-      restaurant_id: payload.restaurant_id,
-      is_active: true,
-    });
+    // Intentar decrementar atómicamente
+    const updatedMenuItem = await MenuItem.findOneAndUpdate(
+      {
+        _id: item.menu_item_id,
+        restaurant_id: payload.restaurant_id,
+        is_active: true,
+        is_available: true,
+        stock_quantity: { $gte: Number(item.quantity) },
+      },
+      { $inc: { stock_quantity: -Number(item.quantity) } },
+      { new: true }
+    ).lean();
 
-    if (!menuItem) {
-      throw new Error(`Menu item ${item.menu_item_id} not found or not available`);
+    if (!updatedMenuItem) {
+      // Rollback de decrementos previos
+      for (const d of decremented) {
+        try {
+          await MenuItem.findByIdAndUpdate(d.menu_item_id, { $inc: { stock_quantity: d.quantity } });
+        } catch (err) {
+          console.error('Rollback stock failed for', d.menu_item_id, err.message);
+        }
+      }
+      throw new Error(`Inventario insuficiente o platillo no disponible para id ${item.menu_item_id}`);
     }
 
-    if (menuItem.is_available === false) {
-      throw new Error(`Menu item "${menuItem.name}" no está disponible actualmente`);
-    }
+    decremented.push({ menu_item_id: String(item.menu_item_id), quantity: Number(item.quantity) });
 
-    if (menuItem.stock_quantity < item.quantity) {
-      throw new Error(`Inventario insuficiente para "${menuItem.name}". Solo quedan ${menuItem.stock_quantity} en stock.`);
-    }
-
-    menuItem.stock_quantity -= item.quantity;
-    await menuItem.save();
-
-    const itemSubtotal = Number(menuItem.price) * Number(item.quantity);
+    const itemSubtotal = Number(updatedMenuItem.price) * Number(item.quantity);
     subtotal += itemSubtotal;
 
     orderItems.push({
       menu_item_id: String(item.menu_item_id),
       quantity: Number(item.quantity),
-      unit_price: Number(menuItem.price),
+      unit_price: Number(updatedMenuItem.price),
       subtotal: Number(itemSubtotal.toFixed(2)),
       special_instructions: item.special_instructions || null,
     });
@@ -249,11 +256,8 @@ export const cancelOrderRecord = async (id) => {
 
   const items = await OrderItem.find({ order_id: String(order._id) });
   for (const item of items) {
-    const menuItem = await MenuItem.findById(item.menu_item_id);
-    if (menuItem) {
-      menuItem.stock_quantity += item.quantity;
-      await menuItem.save();
-    }
+    // Restaurar stock de forma atómica
+    await MenuItem.findByIdAndUpdate(item.menu_item_id, { $inc: { stock_quantity: Number(item.quantity) } });
   }
 
   const updated = await Order.findByIdAndUpdate(id, { status: 'cancelled' }, { new: true, runValidators: true });
@@ -265,13 +269,14 @@ export const addItemToOrderRecord = async ({ orderId, menu_item_id, quantity, sp
   if (!order) throw new Error('Orden no encontrada');
   if (!['pending', 'confirmed'].includes(order.status)) throw new Error('Cannot add items to order in current status');
 
-  const menuItem = await MenuItem.findOne({ _id: menu_item_id, restaurant_id: order.restaurant_id, is_active: true, is_available: true });
-  if (!menuItem) throw new Error('Platillo no encontrado o no disponible');
+  // Decremento atómico del stock para evitar race conditions
+  const updatedMenuItem = await MenuItem.findOneAndUpdate(
+    { _id: menu_item_id, restaurant_id: order.restaurant_id, is_active: true, is_available: true, stock_quantity: { $gte: Number(quantity) } },
+    { $inc: { stock_quantity: -Number(quantity) } },
+    { new: true }
+  ).lean();
 
-  if (menuItem.stock_quantity < quantity) throw new Error(`Inventario insuficiente para "${menuItem.name}". Solo quedan ${menuItem.stock_quantity} en stock.`);
-
-  menuItem.stock_quantity -= quantity;
-  await menuItem.save();
+  if (!updatedMenuItem) throw new Error('Inventario insuficiente o platillo no disponible');
 
   const itemSubtotal = Number(menuItem.price) * Number(quantity);
   const orderItem = await OrderItem.create({
@@ -298,11 +303,8 @@ export const removeItemFromOrderRecord = async ({ orderId, itemId }) => {
   const orderItem = await OrderItem.findOne({ _id: itemId, order_id: String(order._id) });
   if (!orderItem) throw new Error('Order No encontrado');
 
-  const menuItem = await MenuItem.findById(orderItem.menu_item_id);
-  if (menuItem) {
-    menuItem.stock_quantity += orderItem.quantity;
-    await menuItem.save();
-  }
+  // Restaurar stock atómicamente
+  await MenuItem.findByIdAndUpdate(orderItem.menu_item_id, { $inc: { stock_quantity: Number(orderItem.quantity) } });
 
   await OrderItem.findByIdAndDelete(itemId);
   const newSubtotal = Math.max(0, Number(order.subtotal) - Number(orderItem.subtotal));

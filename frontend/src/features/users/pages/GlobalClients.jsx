@@ -20,7 +20,7 @@ export const GlobalClients = () => {
     const fetchClients = async () => {
       try {
         const res = await getGlobalVipClients();
-        setClients(res.data.clients || []);
+        setClients(res.data.data || []);
       } catch (error) {
         console.error('Error fetching VIP clients:', error);
       } finally {
@@ -80,18 +80,18 @@ export const GlobalClients = () => {
                     <td className="p-4 md:p-8">
                       <div className="flex items-center gap-6">
                         <div className="w-12 h-12 md:w-14 md:h-14 bg-[#f3e4ca] text-[#8b6435] rounded-2xl flex items-center justify-center font-black border border-[#dcc7a5]/70 group-hover:scale-110 transition-transform duration-500">
-                          {client.user.Name[0]}{client.user.Surname[0]}
+                          {(client.user?.username || client.user?.email || 'VIP').slice(0, 2).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-black text-zinc-900 uppercase tracking-tight">{client.user.Name} {client.user.Surname}</p>
-                          <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">@{client.user.Username}</p>
+                          <p className="font-black text-zinc-900 uppercase tracking-tight">{client.user?.username || 'Cliente VIP'}</p>
+                          <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">{client.user?.email || 'Sin email'}</p>
                         </div>
                       </div>
                     </td>
                     <td className="p-4 md:p-8 text-center">
                       <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#f3e4ca] text-[#8b6435] rounded-xl font-black text-[10px] uppercase tracking-widest">
                         <Star className="w-3.5 h-3.5" />
-                        {client.orders_count} pedidos
+                        {client.total_orders} pedidos
                       </div>
                     </td>
                     <td className="p-4 md:p-8 text-right">
@@ -135,7 +135,7 @@ export const GlobalClients = () => {
          >
            <TrendingUp className="w-8 h-8 mb-6 text-[#b98c52]" />
            <h4 className="text-4xl font-black mb-2 tracking-tighter">
-             {(clients.reduce((acc, c) => acc + parseInt(c.orders_count), 0) / (clients.length || 1)).toFixed(1)}
+             {(clients.reduce((acc, c) => acc + parseInt(c.total_orders || 0, 10), 0) / (clients.length || 1)).toFixed(1)}
            </h4>
            <p className="text-zinc-600 font-black uppercase tracking-widest text-[10px]">Promedio de Pedidos</p>
          </motion.div>
@@ -146,7 +146,7 @@ export const GlobalClients = () => {
          >
            <DollarSign className="w-8 h-8 mb-6 text-emerald-500" />
            <h4 className="text-4xl font-black mb-2 tracking-tighter">
-             Q{(clients.reduce((acc, c) => acc + parseFloat(c.total_spent), 0) / (clients.length || 1)).toLocaleString()}
+             Q{(clients.reduce((acc, c) => acc + parseFloat(c.total_spent || 0), 0) / (clients.length || 1)).toLocaleString()}
            </h4>
            <p className="text-zinc-500 font-black uppercase tracking-widest text-[10px]">Inversión Media</p>
          </motion.div>

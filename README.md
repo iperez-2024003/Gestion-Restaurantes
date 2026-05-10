@@ -13,13 +13,24 @@
 | **Framework Backend** | Express.js |
 | **ORM / ODM** | Sequelize 6 / Mongoose 8 |
 | **Bases de Datos** | PostgreSQL (Auth) & MongoDB (Negocio) |
-| **Autenticación** | JWT (Shared Secret) |
+| **Autenticación** | JWT + Refresh Tokens rotados |
 | **Tiempo Real** | Socket.io (PedidosService) |
 | **Storage** | Cloudinary |
 | **Email** | Nodemailer |
 | **Frontend** | React 18 + Vite |
 | **Estado Global** | Zustand |
 | **Orquestación** | Scripts Node personalizados |
+
+---
+
+## ✨ Mejoras recientes
+
+- Refresh tokens persistidos en PostgreSQL, con rotación y revocación.
+- Detección de reutilización de refresh token para cerrar sesiones comprometidas.
+- Cookie `HttpOnly` para la sesión extendida.
+- Decremento atómico de stock para evitar sobreventa.
+- Validación de scope por restaurante para staff y gerentes.
+- Smoke tests para validar login, roles, reportes y analíticas.
 
 ---
 
@@ -114,11 +125,12 @@ pnpm run dev:frontend    # Frontend
 
 ### Variables de entorno
 Configura tu archivo `.env` con las siguientes claves:
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` — PostgreSQL
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD` — PostgreSQL
 - `MONGODB_URI` — MongoDB
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
 - `EMAIL_USER`, `EMAIL_PASS`
 - `JWT_SECRET`
+- `JWT_REFRESH_EXPIRES_IN` — expiración del refresh token
 
 ---
 
@@ -165,7 +177,9 @@ El sistema trabaja con 4 roles conectados entre backend y frontend. La separaci�
 |---|---|---|
 | POST | `/auth/login` | Login universal |
 | POST | `/auth/register` | Registro de clientes |
-| GET | `/users/staff` | Gestión de personal (Gerentes) |
+| POST | `/auth/refresh` | Intercambio de refresh token por access token |
+| POST | `/auth/revoke` | Revocación de refresh token |
+| GET | `/restaurants/:id/staff` | Gestión de personal por sede |
 
 ### 🍴 RestaurantesService (`:3007`)
 | Método | Ruta | Descripción |
@@ -185,6 +199,9 @@ El sistema trabaja con 4 roles conectados entre backend y frontend. La separaci�
 |---|---|---|
 | GET | `/statistics/restaurant/:id/overview` | Dashboard de analíticas |
 | GET | `/statistics/global/overview` | Resumen para Super Admin |
+| GET | `/statistics/restaurant/:id/export-excel` | Exportación de Excel por sede |
+| GET | `/reports/daily-summary/:restaurantId` | Resumen diario por correo/JSON |
+| GET | `/reports/daily-excel/:restaurantId` | Excel diario descargable |
 
 ---
 
@@ -218,17 +235,14 @@ El sistema trabaja con 4 roles conectados entre backend y frontend. La separaci�
 
 ## 📦 Estructura del Proyecto
 
-```
-Gestion-Restaurantes/
-├── AuthService/              # Puerto 3006 (SQL + NoSQL)
-├── RestaurantesService/      # Puerto 3007 (NoSQL)
-├── PedidosReservacionesService/ # Puerto 3008 (NoSQL + Sockets)
-├── EventosReportesService/   # Puerto 3009 (NoSQL + Excel)
-├── scripts/                  # Orquestadores (dev, install)
-├── frontend/                 # React 18 (Vite)
-└── docker-compose.yml        # Infraestructura de DBs
-```
 
+## ✅ Estado actual
+
+- Autenticación multi-rol con roles y scopes.
+- Arquitectura de 4 microservicios con frontend React.
+- KDS por sockets para órdenes de cocina.
+- Exportación de Excel y analíticas.
+- Refresh tokens y pruebas de humo para validar el flujo.
 ---
 
 ## 🔧 Notas Técnicas Importantes

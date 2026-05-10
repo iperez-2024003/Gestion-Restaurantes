@@ -6,6 +6,7 @@ import {
   authRateLimit,
   requestLimit,
 } from '../../middlewares/request-limit.js';
+import { validateRefreshTokenMiddleware } from '../../middlewares/refresh-token.js';
 import { upload, handleUploadError } from '../../helpers/file-upload.js';
 import {
   validateRegister,
@@ -97,6 +98,16 @@ router.post(
  *     summary: Autentica un usuario
  */
 router.post('/login', authRateLimit, validateLogin, authController.login);
+
+/**
+ * Refresh token endpoint: intercambia refresh token por nuevo access token
+ */
+router.post('/refresh', requestLimit, validateRefreshTokenMiddleware, authController.refreshToken);
+
+/**
+ * Revoke refresh token endpoint: revoca un refresh token específico
+ */
+router.post('/revoke', validateJWT, authController.revokeToken);
 
 /**
  * @swagger
@@ -198,6 +209,15 @@ router.put(
  *     tags: [Profile]
  *     summary: Edita el perfil (name, surname, username, phone, foto)
  */
+router.put(
+  '/profile',
+  validateJWT,
+  upload.single('profilePicture'),
+  handleUploadError,
+  validateUpdateProfile,
+  authController.updateProfile
+);
+
 /**
  * @swagger
  * /api/v1/auth/profile/sync-restaurant:

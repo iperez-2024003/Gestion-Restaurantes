@@ -59,8 +59,12 @@ export const validateEventCreation = [
   body('image_url')
     .optional()
     .trim()
-    .isURL()
-    .withMessage('Image URL must be a valid URL'),
+    .custom((value) => {
+      if (!value) return true;
+      if (value.startsWith('data:image/')) return true;
+      return /^https?:\/\//i.test(value);
+    })
+    .withMessage('Banner image must be a valid URL or uploaded image'),
 
   body('requirements')
     .optional()
@@ -129,8 +133,12 @@ export const validateEventUpdate = [
   body('image_url')
     .optional()
     .trim()
-    .isURL()
-    .withMessage('Image URL must be a valid URL'),
+    .custom((value) => {
+      if (!value) return true;
+      if (value.startsWith('data:image/')) return true;
+      return /^https?:\/\//i.test(value);
+    })
+    .withMessage('Banner image must be a valid URL or uploaded image'),
 
   (req, res, next) => {
     const errors = validationResult(req);

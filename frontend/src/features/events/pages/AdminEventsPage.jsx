@@ -95,6 +95,9 @@ export const AdminEventsPage = () => {
             <p className="text-zinc-600 font-bold uppercase tracking-widest text-[10px] leading-relaxed max-w-lg">
               Gestiona y publica experiencias gastronómicas exclusivas para tu comunidad de comensales.
             </p>
+            <p className="mt-4 inline-flex items-center rounded-full border border-[#d7b77f]/30 bg-[#fffaf3] px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#8b6435]">
+              Aquí mismo publicas promociones, catas y experiencias especiales
+            </p>
           </div>
         </div>
 

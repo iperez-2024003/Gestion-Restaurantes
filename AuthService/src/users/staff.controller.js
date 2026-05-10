@@ -10,6 +10,23 @@ import { Restaurant } from '../restaurant/restaurant.model.js';
 
 const ALLOWED_STAFF_ROLES = [STAFF_ROLE, RESTAURANT_ADMIN_ROLE];
 
+const ensureRestaurantScope = (req, restaurantId) => {
+  const isSuperAdmin = req.userRoleNames?.includes('SUPER_ADMIN_ROLE');
+  if (isSuperAdmin) return null;
+
+  const isRestaurantAdmin = req.userRoleNames?.includes(RESTAURANT_ADMIN_ROLE);
+  if (!isRestaurantAdmin) {
+    return 'No tienes permisos para gestionar personal';
+  }
+
+  const requesterRestaurantId = req.user?.RestaurantId || req.user?.restaurant_id;
+  if (!requesterRestaurantId || requesterRestaurantId !== restaurantId) {
+    return 'No puedes gestionar personal de otra sede';
+  }
+
+  return null;
+};
+
 /**
  * Crea un nuevo empleado para un restaurante específico.
  * Solo accesible por SUPER_ADMIN_ROLE o RESTAURANT_ADMIN_ROLE (validado en route).
@@ -19,6 +36,12 @@ export const createStaff = asyncHandler(async (req, res) => {
   try {
     const { id: restaurantId } = req.params;
     const { name, surname, username, email, password, phone, role } = req.body;
+
+    const scopeError = ensureRestaurantScope(req, restaurantId);
+    if (scopeError) {
+      await transaction.rollback();
+      return res.status(403).json({ success: false, message: scopeError });
+    }
 
     // Validar que el restaurante existe
     const restaurant = await Restaurant.findById(restaurantId);
@@ -92,6 +115,11 @@ export const createStaff = asyncHandler(async (req, res) => {
 export const getRestaurantStaff = asyncHandler(async (req, res) => {
   const { id: restaurantId } = req.params;
 
+  const scopeError = ensureRestaurantScope(req, restaurantId);
+  if (scopeError) {
+    return res.status(403).json({ success: false, message: scopeError });
+  }
+
   const staff = await User.findAll({
     where: { restaurant_id: restaurantId },
     include: [
@@ -129,8 +157,25 @@ export const getRestaurantStaff = asyncHandler(async (req, res) => {
 export const updateStaffRole = asyncHandler(async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
-    const { staff_id } = req.params;
+    const { id: restaurantId, staff_id } = req.params;
     const { newRole } = req.body;
+
+    const scopeError = ensureRestaurantScope(req, restaurantId);
+    if (scopeError) {
+      await transaction.rollback();
+      return res.status(403).json({ success: false, message: scopeError });
+    }
+
+    const targetUser = await User.findByPk(staff_id);
+    if (!targetUser) {
+      await transaction.rollback();
+      return res.status(404).json({ success: false, message: 'Empleado no encontrado' });
+    }
+
+    if (targetUser.RestaurantId !== restaurantId) {
+      await transaction.rollback();
+      return res.status(403).json({ success: false, message: 'No puedes modificar personal de otra sede' });
+    }
 
     if (!ALLOWED_STAFF_ROLES.includes(newRole)) {
       await transaction.rollback();

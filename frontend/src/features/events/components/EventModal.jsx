@@ -41,14 +41,22 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
     price_per_person: 0,
     image_url: '',
   });
+  const [imagePreview, setImagePreview] = useState('');
 
   useEffect(() => {
     if (initialData) {
       setForm({
-        ...initialData,
+        name: initialData.name || '',
+        description: initialData.description || '',
+        event_type: initialData.event_type || 'theme_dinner',
+        event_date: initialData.event_date || '',
         start_time: initialData.start_time?.slice(0, 5) || '19:00',
         end_time: initialData.end_time?.slice(0, 5) || '22:00',
+        max_participants: initialData.max_participants || 20,
+        price_per_person: initialData.price_per_person || 0,
+        image_url: initialData.image_url || initialData.imageUrl || '',
       });
+      setImagePreview(initialData.image_url || initialData.imageUrl || '');
     } else {
       setForm({
         name: '',
@@ -61,11 +69,25 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
         price_per_person: 0,
         image_url: '',
       });
+      setImagePreview('');
     }
   }, [initialData, isOpen]);
 
   const updateForm = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleBannerChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result?.toString() || '';
+      setForm((prev) => ({ ...prev, image_url: dataUrl }));
+      setImagePreview(dataUrl);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleFormSubmit = (e) => {
@@ -80,9 +102,9 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white/90 rounded-[3.5rem] border border-[#dcc7a5]/70 shadow-[0_30px_100px_rgba(110,80,45,0.14)] w-full max-w-2xl overflow-hidden my-auto"
+        className="bg-white/90 rounded-[2.5rem] md:rounded-[3.5rem] border border-[#dcc7a5]/70 shadow-[0_30px_100px_rgba(110,80,45,0.14)] w-full max-w-4xl overflow-hidden my-auto max-h-[92vh] flex flex-col"
       >
-        <div className="px-10 py-8 border-b border-[#dcc7a5]/70 bg-[#fffaf3] relative overflow-hidden">
+        <div className="px-6 md:px-10 py-6 md:py-8 border-b border-[#dcc7a5]/70 bg-[#fffaf3] relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-5">
              <Sparkles className="w-40 h-40 text-[#b98c52]" />
           </div>
@@ -110,9 +132,9 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
           </div>
         </div>
 
-        <form onSubmit={handleFormSubmit} className="p-10 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
+        <form onSubmit={handleFormSubmit} className="p-6 md:p-10 space-y-8 overflow-y-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            <div className="lg:col-span-2">
               <label className={labelClass}><FileText className="w-3 h-3" /> Nombre del Evento</label>
               <input 
                 value={form.name} 
@@ -189,17 +211,21 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
               />
             </div>
 
-            <div className="md:col-span-2">
-              <label className={labelClass}><ImageIcon className="w-3 h-3" /> Banner URL</label>
-              <input 
-                value={form.image_url} 
-                onChange={(e) => updateForm('image_url', e.target.value)} 
-                placeholder="https://images.unsplash.com/..." 
-                className={inputClass}
-              />
+            <div className="lg:col-span-2 space-y-3">
+              <label className={labelClass}><ImageIcon className="w-3 h-3" /> Banner del Evento</label>
+              <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#dcc7a5] bg-[#fffaf3] px-6 py-8 text-center transition-all hover:border-[#b98c52] hover:bg-white">
+                <input type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-[#8b6435]">Subir imagen desde tu equipo</span>
+                <span className="mt-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">JPG, PNG o WEBP</span>
+              </label>
+              {imagePreview && (
+                <div className="overflow-hidden rounded-[2rem] border border-[#dcc7a5] bg-white shadow-sm">
+                  <img src={imagePreview} alt="Vista previa del banner" className="h-52 w-full object-cover" />
+                </div>
+              )}
             </div>
 
-            <div className="md:col-span-2">
+            <div className="lg:col-span-2">
               <label className={labelClass}><FileText className="w-3 h-3" /> Descripción Detallada</label>
               <textarea 
                 value={form.description} 
@@ -210,7 +236,7 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-6 pt-8 border-t border-[#dcc7a5]/70">
+          <div className="flex items-center justify-end gap-4 md:gap-6 pt-8 border-t border-[#dcc7a5]/70">
             <button
               type="button"
               onClick={onClose}

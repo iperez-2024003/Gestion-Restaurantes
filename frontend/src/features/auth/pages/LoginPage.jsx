@@ -87,7 +87,12 @@ export const LoginPage = () => {
               <div className="space-y-1">
                 <div className="flex justify-between px-1">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-brown">Contraseña</label>
-                  <Link to="/forgot-password" hidden className="text-[10px] font-bold text-primary-600 hover:underline">¿Olvidaste tu contraseña?</Link>
+                  <Link
+                    to="/forgot-password"
+                    className="text-[10px] font-black uppercase tracking-widest text-primary-600 hover:text-primary-700 transition-colors"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Link>
                 </div>
                 <div className="relative">
                   <Input
@@ -111,6 +116,8 @@ export const LoginPage = () => {
               <Button type="submit" isLoading={isLoading} className="w-full py-3.5 mt-2">
                 Acceder al Sistema <ArrowRight size={18} />
               </Button>
+
+              {/* Mensaje informativo removido por petición del cliente */}
 
               <AnimatePresence>
                 {needsVerification && (
@@ -178,4 +185,4 @@ export const LoginPage = () => {
       </div>
     </div>
   );
-};
+};

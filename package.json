@@ -13,5 +13,9 @@
     "dev:eventos": "pnpm --dir EventosReportesService dev",
     "dev:frontend": "pnpm --dir frontend dev",
     "dev:all": "node scripts/dev.js"
+  },
+  "dependencies": {
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.23"
   }
 }
