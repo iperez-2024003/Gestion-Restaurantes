@@ -13,13 +13,24 @@
 | **Framework Backend** | Express.js |
 | **ORM / ODM** | Sequelize 6 / Mongoose 8 |
 | **Bases de Datos** | PostgreSQL (Auth) & MongoDB (Negocio) |
-| **Autenticación** | JWT (Shared Secret) |
+| **Autenticación** | JWT + Refresh Tokens rotados |
 | **Tiempo Real** | Socket.io (PedidosService) |
 | **Storage** | Cloudinary |
 | **Email** | Nodemailer |
 | **Frontend** | React 18 + Vite |
 | **Estado Global** | Zustand |
 | **Orquestación** | Scripts Node personalizados |
+
+---
+
+## ✨ Mejoras recientes
+
+- Refresh tokens persistidos en PostgreSQL, con rotación y revocación.
+- Detección de reutilización de refresh token para cerrar sesiones comprometidas.
+- Cookie `HttpOnly` para la sesión extendida.
+- Decremento atómico de stock para evitar sobreventa.
+- Validación de scope por restaurante para staff y gerentes.
+- Smoke tests para validar login, roles, reportes y analíticas.
 
 ---
 
@@ -52,9 +63,11 @@ pnpm run install:services
 ```
 
 #### Ejecución en Desarrollo
+
+##### Opción 1: Arranque Rápido (Recomendado para desarrollo)
 Inicia todos los microservicios simultáneamente con un solo comando:
 ```bash
-# Inicia los 4 servicios backend
+# En la raíz, inicia los 4 servicios backend
 pnpm run dev
 
 # En otra terminal, inicia el frontend
@@ -62,13 +75,62 @@ cd frontend
 pnpm run dev
 ```
 
+##### Opción 2: Microservicios en Terminales Separadas (Recomendado para producción/revisión)
+Ejecuta cada servicio en su propia terminal para visualizar procesos independientes:
+
+**Terminal 1 — AuthService (Puerto 3006)**
+```bash
+cd AuthService
+pnpm install  # Solo la primera vez
+pnpm run dev
+```
+
+**Terminal 2 — RestaurantesService (Puerto 3007)**
+```bash
+cd RestaurantesService
+pnpm install  # Solo la primera vez
+pnpm run dev
+```
+
+**Terminal 3 — PedidosReservacionesService (Puerto 3008)**
+```bash
+cd PedidosReservacionesService
+pnpm install  # Solo la primera vez
+pnpm run dev
+```
+
+**Terminal 4 — EventosReportesService (Puerto 3009)**
+```bash
+cd EventosReportesService
+pnpm install  # Solo la primera vez
+pnpm run dev
+```
+
+**Terminal 5 — Frontend (Puerto 5173)**
+```bash
+cd frontend
+pnpm install  # Solo la primera vez
+pnpm run dev
+```
+
+#### Scripts por Servicio
+Si prefieres ejecutar un servicio específico desde la raíz:
+```bash
+pnpm run dev:auth        # AuthService
+pnpm run dev:restaurantes # RestaurantesService
+pnpm run dev:pedidos     # PedidosReservacionesService
+pnpm run dev:eventos     # EventosReportesService
+pnpm run dev:frontend    # Frontend
+```
+
 ### Variables de entorno
 Configura tu archivo `.env` con las siguientes claves:
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` — PostgreSQL
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD` — PostgreSQL
 - `MONGODB_URI` — MongoDB
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
 - `EMAIL_USER`, `EMAIL_PASS`
 - `JWT_SECRET`
+- `JWT_REFRESH_EXPIRES_IN` — expiración del refresh token
 
 ---
 
@@ -79,8 +141,8 @@ Estas cuentas se sincronizan automáticamente al iniciar el servidor:
 | Rol | Usuario / Email | Contraseña |
 |---|---|---|
 | Super Admin | `admin` / `admin@restaurantes.com` | `Admin123!` |
-| Gerente | `gerente` / `gerente@manager.com` | `Admin123!` |
-| Staff | `staff` / `staff@manager.com` | `Admin123!` |
+| Gerente | `gerente` / `gerente@kinal.com` | `Admin123!` |
+| Staff | `staff` / `staff@kinal.com` | `Admin123!` |
 
 ---
 
@@ -115,7 +177,9 @@ El sistema trabaja con 4 roles conectados entre backend y frontend. La separaci�
 |---|---|---|
 | POST | `/auth/login` | Login universal |
 | POST | `/auth/register` | Registro de clientes |
-| GET | `/users/staff` | Gestión de personal (Gerentes) |
+| POST | `/auth/refresh` | Intercambio de refresh token por access token |
+| POST | `/auth/revoke` | Revocación de refresh token |
+| GET | `/restaurants/:id/staff` | Gestión de personal por sede |
 
 ### 🍴 RestaurantesService (`:3007`)
 | Método | Ruta | Descripción |
@@ -135,6 +199,9 @@ El sistema trabaja con 4 roles conectados entre backend y frontend. La separaci�
 |---|---|---|
 | GET | `/statistics/restaurant/:id/overview` | Dashboard de analíticas |
 | GET | `/statistics/global/overview` | Resumen para Super Admin |
+| GET | `/statistics/restaurant/:id/export-excel` | Exportación de Excel por sede |
+| GET | `/reports/daily-summary/:restaurantId` | Resumen diario por correo/JSON |
+| GET | `/reports/daily-excel/:restaurantId` | Excel diario descargable |
 
 ---
 
@@ -168,17 +235,14 @@ El sistema trabaja con 4 roles conectados entre backend y frontend. La separaci�
 
 ## 📦 Estructura del Proyecto
 
-```
-Gestion-Restaurantes/
-├── AuthService/              # Puerto 3006 (SQL + NoSQL)
-├── RestaurantesService/      # Puerto 3007 (NoSQL)
-├── PedidosReservacionesService/ # Puerto 3008 (NoSQL + Sockets)
-├── EventosReportesService/   # Puerto 3009 (NoSQL + Excel)
-├── scripts/                  # Orquestadores (dev, install)
-├── frontend/                 # React 18 (Vite)
-└── docker-compose.yml        # Infraestructura de DBs
-```
 
+## ✅ Estado actual
+
+- Autenticación multi-rol con roles y scopes.
+- Arquitectura de 4 microservicios con frontend React.
+- KDS por sockets para órdenes de cocina.
+- Exportación de Excel y analíticas.
+- Refresh tokens y pruebas de humo para validar el flujo.
 ---
 
 ## 🔧 Notas Técnicas Importantes
