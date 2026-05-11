@@ -15,14 +15,14 @@ cloudinary.config({
 export const uploadImage = async (filePath, fileName) => {
   try {
     const folder = config.cloudinary.folder;
-    
+
     // CORRECCIÓN CRÍTICA: Normalizar la ruta del archivo
     // Convertir todas las barras invertidas a barras normales
     const normalizedFilePath = filePath.replace(/\\/g, '/');
-    
+
     // Remover la extensión del fileName para el public_id
     const fileNameWithoutExt = fileName.replace(/\.[^/.]+$/, '');
-    
+
     const options = {
       public_id: fileNameWithoutExt,
       folder: folder,
@@ -72,7 +72,7 @@ export const deleteImage = async (imagePath) => {
     }
 
     const folder = config.cloudinary.folder;
-    
+
     // Si imagePath es una URL completa, extraer el public_id
     let publicId;
     if (imagePath.includes('cloudinary.com')) {
@@ -94,7 +94,7 @@ export const deleteImage = async (imagePath) => {
         ? imagePath
         : `${folder}/${imagePath}`;
     }
-    
+
     const result = await cloudinary.uploader.destroy(publicId);
 
     return result.result === 'ok';
@@ -106,12 +106,21 @@ export const deleteImage = async (imagePath) => {
 
 export const getFullImageUrl = (imagePath) => {
   if (!imagePath) {
-    return getDefaultAvatarUrl();
+    return '';
+  }
+
+  const defaultAvatarPath = config.cloudinary.defaultAvatarPath;
+  if (
+    imagePath === defaultAvatarPath ||
+    imagePath === process.env.CLOUDINARY_DEFAULT_AVATAR_FILENAME ||
+    imagePath === getDefaultAvatarPath()
+  ) {
+    return '';
   }
 
   // Si ya es una URL completa de Cloudinary, retornarla directamente
-  if (imagePath.startsWith('https://res.cloudinary.com/') || 
-      imagePath.startsWith('http://res.cloudinary.com/')) {
+  if (imagePath.startsWith('https://res.cloudinary.com/') ||
+    imagePath.startsWith('http://res.cloudinary.com/')) {
     return imagePath;
   }
 

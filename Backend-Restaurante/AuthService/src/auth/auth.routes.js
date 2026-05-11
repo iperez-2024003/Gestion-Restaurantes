@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as authController from './auth.controller.js';
 import { validateJWT, optionalValidateJWT } from '../../middlewares/validate-JWT.js';
 import { validateProfileByIdBody } from '../../middlewares/validate-params.js';
+import { requireSuperAdmin } from '../../middlewares/require-role.js';
 import {
   authRateLimit,
   requestLimit,
@@ -21,6 +22,40 @@ import { validatePasswordStrength } from '../../utils/password-utils.js';
 import { body } from 'express-validator';
 
 const router = Router();
+
+// ─── Validaciones para crear gerente (SUPER_ADMIN only) ────────────────────────
+const validateCreateManager = [
+  body('email')
+    .notEmpty().withMessage('El email es obligatorio')
+    .isEmail().withMessage('El email debe ser válido'),
+  body('username')
+    .notEmpty().withMessage('El nombre de usuario es obligatorio')
+    .isLength({ min: 3, max: 50 }).withMessage('El nombre de usuario debe tener entre 3 y 50 caracteres'),
+  body('password')
+    .notEmpty().withMessage('La contraseña es obligatoria')
+    .isLength({ min: 8 }).withMessage('La contraseña debe tener al menos 8 caracteres')
+    .custom((value) => {
+      const { isValid, errors: strengthErrors } = validatePasswordStrength(value);
+      if (!isValid) throw new Error(strengthErrors.join('. '));
+      return true;
+    }),
+  body('name')
+    .notEmpty().withMessage('El nombre es obligatorio')
+    .isLength({ max: 25 }).withMessage('El nombre no puede exceder 25 caracteres'),
+  body('surname')
+    .notEmpty().withMessage('El apellido es obligatorio')
+    .isLength({ max: 25 }).withMessage('El apellido no puede exceder 25 caracteres'),
+  body('phone')
+    .notEmpty().withMessage('El teléfono es obligatorio')
+    .matches(/^\d{8}$/).withMessage('El teléfono debe tener exactamente 8 dígitos'),
+  body('role')
+    .notEmpty().withMessage('El rol es obligatorio')
+    .isIn(['RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE']).withMessage('El rol debe ser RESTAURANT_ADMIN_ROLE o STAFF_ROLE'),
+  body('restaurant_id')
+    .notEmpty().withMessage('El ID del restaurante es obligatorio')
+    .isLength({ min: 1 }).withMessage('El ID del restaurante no puede estar vacío'),
+  handleValidationErrors,
+];
 
 // ─── Validaciones para actualizar perfil ──────────────────────────────────────
 const validateUpdateProfile = [
@@ -229,6 +264,22 @@ router.put(
   '/profile/sync-restaurant',
   validateJWT,
   authController.syncRestaurant
+);
+
+/**
+ * @swagger
+ * /api/v1/auth/create-manager:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Crea un gerente o personal administrativo (SUPER_ADMIN only)
+ *     description: Solo administradores globales pueden crear gerentes o personal para restaurantes específicos
+ */
+router.post(
+  '/create-manager',
+  validateJWT,
+  requireSuperAdmin,
+  validateCreateManager,
+  authController.createManager
 );
 
 export default router;

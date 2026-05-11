@@ -29,16 +29,17 @@ export const useAuthStore = create(
           return { success: true };
         } catch (error) {
           set({ isLoading: false });
-          return { success: false, error: error.response?.data?.message || 'Error al iniciar sesión' };
+          const status = error.response?.status;
+          const backendMessage = error.response?.data?.message;
+          const message = status === 401 ? 'Credenciales inválidas' : (backendMessage || 'Error al iniciar sesión');
+          return { success: false, error: message };
         }
       },
 
       register: async (formData) => {
         set({ isLoading: true });
         try {
-          const response = await api.post('/auth/register', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          });
+          const response = await api.post('/auth/register', formData);
           set({ isLoading: false });
           return { success: true, message: response.data.message };
         } catch (error) {
@@ -112,9 +113,7 @@ export const useAuthStore = create(
       updateProfile: async (formData) => {
         set({ isLoading: true });
         try {
-          const response = await api.put('/auth/profile', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          });
+          const response = await api.put('/auth/profile', formData);
           set({ user: response.data.data, isLoading: false });
           return { success: true, message: response.data.message };
         } catch (error) {
@@ -136,6 +135,18 @@ export const useAuthStore = create(
         } catch (error) {
           set({ isLoading: false });
           return { success: false, error: error.response?.data?.message || 'Error al cambiar contraseña' };
+        }
+      },
+
+      createManager: async (managerData) => {
+        set({ isLoading: true });
+        try {
+          const response = await api.post('/auth/create-manager', managerData);
+          set({ isLoading: false });
+          return { success: true, message: response.data.message, data: response.data.user };
+        } catch (error) {
+          set({ isLoading: false });
+          return { success: false, error: error.response?.data?.message || 'Error al crear gerente' };
         }
       },
 

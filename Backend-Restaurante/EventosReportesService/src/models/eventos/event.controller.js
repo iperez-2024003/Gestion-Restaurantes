@@ -1,4 +1,4 @@
- 'use strict';
+'use strict';
 
 import * as eventService from './event.service.js';
 
@@ -9,17 +9,22 @@ import * as eventService from './event.service.js';
  */
 export const createEvent = async (req, res) => {
   try {
+    const normalizeTime = (timeValue) => {
+      if (!timeValue) return timeValue;
+      return timeValue.length === 5 ? `${timeValue}:00` : timeValue;
+    };
+
     const payload = {
       name: req.body.name,
       description: req.body.description,
       restaurantId: req.body.restaurant_id,
       eventType: req.body.event_type || 'other',
-      eventDate: req.body.event_date,
-      startTime: req.body.start_time,
-      endTime: req.body.end_time,
-      maxParticipants: req.body.max_participants,
+      eventDate: new Date(req.body.event_date),
+      startTime: normalizeTime(req.body.start_time),
+      endTime: normalizeTime(req.body.end_time),
+      maxParticipants: Number(req.body.max_participants),
       currentParticipants: 0,
-      pricePerPerson: req.body.price_per_person || 0,
+      pricePerPerson: Number(req.body.price_per_person || 0),
       imageUrl: req.body.image_url,
       requirements: req.body.requirements || [],
       status: 'scheduled',
@@ -71,12 +76,19 @@ export const getEventById = async (req, res) => {
 export const updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
+    const normalizeTime = (timeValue) => {
+      if (!timeValue) return timeValue;
+      return timeValue.length === 5 ? `${timeValue}:00` : timeValue;
+    };
+
     const updateData = {};
     if (req.body.name !== undefined) updateData.name = req.body.name;
     if (req.body.description !== undefined) updateData.description = req.body.description;
-    if (req.body.start_time !== undefined) updateData.startTime = req.body.start_time;
-    if (req.body.end_time !== undefined) updateData.endTime = req.body.end_time;
-    if (req.body.max_participants !== undefined) updateData.maxParticipants = req.body.max_participants;
+    if (req.body.start_time !== undefined) updateData.startTime = normalizeTime(req.body.start_time);
+    if (req.body.end_time !== undefined) updateData.endTime = normalizeTime(req.body.end_time);
+    if (req.body.max_participants !== undefined) updateData.maxParticipants = Number(req.body.max_participants);
+    if (req.body.event_date !== undefined) updateData.eventDate = new Date(req.body.event_date);
+    if (req.body.price_per_person !== undefined) updateData.pricePerPerson = Number(req.body.price_per_person);
 
     const result = await eventService.updateEventRecord(id, updateData);
     if (!result) return res.status(404).json({ ok: false, message: 'No encontrado' });

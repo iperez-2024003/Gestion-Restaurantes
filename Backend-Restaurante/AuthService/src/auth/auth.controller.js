@@ -41,21 +41,8 @@ export const register = asyncHandler(async (req, res) => {
     const userData = {
       ...req.body,
       profilePicture: req.file ? req.file.path : null,
+      role: 'CLIENT_ROLE', // Siempre CLIENT_ROLE en registro público, ignora intentos de asignar otro rol
     };
-
-    // Seguridad de Roles: Solo Super Admin puede asignar roles distintos a CLIENT_ROLE
-    const roleToAssign = req.body.role || 'CLIENT_ROLE';
-    
-    if (roleToAssign !== 'CLIENT_ROLE') {
-      // Si el usuario no está logueado o no es Super Admin, denegar asignación de rol especial
-      const isSuperAdmin = req.userRoleNames?.includes('SUPER_ADMIN_ROLE');
-      if (!isSuperAdmin) {
-        return res.status(403).json({
-          success: false,
-          message: 'No tienes permisos para asignar roles administrativos. Se asignará CLIENT_ROLE por defecto o la operación será denegada.',
-        });
-      }
-    }
 
     const result = await registerUserHelper(userData);
     res.status(201).json(result);
@@ -74,6 +61,74 @@ export const register = asyncHandler(async (req, res) => {
     res.status(statusCode).json({
       success: false,
       message: error.message || 'Error en el registro',
+      error: error.message,
+    });
+  }
+});
+
+// ─── CREATE MANAGER (SUPER_ADMIN ONLY) ────────────────────────────────────────
+export const createManager = asyncHandler(async (req, res) => {
+  try {
+    // Solo SUPER_ADMIN puede crear managers
+    const isSuperAdmin = req.userRoleNames?.includes('SUPER_ADMIN_ROLE');
+    if (!isSuperAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Solo administradores globales pueden crear gerentes o personal administrativo.',
+      });
+    }
+
+    const { email, username, password, name, surname, phone, role, restaurant_id, profilePicture } = req.body;
+
+    // Validar que el rol sea permitido
+    const allowedRoles = ['RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE'];
+    if (!role || !allowedRoles.includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: `Rol inválido. Valores permitidos: ${allowedRoles.join(', ')}`,
+      });
+    }
+
+    // Validar que sea un RESTAURANT_ADMIN_ROLE o STAFF_ROLE y tenga restaurant_id
+    if (!restaurant_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'El ID del restaurante es requerido para crear gerentes o personal.',
+      });
+    }
+
+    const userData = {
+      email,
+      username,
+      password,
+      name,
+      surname,
+      phone,
+      role,
+      restaurant_id,
+      profilePicture: profilePicture || null,
+    };
+
+    const result = await registerUserHelper(userData);
+    return res.status(201).json({
+      ...result,
+      message: `${role === 'RESTAURANT_ADMIN_ROLE' ? 'Gerente' : 'Personal'} creado exitosamente.`,
+    });
+  } catch (error) {
+    console.error('Error in createManager controller:', error);
+
+    let statusCode = 400;
+    if (
+      error.message.includes('ya está registrado') ||
+      error.message.includes('ya está en uso') ||
+      error.message.includes('Ya existe un usuario')
+    ) {
+      statusCode = 409;
+    }
+
+    res.status(statusCode).json({
+      success: false,
+      message: error.message || 'Error al crear gerente',
       error: error.message,
     });
   }

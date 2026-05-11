@@ -25,18 +25,28 @@ export const AdminUserManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.restaurant_id) return toast.error('Selecciona una sede asignada');
-    
+
     try {
       setLoading(true);
-      const data = new FormData();
-      Object.keys(formData).forEach(key => data.append(key, formData[key]));
-      const res = await api.post('/auth/register', data);
+      // Enviar como JSON en lugar de FormData
+      const res = await api.post('/auth/create-manager', {
+        name: formData.name.trim(),
+        surname: formData.surname.trim(),
+        username: formData.username.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        phone: formData.phone.trim(),
+        role: formData.role,
+        restaurant_id: formData.restaurant_id,
+      });
       if (res.data.success) {
         toast.success('¡Gerente creado exitosamente!');
         setFormData({ name: '', surname: '', username: '', email: '', password: '', phone: '', role: 'RESTAURANT_ADMIN_ROLE', restaurant_id: '' });
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al crear el usuario');
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Error al crear el usuario';
+      toast.error(errorMessage);
+      console.error('Error al crear gerente:', error.response?.data);
     } finally {
       setLoading(false);
     }
@@ -98,7 +108,7 @@ export const AdminUserManagement = () => {
               <label className="text-[10px] font-black uppercase text-muted-brown tracking-widest ml-1">Sede de Operación</label>
               <div className="relative">
                 <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400" size={18} />
-                <select 
+                <select
                   name="restaurant_id" value={formData.restaurant_id} onChange={handleChange} required
                   className="w-full h-11 pl-12 pr-4 bg-white border border-primary-200 rounded-xl text-sm font-bold text-ink outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all appearance-none cursor-pointer uppercase tracking-widest"
                 >
@@ -108,7 +118,7 @@ export const AdminUserManagement = () => {
               </div>
               {restaurants.length === 0 && (
                 <p className="text-[10px] text-red-500 font-black uppercase tracking-widest mt-2 px-1 flex items-center gap-2">
-                   ⚠️ Debes crear una sede primero
+                  ⚠️ Debes crear una sede primero
                 </p>
               )}
             </div>

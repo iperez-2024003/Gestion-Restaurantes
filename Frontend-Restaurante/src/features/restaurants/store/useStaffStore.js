@@ -20,14 +20,13 @@ export const useStaffStore = create((set, get) => ({
   createStaff: async (restaurantId, staffData) => {
     try {
       set({ loading: true });
-      const res = await api.get(`/restaurants/${restaurantId}/staff`); // Fetch to refresh
-      const createRes = await api.post(`/restaurants/${restaurantId}/staff`, staffData);
-      
+      await api.post(`/restaurants/${restaurantId}/staff`, staffData);
+
       showSuccess('Mesero creado correctamente');
-      
+
       // Actualizar lista local
       await get().getStaff(restaurantId);
-      
+
       set({ loading: false });
       return true;
     } catch (error) {
@@ -41,7 +40,7 @@ export const useStaffStore = create((set, get) => ({
   updateRole: async (restaurantId, staffId, newRole) => {
     try {
       set({ loading: true });
-      await api.patch(`/restaurants/${restaurantId}/staff/${staffId}/role`, { newRole });
+      await api.put(`/restaurants/${restaurantId}/staff/${staffId}`, { newRole });
       showSuccess(`Rol actualizado a ${newRole}`);
       await get().getStaff(restaurantId);
       set({ loading: false });

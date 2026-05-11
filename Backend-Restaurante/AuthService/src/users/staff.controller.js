@@ -7,6 +7,7 @@ import { hashPassword } from '../../utils/password-utils.js';
 import { asyncHandler } from '../../middlewares/server-genericError-handler.js';
 import { sequelize } from '../../configs/db.js';
 import { Restaurant } from '../restaurant/restaurant.model.js';
+import { Op } from 'sequelize';
 
 const ALLOWED_STAFF_ROLES = [STAFF_ROLE, RESTAURANT_ADMIN_ROLE];
 
@@ -36,6 +37,8 @@ export const createStaff = asyncHandler(async (req, res) => {
   try {
     const { id: restaurantId } = req.params;
     const { name, surname, username, email, password, phone, role } = req.body;
+    const normalizedEmail = email.toLowerCase();
+    const normalizedUsername = username.toLowerCase();
 
     const scopeError = ensureRestaurantScope(req, restaurantId);
     if (scopeError) {
@@ -50,6 +53,25 @@ export const createStaff = asyncHandler(async (req, res) => {
       return res.status(404).json({ success: false, message: 'Restaurante no encontrado' });
     }
 
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [
+          { Email: normalizedEmail },
+          { Username: normalizedUsername },
+        ],
+      },
+    });
+
+    if (existingUser) {
+      await transaction.rollback();
+      return res.status(409).json({
+        success: false,
+        message: existingUser.Email === normalizedEmail
+          ? 'Ese correo ya está registrado'
+          : 'Ese nombre de usuario ya está en uso',
+      });
+    }
+
     // Validar el rol solicitado: solo se permite STAFF_ROLE o RESTAURANT_ADMIN_ROLE
     const roleToAssign = ALLOWED_STAFF_ROLES.includes(role) ? role : STAFF_ROLE;
 
@@ -60,11 +82,11 @@ export const createStaff = asyncHandler(async (req, res) => {
     const user = await User.create({
       Name: name,
       Surname: surname,
-      Username: username.toLowerCase(),
-      Email: email.toLowerCase(),
+      Username: normalizedUsername,
+      Email: normalizedEmail,
       Password: hashedPassword,
       Status: true,
-      restaurant_id: restaurantId,
+      RestaurantId: restaurantId,
     }, { transaction });
 
     // 2. Crear Perfil y email verificado
@@ -121,14 +143,19 @@ export const getRestaurantStaff = asyncHandler(async (req, res) => {
   }
 
   const staff = await User.findAll({
-    where: { restaurant_id: restaurantId },
+    where: { RestaurantId: restaurantId },
     include: [
+      {
+        model: UserProfile,
+        as: 'UserProfile',
+        required: false,
+      },
       {
         model: UserRole,
         as: 'UserRoles',
         required: true,
-        include: [{ 
-          model: Role, 
+        include: [{
+          model: Role,
           as: 'Role',
           where: { Name: ALLOWED_STAFF_ROLES }
         }]
@@ -145,6 +172,7 @@ export const getRestaurantStaff = asyncHandler(async (req, res) => {
       email: u.Email,
       username: u.Username,
       status: u.Status,
+      profilePicture: u.UserProfile?.ProfilePicture || '',
       role: u.UserRoles?.[0]?.Role?.Name || STAFF_ROLE
     }))
   });

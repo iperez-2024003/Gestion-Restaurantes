@@ -30,20 +30,25 @@ export const validateEventCreation = [
   body('event_date')
     .notEmpty()
     .withMessage('Event date is required')
-    .isDate()
-    .withMessage('Must be a valid date (YYYY-MM-DD)'),
+    .custom((value) => {
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) {
+        throw new Error('Must be a valid date (YYYY-MM-DD)');
+      }
+      return true;
+    }),
 
   body('start_time')
     .notEmpty()
     .withMessage('Start time is required')
-    .matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/)
-    .withMessage('Start time must be in HH:MM:SS format'),
+    .matches(/^([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/)
+    .withMessage('Start time must be in HH:MM or HH:MM:SS format'),
 
   body('end_time')
     .notEmpty()
     .withMessage('End time is required')
-    .matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/)
-    .withMessage('End time must be in HH:MM:SS format'),
+    .matches(/^([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/)
+    .withMessage('End time must be in HH:MM or HH:MM:SS format'),
 
   body('max_participants')
     .notEmpty()

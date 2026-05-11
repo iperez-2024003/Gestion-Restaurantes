@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../../auth/store/useAuthStore';
-import { 
-  PlusCircle, Search, UserPlus, FileText, Zap, 
-  TrendingUp, Rocket, BookOpen, ChevronRight, Sparkles 
+import {
+  PlusCircle, Search, UserPlus, FileText, Zap,
+  TrendingUp, Rocket, BookOpen, ChevronRight, Sparkles
 } from 'lucide-react';
 import { BrandLogo } from '../../../shared/components/ui/BrandLogo';
 import { ActionButton } from '../../../shared/components/ui/ActionButton';
@@ -28,6 +28,26 @@ export const DashboardIndex = () => {
     return <ClientDashboard />;
   }
 
+  const restaurantId = user?.restaurantId;
+  const handleQuickAction = (action) => {
+    switch (action) {
+      case 'orders':
+        navigate(restaurantId ? `/dashboard/restaurants/${restaurantId}/orders` : '/dashboard/restaurants');
+        break;
+      case 'clients':
+        navigate('/dashboard/vip-clients');
+        break;
+      case 'staff':
+        navigate(restaurantId ? `/dashboard/restaurants/${restaurantId}/staff` : '/dashboard/users');
+        break;
+      case 'reports':
+        navigate('/dashboard/analytics');
+        break;
+      default:
+        break;
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -39,7 +59,7 @@ export const DashboardIndex = () => {
   };
 
   return (
-    <motion.div 
+    <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -49,8 +69,8 @@ export const DashboardIndex = () => {
       <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 mb-3">
-             <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary-600">Sistema Operativo Live</span>
+            <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary-600">Sistema Operativo Live</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-ink tracking-tighter leading-none">
             HOLA, <span className="text-primary-500">{user?.name?.split(' ')[0] || 'GESTO'}</span>
@@ -78,10 +98,10 @@ export const DashboardIndex = () => {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <ActionButton label="Nueva Orden" icon={PlusCircle} color="gold" onClick={() => {}} />
-              <ActionButton label="Clientes" icon={Search} color="blue" onClick={() => {}} />
-              <ActionButton label="Nuevo Staff" icon={UserPlus} color="orange" onClick={() => {}} />
-              <ActionButton label="Reportes" icon={FileText} color="cyan" onClick={() => {}} />
+              <ActionButton label="Nueva Orden" icon={PlusCircle} color="gold" onClick={() => handleQuickAction('orders')} />
+              <ActionButton label="Clientes" icon={Search} color="blue" onClick={() => handleQuickAction('clients')} />
+              <ActionButton label="Nuevo Staff" icon={UserPlus} color="orange" onClick={() => handleQuickAction('staff')} />
+              <ActionButton label="Reportes" icon={FileText} color="cyan" onClick={() => handleQuickAction('reports')} />
             </div>
 
             <div className="mt-auto pt-10">
@@ -100,7 +120,7 @@ export const DashboardIndex = () => {
             <h3 className="text-[10px] font-black text-muted-brown uppercase tracking-[0.4em]">Monitor Activo</h3>
             <Sparkles size={14} className="text-primary-400" />
           </div>
-          
+
           <div className="space-y-4">
             <TransactionCard label="Flujo de Transacciones" />
             <TransactionCard label="Estado de Sucursales" />
@@ -118,7 +138,7 @@ export const DashboardIndex = () => {
       <motion.div variants={itemVariants}>
         <Card className="bg-ink p-8 md:p-10 border-none relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-[400px] h-full bg-primary-500/10 skew-x-12 translate-x-20 transition-transform group-hover:translate-x-16" />
-          
+
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex items-center gap-6">
               <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-primary-400 border border-white/10">

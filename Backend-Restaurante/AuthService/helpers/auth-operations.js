@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import path from 'path';
 import Restaurant from '../src/restaurant/restaurant.model.js';
 import {
   checkUserExists,
