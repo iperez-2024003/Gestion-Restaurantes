@@ -2,12 +2,18 @@ const { execSync } = require('node:child_process');
 const path = require('node:path');
 const fs = require('node:fs');
 
-const services = ['AuthService', 'RestaurantesService', 'PedidosReservacionesService', 'EventosReportesService'];
+const services = [
+  'Backend-Restaurante/AuthService',
+  'Backend-Restaurante/RestaurantesService',
+  'Backend-Restaurante/PedidosReservacionesService',
+  'Backend-Restaurante/EventosReportesService',
+  'Frontend-Restaurante'
+];
 
 console.log('\n📦 Instalando dependencias de todos los servicios...\n');
 
 services.forEach((service) => {
-  const servicePath = path.join(__dirname, '..', service);
+  const servicePath = path.join(__dirname, '..', '..', service);
   const packageJsonPath = path.join(servicePath, 'package.json');
 
   if (!fs.existsSync(packageJsonPath)) {

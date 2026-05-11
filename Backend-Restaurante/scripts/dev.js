@@ -4,28 +4,28 @@ const path = require('node:path');
 const services = [
   {
     name: 'AuthService',
-    path: 'AuthService',
+    path: 'Backend-Restaurante/AuthService',
     port: 3006,
     color: '\x1b[31m',
     healthUrl: 'http://localhost:3006/api/v1/health',
   },
   {
     name: 'RestaurantesService',
-    path: 'RestaurantesService',
+    path: 'Backend-Restaurante/RestaurantesService',
     port: 3007,
     color: '\x1b[34m',
     healthUrl: 'http://localhost:3007/api/v1/health',
   },
   {
     name: 'PedidosReservacionesService',
-    path: 'PedidosReservacionesService',
+    path: 'Backend-Restaurante/PedidosReservacionesService',
     port: 3008,
     color: '\x1b[32m',
     healthUrl: 'http://localhost:3008/api/v1/health',
   },
   {
     name: 'EventosReportesService',
-    path: 'EventosReportesService',
+    path: 'Backend-Restaurante/EventosReportesService',
     port: 3009,
     color: '\x1b[33m',
     healthUrl: 'http://localhost:3009/api/v1/health',
@@ -42,7 +42,7 @@ const log = (color, title, message) => {
 console.log('\n🚀 Levantando microservicios Gestion-Restaurantes...\n');
 
 services.forEach((service) => {
-  const servicePath = path.join(__dirname, '..', service.path);
+  const servicePath = path.join(__dirname, '..', '..', service.path);
 
   const child = spawn('pnpm', ['run', 'dev'], {
     cwd: servicePath,
