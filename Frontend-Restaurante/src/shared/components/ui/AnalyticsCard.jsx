@@ -7,7 +7,7 @@ export const AnalyticsCard = ({ title, value, icon: Icon, trend, trendValue, col
     gold: 'text-primary-500 bg-primary-50 border-primary-100',
     blue: 'text-blue-500 bg-blue-50 border-blue-100',
     green: 'text-green-500 bg-green-50 border-green-100',
-    purple: 'text-purple-500 bg-purple-50 border-purple-100',
+    bronze: 'text-primary-600 bg-primary-100 border-primary-200',
   };
 
   const selectedColor = colors[color] || colors.gold;

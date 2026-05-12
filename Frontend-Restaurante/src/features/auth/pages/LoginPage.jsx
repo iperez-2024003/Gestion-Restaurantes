@@ -17,6 +17,7 @@ export const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [needsVerification, setNeedsVerification] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
   const { login, resendVerification, isLoading } = useAuthStore();
   const navigate = useNavigate();
 
@@ -32,8 +33,12 @@ export const LoginPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setFieldErrors({ email: '', password: '' });
     if (!email || !password) {
-      toast.error('Por favor, completa todos los campos');
+      setFieldErrors({
+        email: !email ? 'Ingresa tu usuario o correo' : '',
+        password: !password ? 'Ingresa tu contraseña' : '',
+      });
       return;
     }
 
@@ -42,6 +47,16 @@ export const LoginPage = () => {
       toast.success('¡Bienvenido de nuevo!');
       const loggedUser = useAuthStore.getState().user;
       navigate(loggedUser?.restaurantId ? `/dashboard/restaurants/${loggedUser.restaurantId}` : '/dashboard');
+      return;
+    }
+
+    if (result.code === 'USER_NOT_FOUND') {
+      setFieldErrors({ email: 'Usuario no encontrado', password: '' });
+      return;
+    }
+
+    if (result.code === 'INVALID_PASSWORD') {
+      setFieldErrors({ email: '', password: 'Contraseña incorrecta' });
       return;
     }
 
@@ -75,13 +90,14 @@ export const LoginPage = () => {
 
             <form className="space-y-5" onSubmit={handleSubmit}>
               <Input
-                label="Correo Electrónico"
+                label="Usuario o correo"
                 icon={Mail}
-                type="email"
-                placeholder="admin@buenprovecho.com"
+                type="text"
+                placeholder="admin@buenprovecho.com o admin"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                error={fieldErrors.email}
               />
 
               <div className="space-y-1">
@@ -102,6 +118,7 @@ export const LoginPage = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    error={fieldErrors.password}
                   />
                   <button
                     type="button"
@@ -169,9 +186,9 @@ export const LoginPage = () => {
                 <div className="p-1.5 bg-primary-500 rounded-lg">
                   <ShieldCheck size={16} className="text-white" />
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-200">Plataforma Certificada</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Plataforma Certificada</span>
               </div>
-              <h3 className="text-4xl font-black mb-3 leading-tight tracking-tighter">Sabor y Gestión <br /> en un solo lugar</h3>
+              <h3 className="text-4xl font-black mb-3 leading-tight tracking-tighter text-white">Sabor y Gestión <br /> en un solo lugar</h3>
               <p className="text-primary-100/80 text-lg font-medium max-w-md">La herramienta definitiva para el éxito de tu restaurante.</p>
             </div>
 

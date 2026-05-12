@@ -14,6 +14,7 @@ import { asyncHandler } from '../../middlewares/server-genericError-handler.js';
 import { extractRefreshTokenFromRequest } from '../../middlewares/refresh-token.js';
 import { config } from '../../configs/config.js';
 import { User, UserProfile } from '../users/user.model.js';
+import { Role, UserRole } from '../auth/role.model.js';
 import { uploadImage, deleteImage } from '../../helpers/cloudinary-service.js';
 import { hashPassword, verifyPassword } from '../../utils/password-utils.js';
 import crypto from 'crypto';
@@ -168,11 +169,16 @@ export const login = asyncHandler(async (req, res) => {
       error.message.includes('desactivada')
     ) {
       statusCode = 423;
+    } else if (error.code === 'USER_NOT_FOUND') {
+      statusCode = 404;
+    } else if (error.code === 'INVALID_PASSWORD') {
+      statusCode = 401;
     }
 
     res.status(statusCode).json({
       success: false,
       message: error.message || 'Error en el login',
+      code: error.code,
       error: error.message,
     });
   }
@@ -579,4 +585,156 @@ export const revokeToken = asyncHandler(async (req, res) => {
   res.clearCookie('refreshToken', { path: '/api/v1/auth' });
 
   return res.status(200).json({ success: true, message: 'Refresh token revocado' });
+});
+
+// ─── GET MANAGERS (SUPER_ADMIN ONLY) ──────────────────────────────────────────
+export const getManagers = asyncHandler(async (req, res) => {
+  try {
+    const isSuperAdmin = req.userRoleNames?.includes('SUPER_ADMIN_ROLE');
+    if (!isSuperAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Solo administradores globales pueden ver gerentes',
+      });
+    }
+
+    const managers = await User.findAll({
+      include: [
+        {
+          model: UserRole,
+          as: 'UserRoles',
+          required: true,
+          include: [
+            {
+              model: Role,
+              as: 'Role',
+              where: { Name: 'RESTAURANT_ADMIN_ROLE' },
+            },
+          ],
+        },
+        {
+          model: UserProfile,
+          as: 'UserProfile',
+          required: false,
+        },
+      ],
+      order: [['CreatedAt', 'DESC']],
+    });
+
+    const managersWithRestaurant = await Promise.all(
+      managers.map(async (manager) => {
+        let restaurantName = 'Sin sede';
+        if (manager.RestaurantId) {
+          const restaurant = await Restaurant.findById(manager.RestaurantId).select('name').lean();
+          restaurantName = restaurant?.name || 'Sede Desconocida';
+        }
+
+        return {
+          id: manager.Id,
+          name: manager.Name,
+          surname: manager.Surname,
+          email: manager.Email,
+          phone: manager.UserProfile?.Phone || '',
+          restaurant_id: manager.RestaurantId || '',
+          restaurantName,
+          createdAt: manager.CreatedAt,
+        };
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: managersWithRestaurant,
+      message: 'Gerentes obtenidos exitosamente',
+    });
+  } catch (error) {
+    console.error('Error in getManagers controller:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener gerentes',
+      error: error.message,
+    });
+  }
+});
+
+// ─── UPDATE MANAGER RESTAURANT (SUPER_ADMIN ONLY) ──────────────────────────────
+export const updateManagerRestaurant = asyncHandler(async (req, res) => {
+  try {
+    const isSuperAdmin = req.userRoleNames?.includes('SUPER_ADMIN_ROLE');
+    if (!isSuperAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Solo administradores globales pueden cambiar sedes de gerentes',
+      });
+    }
+
+    const { managerId } = req.params;
+    const { restaurant_id } = req.body;
+
+    if (!restaurant_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'El ID de la sede es requerido',
+      });
+    }
+
+    // Verificar que el gerente existe
+    const manager = await User.findByPk(managerId);
+    if (!manager) {
+      return res.status(404).json({
+        success: false,
+        message: 'Gerente no encontrado',
+      });
+    }
+
+    const managerRoles = await UserRole.findAll({
+      where: { UserId: manager.Id },
+      include: [
+        {
+          model: Role,
+          as: 'Role',
+          where: { Name: 'RESTAURANT_ADMIN_ROLE' },
+        },
+      ],
+    });
+
+    if (!managerRoles.length) {
+      return res.status(400).json({
+        success: false,
+        message: 'El usuario no es un gerente de sede',
+      });
+    }
+
+    // Verificar que la sede existe
+    const restaurant = await Restaurant.findById(restaurant_id);
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Sede no encontrada',
+      });
+    }
+
+    // Actualizar la sede del gerente
+    manager.RestaurantId = restaurant_id;
+    await manager.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Gerente ${manager.name} ${manager.surname} asignado a ${restaurant.name}`,
+      data: {
+        id: manager.id,
+        name: manager.name,
+        surname: manager.surname,
+        restaurant_id: manager.restaurant_id,
+        restaurantName: restaurant.name,
+      },
+    });
+  } catch (error) {
+    console.error('Error in updateManagerRestaurant controller:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al cambiar la sede del gerente',
+      error: error.message,
+    });
+  }
 });

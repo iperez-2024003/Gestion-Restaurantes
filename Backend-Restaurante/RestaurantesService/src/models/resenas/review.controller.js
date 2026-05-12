@@ -1,6 +1,7 @@
  'use strict';
 
 import * as reviewService from './review.service.js';
+import Review from './review.model.js';
 import Restaurant from '../restaurantes/restaurant.model.js';
 import { SUPER_ADMIN_ROLE } from '../../../helpers/role-constants.js';
 import { getRequestUserRoleNames } from '../../../middlewares/require-role.js';

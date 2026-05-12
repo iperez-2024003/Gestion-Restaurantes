@@ -49,9 +49,12 @@ export const useRestaurantStore = create((set, get) => ({
       return { success: true, message: response.data.message };
     } catch (error) {
       set({ loading: false });
+      const validationErrors = Array.isArray(error.response?.data?.errors)
+        ? error.response.data.errors.map((item) => `${item.field}: ${item.message}`).join(' | ')
+        : '';
       return {
         success: false,
-        error: error.response?.data?.message || 'Error al crear restaurante',
+        error: validationErrors || error.response?.data?.message || 'Error al crear restaurante',
         errors: error.response?.data?.errors || [],
       };
     }
@@ -67,9 +70,12 @@ export const useRestaurantStore = create((set, get) => ({
       return { success: true, message: response.data.message };
     } catch (error) {
       set({ loading: false });
+      const validationErrors = Array.isArray(error.response?.data?.errors)
+        ? error.response.data.errors.map((item) => `${item.field}: ${item.message}`).join(' | ')
+        : '';
       return {
         success: false,
-        error: error.response?.data?.message || 'Error al actualizar restaurante',
+        error: validationErrors || error.response?.data?.message || 'Error al actualizar restaurante',
       };
     }
   },

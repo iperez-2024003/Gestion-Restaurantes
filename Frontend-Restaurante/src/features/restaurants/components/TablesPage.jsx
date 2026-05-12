@@ -77,7 +77,7 @@ export const TablesPage = () => {
           <ActionButton 
             label="Nueva Mesa" 
             icon={PlusCircle} 
-            color="purple" 
+            color="bronze" 
             onClick={() => { setSelectedTable(null); setModalOpen(true); }} 
           />
         )}

@@ -38,6 +38,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
   const { saveRestaurant } = useSaveRestaurant();
   const loading = useRestaurantStore((s) => s.loading);
   const user = useAuthStore((s) => s.user);
+  const currentAdminId = user?.id || user?.Id || '';
   const [activeTab, setActiveTab] = useState('general');
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm();
@@ -56,23 +57,43 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
         reset({
           category: 'casual', price_range: '$', capacity: 50,
           opening_time: '08:00', closing_time: '22:00',
-          accepts_reservations: true, accepts_takeout: true, admin_id: user?.id
+          accepts_reservations: true, accepts_takeout: true, admin_id: currentAdminId,
         });
         setSelectedDays(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
       }
     }
-  }, [isOpen, restaurant, reset, user]);
+  }, [isOpen, restaurant, reset, currentAdminId]);
 
   const toggleDay = (day) => {
     setSelectedDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
   };
 
   const onSubmit = async (data) => {
+    if (!currentAdminId) {
+      return;
+    }
+
     const formData = new FormData();
     Object.keys(data).forEach(key => {
-      if (key === 'logo' && data[key][0]) formData.append('logo', data[key][0]);
-      else if (key !== 'logo') formData.append(key, data[key]);
+      if (key === 'logo' && data[key]?.[0]) {
+        formData.append('logo', data[key][0]);
+        return;
+      }
+
+      if (key === 'opening_time' || key === 'closing_time') {
+        const normalizedTime = data[key] && data[key].length === 5 ? `${data[key]}:00` : data[key];
+        if (normalizedTime) formData.append(key, normalizedTime);
+        return;
+      }
+
+      if (key !== 'logo' && data[key] !== undefined && data[key] !== null) {
+        formData.append(key, data[key]);
+      }
     });
+
+    if (!formData.has('admin_id')) {
+      formData.append('admin_id', currentAdminId);
+    }
     formData.append('operating_days', JSON.stringify(selectedDays));
     const result = await saveRestaurant(formData, restaurant?.id);
     if (result.success) onClose();
@@ -126,19 +147,36 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
             <AnimatePresence mode="wait">
               {activeTab === 'general' && (
                 <motion.div key="general" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
-                  <Input label="Nombre del Restaurante" icon={Building2} {...register('name', { required: true })} error={errors.name} />
+                  <Input label="Nombre del Restaurante" icon={Building2} {...register('name', { required: 'El nombre del restaurante es obligatorio' })} error={errors.name?.message} />
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase text-ink/80 tracking-widest ml-1">Logo del Restaurante</label>
+                    <div className="w-full h-32 rounded-xl border-2 border-dashed border-primary-200 bg-white/50 flex items-center justify-center overflow-hidden group relative transition-all hover:border-primary-500">
+                      {watch('logo')?.[0] ? (
+                        <div className="text-center text-ink text-[10px] font-black uppercase tracking-widest">
+                          <ImageIcon size={28} className="mx-auto mb-2 text-primary-500" />
+                          {watch('logo')[0].name}
+                        </div>
+                      ) : (
+                        <div className="text-center text-muted-brown text-[10px] font-black uppercase tracking-widest group-hover:text-primary-500 transition-colors">
+                          <ImageIcon size={32} className="mx-auto mb-2" />
+                          Seleccionar Logo
+                        </div>
+                      )}
+                      <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" {...register('logo')} />
+                    </div>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-muted-brown tracking-widest ml-1">Categoría</label>
-                      <select className="w-full h-11 px-4 rounded-xl border border-primary-200 bg-white text-sm font-bold focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none" {...register('category')}>
+                      <label className="text-[10px] font-black uppercase text-ink/80 tracking-widest ml-1">Categoría</label>
+                      <select className="w-full h-11 px-4 rounded-xl border border-[#dcc7a5] bg-[#fffdf9] text-ink text-sm font-bold outline-none focus:ring-2 focus:ring-[#d7b77f]/20 focus:border-[#b98c52] transition-all" {...register('category')}>
                         {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                       </select>
                     </div>
                     <Input label="Tipo de Cocina" icon={Utensils} {...register('cuisine_type')} />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase text-muted-brown tracking-widest ml-1">Descripción</label>
-                    <textarea rows={3} className="w-full px-4 py-3 rounded-xl border border-primary-200 bg-white text-sm font-medium focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none resize-none" {...register('description')} />
+                    <label className="text-[10px] font-black uppercase text-ink/80 tracking-widest ml-1">Descripción</label>
+                    <textarea rows={3} className="w-full px-4 py-3 rounded-xl border border-[#dcc7a5] bg-[#fffdf9] text-ink text-sm font-medium outline-none focus:ring-2 focus:ring-[#d7b77f]/20 focus:border-[#b98c52] transition-all resize-none" {...register('description')} />
                   </div>
                 </motion.div>
               )}
@@ -162,7 +200,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
                     <Input label="Capacidad" type="number" icon={Users} {...register('capacity')} />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-muted-brown tracking-widest ml-1">Días de Operación</label>
+                    <label className="text-[10px] font-black uppercase text-ink/80 tracking-widest ml-1">Días de Operación</label>
                     <div className="flex flex-wrap gap-2">
                       {DAYS.map(d => (
                         <button key={d.value} type="button" onClick={() => toggleDay(d.value)}
@@ -177,8 +215,8 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-muted-brown tracking-widest ml-1">Rango de Precio</label>
-                      <select className="w-full h-11 px-4 rounded-xl border border-primary-200 bg-white text-sm font-bold outline-none" {...register('price_range')}>
+                      <label className="text-[10px] font-black uppercase text-ink/80 tracking-widest ml-1">Rango de Precio</label>
+                      <select className="w-full h-11 px-4 rounded-xl border border-[#dcc7a5] bg-[#fffdf9] text-ink text-sm font-bold outline-none focus:ring-2 focus:ring-[#d7b77f]/20 focus:border-[#b98c52] transition-all" {...register('price_range')}>
                         <option value="$">$ Económico</option>
                         <option value="$$">$$ Medio</option>
                         <option value="$$$">$$$ Premium</option>

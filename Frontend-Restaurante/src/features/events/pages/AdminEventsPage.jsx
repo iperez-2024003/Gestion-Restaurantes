@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { createEvent, deleteEvent, getEvents, updateEvent } from '../../../shared/api/events';
+import { cancelEvent, createEvent, deleteEvent, getEvents, updateEvent } from '../../../shared/api/events';
 import { showError, showSuccess } from '../../../shared/utils/toast';
 import { translateEventType, translateStatus } from '../../../shared/utils/i18n';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,12 +31,18 @@ export const AdminEventsPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
+  const getEventId = (event) => event?.id || event?._id || event?.eventId || event?.event_id || '';
+
   const loadEvents = async () => {
     if (!restaurantId) return;
     try {
       setLoading(true);
       const response = await getEvents({ restaurant_id: restaurantId, limit: 100 });
-      setEvents(response.data?.events || []);
+      const normalizedEvents = (response.data?.events || []).map((event) => ({
+        ...event,
+        id: getEventId(event),
+      }));
+      setEvents(normalizedEvents);
     } catch (error) {
       showError('No se pudo sincronizar la agenda de eventos');
     } finally {
@@ -63,21 +69,42 @@ export const AdminEventsPage = () => {
       if (!restaurantId) return;
       setCreating(true);
 
+      const imageFile = formData.imageFile;
+      const { imageFile: _, ...dataWithoutFile } = formData;
+
       const payload = {
-        ...formData,
+        ...dataWithoutFile,
         restaurant_id: restaurantId,
-        start_time: `${formData.start_time}:00`,
-        end_time: `${formData.end_time}:00`,
-        max_participants: Number(formData.max_participants),
-        price_per_person: Number(formData.price_per_person),
+        start_time: `${dataWithoutFile.start_time}:00`,
+        end_time: `${dataWithoutFile.end_time}:00`,
+        max_participants: Number(dataWithoutFile.max_participants),
+        price_per_person: Number(dataWithoutFile.price_per_person),
       };
 
-      if (selectedEvent?.id) {
-        await updateEvent(selectedEvent.id, payload);
-        showSuccess('¡Evento actualizado con éxito!');
+      const selectedEventId = getEventId(selectedEvent);
+
+      if (imageFile) {
+        const uploadFormData = new FormData();
+        uploadFormData.append('image', imageFile);
+        Object.keys(payload).forEach(key => {
+          uploadFormData.append(key, payload[key]);
+        });
+
+        if (selectedEventId) {
+          await updateEvent(selectedEventId, uploadFormData);
+          showSuccess('¡Evento actualizado con éxito!');
+        } else {
+          await createEvent(uploadFormData);
+          showSuccess('¡Experiencia publicada con éxito!');
+        }
       } else {
-        await createEvent(payload);
-        showSuccess('¡Experiencia publicada con éxito!');
+        if (selectedEventId) {
+          await updateEvent(selectedEventId, payload);
+          showSuccess('¡Evento actualizado con éxito!');
+        } else {
+          await createEvent(payload);
+          showSuccess('¡Experiencia publicada con éxito!');
+        }
       }
 
       handleCloseModal();
@@ -91,16 +118,46 @@ export const AdminEventsPage = () => {
   };
 
   const handleDeleteEvent = async (event) => {
+    const eventId = getEventId(event);
+
+    if (!eventId) {
+      showError('No se encontró el ID del evento para eliminarlo');
+      return;
+    }
+
     const confirmed = window.confirm(`¿Eliminar el evento "${event.name}"?`);
     if (!confirmed) return;
 
     try {
       setCreating(true);
-      await deleteEvent(event.id);
+      await deleteEvent(eventId);
       showSuccess('Evento eliminado correctamente');
       await loadEvents();
     } catch (error) {
       showError('No se pudo eliminar el evento');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleCancelEvent = async (event) => {
+    const eventId = getEventId(event);
+
+    if (!eventId) {
+      showError('No se encontró el ID del evento para cancelarlo');
+      return;
+    }
+
+    const confirmed = window.confirm(`¿Cancelar el evento "${event.name}"?`);
+    if (!confirmed) return;
+
+    try {
+      setCreating(true);
+      await cancelEvent(eventId);
+      showSuccess('Evento cancelado correctamente');
+      await loadEvents();
+    } catch (error) {
+      showError(error.response?.data?.message || 'No se pudo cancelar el evento');
     } finally {
       setCreating(false);
     }
@@ -155,7 +212,7 @@ export const AdminEventsPage = () => {
             <AnimatePresence>
               {events.map((event, i) => (
                 <motion.div
-                  key={event.id}
+                  key={getEventId(event) || `${event.name || 'event'}-${i}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
@@ -206,6 +263,12 @@ export const AdminEventsPage = () => {
                     </div>
 
                     <div className="flex gap-4">
+                      <button
+                        onClick={() => handleCancelEvent(event)}
+                        className="flex-1 py-4 bg-amber-500/10 text-amber-600 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-all border border-amber-500/20 flex items-center justify-center gap-2"
+                      >
+                        <PartyPopper className="w-3.5 h-3.5" /> Cancelar
+                      </button>
                       <button
                         onClick={() => handleOpenModal(event)}
                         className="flex-1 py-4 bg-zinc-800 text-zinc-400 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700 flex items-center justify-center gap-2"

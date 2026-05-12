@@ -109,11 +109,28 @@ export const cancelEvent = async (req, res) => {
     const { id } = req.params;
     const result = await eventService.cancelEventRecord(id);
     if (!result) return res.status(404).json({ ok: false, message: 'No encontrado' });
-    if (result.already) return res.status(400).json({ ok: false, message: 'Event is already cancelled' });
+    if (result.already) return res.status(400).json({ ok: false, message: 'El evento ya estaba cancelado' });
+    if (result.notAllowed) return res.status(400).json({ ok: false, message: 'No se puede cancelar un evento completado' });
     return res.status(200).json({ ok: true, message: 'Event cancelled successfully' });
   } catch (error) {
     console.error('Error cancelling event:', error);
     return res.status(500).json({ ok: false, message: 'Error interno del servidor while cancelling event', error: process.env.NODE_ENV === 'development' ? error.message : undefined });
+  }
+};
+
+/**
+ * Delete event permanently
+ * @route DELETE /api/v1/events/:id
+ */
+export const deleteEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await eventService.deleteEventRecord(id);
+    if (!result) return res.status(404).json({ ok: false, message: 'No encontrado' });
+    return res.status(200).json({ ok: true, message: 'Event deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    return res.status(500).json({ ok: false, message: 'Error interno del servidor while deleting event', error: process.env.NODE_ENV === 'development' ? error.message : undefined });
   }
 };
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../../../shared/api/axios';
 import { toast } from 'react-hot-toast';
 import { useRestaurantStore } from '../../restaurants/store/useRestaurantStore';
-import { UserPlus, ShieldCheck, Mail, Phone, Lock, Building2, User, Loader2, Rocket, UserCheck } from 'lucide-react';
+import { UserPlus, ShieldCheck, Mail, Phone, Lock, Building2, User, Loader2, Rocket, UserCheck, Edit2, Check, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Card } from '../../../shared/components/ui/Card';
 import { Input } from '../../../shared/components/ui/Input';
@@ -11,12 +11,34 @@ import { Badge } from '../../../shared/components/ui/Badge';
 
 export const AdminUserManagement = () => {
   const [loading, setLoading] = useState(false);
+  const [managersLoading, setManagersLoading] = useState(true);
+  const [managers, setManagers] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [editingRestaurant, setEditingRestaurant] = useState(null);
   const { restaurants, getRestaurants } = useRestaurantStore();
   const [formData, setFormData] = useState({
     name: '', surname: '', username: '', email: '', password: '', phone: '', role: 'RESTAURANT_ADMIN_ROLE', restaurant_id: ''
   });
 
-  useEffect(() => { getRestaurants(); }, [getRestaurants]);
+  useEffect(() => { 
+    getRestaurants();
+    fetchManagers();
+  }, [getRestaurants]);
+
+  const fetchManagers = async () => {
+    try {
+      setManagersLoading(true);
+      const res = await api.get('/auth/managers');
+      if (res.data.success) {
+        setManagers(res.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching managers:', error);
+      toast.error('Error al cargar gerentes');
+    } finally {
+      setManagersLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,7 +50,6 @@ export const AdminUserManagement = () => {
 
     try {
       setLoading(true);
-      // Enviar como JSON en lugar de FormData
       const res = await api.post('/auth/create-manager', {
         name: formData.name.trim(),
         surname: formData.surname.trim(),
@@ -42,6 +63,7 @@ export const AdminUserManagement = () => {
       if (res.data.success) {
         toast.success('¡Gerente creado exitosamente!');
         setFormData({ name: '', surname: '', username: '', email: '', password: '', phone: '', role: 'RESTAURANT_ADMIN_ROLE', restaurant_id: '' });
+        fetchManagers();
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Error al crear el usuario';
@@ -49,6 +71,26 @@ export const AdminUserManagement = () => {
       console.error('Error al crear gerente:', error.response?.data);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateManagerRestaurant = async (managerId, newRestaurantId) => {
+    if (!newRestaurantId) {
+      toast.error('Selecciona una sede');
+      return;
+    }
+
+    try {
+      const res = await api.patch(`/auth/managers/${managerId}/restaurant`, {
+        restaurant_id: newRestaurantId,
+      });
+      if (res.data.success) {
+        toast.success('Sede actualizada exitosamente');
+        setEditingId(null);
+        fetchManagers();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error al actualizar sede');
     }
   };
 
@@ -130,6 +172,116 @@ export const AdminUserManagement = () => {
             </div>
           </form>
         </Card>
+      </div>
+
+      {/* Tabla de Gerentes Existentes */}
+      <div className="mt-16">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-10 h-10 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center border border-primary-200">
+            <UserCheck size={20} />
+          </div>
+          <h2 className="text-2xl font-black text-ink uppercase tracking-tight">Gerentes Asignados</h2>
+        </div>
+
+        {managersLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+          </div>
+        ) : managers.length === 0 ? (
+          <Card className="p-8 text-center">
+            <p className="text-muted-brown font-medium">No hay gerentes registrados aún</p>
+          </Card>
+        ) : (
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-primary-50 border-b border-primary-100">
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase text-ink/80 tracking-widest">Nombre</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase text-ink/80 tracking-widest">Email</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase text-ink/80 tracking-widest">Teléfono</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase text-ink/80 tracking-widest">Sede Asignada</th>
+                    <th className="px-6 py-4 text-center text-[10px] font-black uppercase text-ink/80 tracking-widest">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-primary-100">
+                  {managers.map((manager) => (
+                    <motion.tr key={manager.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="hover:bg-primary-50/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div>
+                          <p className="text-sm font-black text-ink">{manager.name} {manager.surname}</p>
+                          <p className="text-[10px] text-muted-brown font-medium">{manager.id}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-xs font-semibold text-ink">{manager.email}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-xs font-semibold text-ink">{manager.phone}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        {editingId === manager.id ? (
+                          <select
+                            value={editingRestaurant || manager.restaurant_id}
+                            onChange={(e) => setEditingRestaurant(e.target.value)}
+                          className="w-full px-3 py-2 text-xs font-bold border border-[#dcc7a5] rounded-lg bg-[#fffdf9] text-ink focus:ring-2 focus:ring-[#d7b77f]/20 focus:border-[#b98c52] transition-all"
+                          >
+                            <option value="">Seleccionar...</option>
+                            {restaurants.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                          </select>
+                        ) : (
+                          <Badge variant="primary">{manager.restaurantName}</Badge>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-center gap-2">
+                          {editingId === manager.id ? (
+                            <>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleUpdateManagerRestaurant(manager.id, editingRestaurant || manager.restaurant_id)}
+                                className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
+                                title="Guardar"
+                              >
+                                <Check size={16} />
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => {
+                                  setEditingId(null);
+                                  setEditingRestaurant(null);
+                                }}
+                                className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                                title="Cancelar"
+                              >
+                                <X size={16} />
+                              </motion.button>
+                            </>
+                          ) : (
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => {
+                                setEditingId(manager.id);
+                                setEditingRestaurant(manager.restaurant_id);
+                              }}
+                              className="p-2 bg-primary-50 text-primary-600 rounded-lg hover:bg-primary-100 transition-colors"
+                              title="Cambiar sede"
+                            >
+                              <Edit2 size={16} />
+                            </motion.button>
+                          )}
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );

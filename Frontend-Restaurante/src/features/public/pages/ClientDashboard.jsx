@@ -16,7 +16,7 @@ import { useRestaurantStore } from '../../restaurants/store/useRestaurantStore';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import LogoLoop from '../../../shared/components/ui/LogoLoop';
 import ScrollStack, { ScrollStackItem } from '../../../shared/components/ui/ScrollStack';
-import LogoBuenProvecho from '../../../assets/img/LogoBuenProvecho.jpeg';
+import LogoBuenProvecho from '../../../assets/img/LogoBuenProvecho.png';
 
 const navItems = [
   { label: 'Explora', link: '#featured', ariaLabel: 'Ir a sedes destacadas' },
@@ -89,42 +89,50 @@ export const ClientDashboard = () => {
       <div className="absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_top,_rgba(201,163,99,0.18),_transparent_52%)]" />
       <div className="absolute inset-x-0 top-20 mx-auto h-72 w-[72rem] rounded-full bg-[#f1d7b1]/30 blur-3xl" />
 
-      <div className="relative z-10 pt-24 pb-20 md:pt-32">
-        <main className="flex min-w-0 flex-col gap-10">
+      <div className="relative z-10 pt-16 md:pt-24 lg:pt-32 pb-16 md:pb-20 px-4 md:px-6 lg:px-0">
+        <main className="flex min-w-0 flex-col gap-6 md:gap-10 max-w-7xl mx-auto">
         <motion.section
           variants={fadeUpSection}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.25 }}
-          className="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]"
+          className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-[1.4fr_0.9fr]"
         >
-          <div className="relative overflow-hidden rounded-[2.5rem] border border-white/70 bg-white/88 p-6 shadow-[0_30px_100px_rgba(110,80,45,0.12)] backdrop-blur-2xl md:rounded-[4rem] md:p-10">
+          <div className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] lg:rounded-[4rem] border border-white/70 bg-white/88 p-4 md:p-6 lg:p-10 shadow-[0_30px_100px_rgba(110,80,45,0.12)] backdrop-blur-2xl">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,183,127,0.2),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(139,100,53,0.08),transparent_44%)]" />
-            <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="relative z-10 grid grid-cols-1 items-center gap-6 md:gap-8 lg:grid-cols-[1.15fr_0.85fr]">
               <div className="max-w-3xl">
-                <p className="mb-4 text-[10px] font-black uppercase tracking-[0.45em] text-[#b98c52]">BuenProvecho Club</p>
-                <h1 className="mb-5 text-5xl font-black leading-[0.96] tracking-tighter text-zinc-900 uppercase md:text-6xl">
+                <div className="mb-4 md:mb-6 inline-flex items-center rounded-[1.5rem] md:rounded-[2rem] border border-[#dcc7a5] bg-[#fffaf3] px-3 md:px-5 py-2 md:py-4 shadow-[0_15px_40px_rgba(110,80,45,0.08)]">
+                  <img
+                    src={LogoBuenProvecho}
+                    alt="Buen Provecho"
+                    className="block h-20 md:h-32 lg:h-44 w-auto object-contain"
+                    draggable={false}
+                  />
+                </div>
+                <p className="mb-3 md:mb-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.45em] text-[#b98c52]">BuenProvecho Club</p>
+                <h1 className="mb-4 md:mb-5 text-3xl md:text-5xl lg:text-6xl font-black leading-[0.96] tracking-tighter text-zinc-900 uppercase">
                   Tu pase <span className="text-[#b98c52]">VIP</span> al sabor
                 </h1>
-                <p className="max-w-2xl text-[10px] font-semibold uppercase leading-relaxed tracking-[0.24em] text-zinc-600 md:text-xs">
+                <p className="max-w-2xl text-[8px] md:text-[10px] font-semibold uppercase leading-relaxed tracking-[0.15em] md:tracking-[0.24em] text-zinc-600">
                   Gestiona tus puntos, explora sedes y reserva con un solo toque. El dashboard editorial diseñado para los amantes del buen comer.
                 </p>
-                <div className="mt-8 flex flex-wrap gap-3">
+                <div className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-2 md:gap-3">
                   <button
                     type="button"
                     onClick={() => navigate(firstFeaturedMenuPath)}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-[#2b2015] px-5 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-white transition-all hover:scale-[1.02] hover:bg-[#3d2d1e] active:scale-95 shadow-lg shadow-black/10"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl md:rounded-2xl bg-[#2b2015] px-4 md:px-5 py-2 md:py-3 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-white transition-all hover:scale-[1.02] hover:bg-[#3d2d1e] active:scale-95 shadow-lg shadow-black/10"
                   >
                     Ir al menú
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="h-3 md:h-4 w-3 md:w-4" />
                   </button>
                   <button
                     type="button"
                     onClick={() => navigate('/dashboard/events?type=promotion')}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-[#dcc7a5] bg-white px-5 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-[#8b6435] transition-all hover:scale-[1.02] hover:bg-[#fffaf2] active:scale-95 shadow-sm"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl md:rounded-2xl border border-[#dcc7a5] bg-white px-4 md:px-5 py-2 md:py-3 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[#8b6435] transition-all hover:scale-[1.02] hover:bg-[#fffaf2] active:scale-95 shadow-sm"
                   >
                     Ver promos
-                    <Sparkles className="h-4 w-4" />
+                    <Sparkles className="h-3 md:h-4 w-3 md:w-4" />
                   </button>
                 </div>
               </div>

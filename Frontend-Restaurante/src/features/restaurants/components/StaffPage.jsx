@@ -74,38 +74,38 @@ export const StaffPage = () => {
       <div className="flex flex-col lg:flex-row gap-12">
         {/* Formulario de Registro */}
         <div className="w-full lg:w-[400px] shrink-0">
-          <div className="bg-zinc-900/40 backdrop-blur-3xl p-10 rounded-[3rem] border border-[#dcc7a5]/10 shadow-2xl">
-            <h2 className="text-2xl font-black text-white mb-8 tracking-tight uppercase">Alta de Personal</h2>
+          <div className="bg-white/80 backdrop-blur-xl p-8 md:p-10 rounded-[2.5rem] border border-[#dcc7a5]/70 shadow-[0_30px_100px_rgba(110,80,45,0.12)]">
+            <h2 className="text-2xl font-black text-ink mb-8 tracking-tight uppercase">Alta de Personal</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Nombre</label>
-                  <input required name="name" value={formData.name} onChange={handleChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-sm font-bold text-white focus:border-[#d7b77f] outline-none transition-all placeholder:text-zinc-800" placeholder="Juan" />
+                  <label className="text-[10px] font-black text-ink/80 uppercase tracking-widest px-1">Nombre</label>
+                  <input required name="name" value={formData.name} onChange={handleChange} className="w-full bg-[#fffdf9] border border-[#dcc7a5] rounded-xl px-4 py-3 text-sm font-medium text-ink focus:border-[#b98c52] focus:ring-2 focus:ring-[#d7b77f]/20 outline-none transition-all placeholder:text-zinc-400" placeholder="Juan" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Apellido</label>
-                  <input required name="surname" value={formData.surname} onChange={handleChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-sm font-bold text-white focus:border-[#d7b77f] outline-none transition-all placeholder:text-zinc-800" placeholder="Pérez" />
+                  <label className="text-[10px] font-black text-ink/80 uppercase tracking-widest px-1">Apellido</label>
+                  <input required name="surname" value={formData.surname} onChange={handleChange} className="w-full bg-[#fffdf9] border border-[#dcc7a5] rounded-xl px-4 py-3 text-sm font-medium text-ink focus:border-[#b98c52] focus:ring-2 focus:ring-[#d7b77f]/20 outline-none transition-all placeholder:text-zinc-400" placeholder="Pérez" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Usuario</label>
-                <input required name="username" value={formData.username} onChange={handleChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-sm font-bold text-white focus:border-[#d7b77f] outline-none transition-all placeholder:text-zinc-800" placeholder="juan_p" />
+                <label className="text-[10px] font-black text-ink/80 uppercase tracking-widest px-1">Usuario</label>
+                <input required name="username" value={formData.username} onChange={handleChange} className="w-full bg-[#fffdf9] border border-[#dcc7a5] rounded-xl px-4 py-3 text-sm font-medium text-ink focus:border-[#b98c52] focus:ring-2 focus:ring-[#d7b77f]/20 outline-none transition-all placeholder:text-zinc-400" placeholder="juan_p" />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Email</label>
-                <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-sm font-bold text-white focus:border-[#d7b77f] outline-none transition-all placeholder:text-zinc-800" placeholder="staff@correo.com" />
+                <label className="text-[10px] font-black text-ink/80 uppercase tracking-widest px-1">Email</label>
+                <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-[#fffdf9] border border-[#dcc7a5] rounded-xl px-4 py-3 text-sm font-medium text-ink focus:border-[#b98c52] focus:ring-2 focus:ring-[#d7b77f]/20 outline-none transition-all placeholder:text-zinc-400" placeholder="staff@correo.com" />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Contraseña</label>
-                <input required type="password" name="password" value={formData.password} onChange={handleChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-sm font-bold text-white focus:border-[#d7b77f] outline-none transition-all placeholder:text-zinc-800" placeholder="••••••••" />
+                <label className="text-[10px] font-black text-ink/80 uppercase tracking-widest px-1">Contraseña</label>
+                <input required type="password" name="password" value={formData.password} onChange={handleChange} className="w-full bg-[#fffdf9] border border-[#dcc7a5] rounded-xl px-4 py-3 text-sm font-medium text-ink focus:border-[#b98c52] focus:ring-2 focus:ring-[#d7b77f]/20 outline-none transition-all placeholder:text-zinc-400" placeholder="••••••••" />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Rol Operativo</label>
-                <select name="role" value={formData.role} onChange={handleChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-sm font-bold text-white focus:border-[#d7b77f] outline-none transition-all appearance-none cursor-pointer">
+                <label className="text-[10px] font-black text-ink/80 uppercase tracking-widest px-1">Rol Operativo</label>
+                <select name="role" value={formData.role} onChange={handleChange} className="w-full bg-[#fffdf9] border border-[#dcc7a5] rounded-xl px-4 py-3 text-sm font-medium text-ink focus:border-[#b98c52] focus:ring-2 focus:ring-[#d7b77f]/20 outline-none transition-all appearance-none cursor-pointer">
                   <option value="STAFF_ROLE">Personal de Sala</option>
                   <option value="RESTAURANT_ADMIN_ROLE">Administrador de Sede</option>
                 </select>
@@ -132,43 +132,43 @@ export const StaffPage = () => {
               <p className="text-zinc-500 mt-2 text-xs font-bold uppercase tracking-widest">Inicia el registro para gestionar tu equipo.</p>
             </div>
           ) : (
-            <div className="bg-zinc-900/40 backdrop-blur-3xl rounded-[3rem] border border-[#dcc7a5]/10 overflow-hidden shadow-2xl">
+            <div className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] border border-[#dcc7a5]/70 overflow-hidden shadow-[0_30px_100px_rgba(110,80,45,0.12)]">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="bg-zinc-950/40 border-b border-[#dcc7a5]/10">
-                    <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Colaborador</th>
-                    <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 text-center">Rango</th>
-                    <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 text-right">Mando</th>
+                  <tr className="bg-white/50 border-b border-[#dcc7a5]/50">
+                    <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ink/80">Colaborador</th>
+                    <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ink/80 text-center">Rango</th>
+                    <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ink/80 text-right">Mando</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#d7b77f]/5">
+                <tbody className="divide-y divide-[#dcc7a5]/20">
                   {staff.map((member) => (
-                    <tr key={member.id} className="hover:bg-[#d7b77f]/5 transition-colors group">
-                      <td className="px-10 py-8">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center shrink-0">
+                    <tr key={member.id} className="hover:bg-[#fffaf3]/60 transition-colors group">
+                      <td className="px-6 md:px-10 py-6 md:py-8">
+                        <div className="flex items-center gap-3 md:gap-4">
+                          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-[#fffaf3] border border-[#dcc7a5] overflow-hidden flex items-center justify-center shrink-0">
                             <StaffAvatar name={member.name} surname={member.surname} profilePicture={member.profilePicture} />
                           </div>
-                          <div>
-                            <div className="font-black text-white text-base tracking-tight">{member.name} {member.surname}</div>
-                            <div className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">@{member.username}</div>
+                          <div className="min-w-0">
+                            <div className="font-black text-ink text-sm md:text-base tracking-tight truncate">{member.name} {member.surname}</div>
+                            <div className="text-[9px] md:text-[10px] text-muted-brown font-black uppercase tracking-widest truncate">@{member.username}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-10 py-8 text-center">
-                        <span className={`inline-block px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase border ${member.role === 'RESTAURANT_ADMIN_ROLE'
-                            ? 'border-[#dcc7a5]/20 text-[#b98c52] bg-[#dcc7a5]/5'
-                            : 'border-emerald-500/20 text-emerald-400 bg-emerald-500/5'
+                      <td className="px-6 md:px-10 py-6 md:py-8 text-center">
+                        <span className={`inline-block px-3 md:px-4 py-1.5 rounded-full text-[8px] md:text-[9px] font-black tracking-widest uppercase border ${member.role === 'RESTAURANT_ADMIN_ROLE'
+                            ? 'border-[#d7b77f]/30 text-[#b98c52] bg-[#fffaf3]'
+                            : 'border-emerald-500/30 text-emerald-700 bg-emerald-50'
                           }`}>
                           {member.role === 'RESTAURANT_ADMIN_ROLE' ? '👑 Admin' : '🛡️ Staff'}
                         </span>
                       </td>
-                      <td className="px-10 py-8 text-right">
+                      <td className="px-6 md:px-10 py-6 md:py-8 text-right">
                         <button
                           onClick={() => handleToggleRole(member)}
-                          className="px-6 py-3 rounded-2xl bg-zinc-800 text-white hover:bg-[#b98c52] transition-all text-[10px] font-black uppercase tracking-widest border border-zinc-700 hover:border-[#d7b77f] flex items-center gap-3 ml-auto"
+                          className="px-3 md:px-6 py-2 md:py-3 rounded-lg md:rounded-2xl bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white hover:to-[#a97d45] transition-all text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-[#d7b77f]/30 flex items-center gap-2 md:gap-3 ml-auto"
                         >
-                          <ArrowLeftRight className="w-4 h-4" /> Alternar
+                          <ArrowLeftRight className="w-3 h-3 md:w-4 md:h-4" /> <span className="hidden md:inline">Alternar</span>
                         </button>
                       </td>
                     </tr>

@@ -6,7 +6,7 @@ import { Activity, Menu, X, Radio, LogOut, Home, History, Calendar, UserCircle }
 import { useAuthStore } from '../../features/auth/store/useAuthStore';
 import { Button } from '../../shared/components/ui/Button';
 import StaggeredMenu from '../../shared/components/ui/StaggeredMenu';
-import LogoBuenProvecho from '../../assets/img/LogoBuenProvecho.jpeg';
+import LogoBuenProvecho from '../../assets/img/LogoBuenProvecho.png';
 
 export const DashboardLayout = () => {
   const { role, user } = useAuthStore();

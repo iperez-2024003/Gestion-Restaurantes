@@ -44,7 +44,7 @@ export const createRestaurant = async (req, res) => {
     const restaurant = await createRestaurantRecord({ restaurantData: req.body, file: req.file });
     res.status(201).json({ success: true, message: 'Restaurante creado correctamente', data: restaurant });
   } catch (error) {
-    res.status(400).json({ success: false, message: 'Error al crear restaurante', error: error.message });
+    res.status(400).json({ success: false, message: error.message || 'Error al crear restaurante', error: error.message });
   }
 };
 
@@ -53,7 +53,7 @@ export const updateRestaurant = async (req, res) => {
     const restaurant = await updateRestaurantRecord({ id: req.params.id, updateData: req.body, file: req.file });
     res.status(200).json({ success: true, message: 'Restaurante actualizado correctamente', data: restaurant });
   } catch (error) {
-    res.status(400).json({ success: false, message: 'Error al actualizar restaurante', error: error.message });
+    res.status(400).json({ success: false, message: error.message || 'Error al actualizar restaurante', error: error.message });
   }
 };
 

@@ -116,10 +116,10 @@ export const GlobalAnalytics = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {[
-            { label: 'Sedes Activas', value: totalRestaurants, icon: Building2, color: 'purple' },
-            { label: 'Usuarios Red', value: totalUsers, icon: Users, color: 'indigo' },
-            { label: 'Volumen Total', value: `Q${totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'purple' },
-            { label: 'Transacciones', value: totalOrders, icon: ShoppingBag, color: 'indigo' },
+            { label: 'Sedes Activas', value: totalRestaurants, icon: Building2, color: 'bronze' },
+            { label: 'Usuarios Red', value: totalUsers, icon: Users, color: 'blue' },
+            { label: 'Volumen Total', value: `Q${totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'bronze' },
+            { label: 'Transacciones', value: totalOrders, icon: ShoppingBag, color: 'blue' },
           ].map((kpi, i) => (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}

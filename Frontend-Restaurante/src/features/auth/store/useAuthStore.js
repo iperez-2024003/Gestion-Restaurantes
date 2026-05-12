@@ -29,10 +29,13 @@ export const useAuthStore = create(
           return { success: true };
         } catch (error) {
           set({ isLoading: false });
-          const status = error.response?.status;
           const backendMessage = error.response?.data?.message;
-          const message = status === 401 ? 'Credenciales inválidas' : (backendMessage || 'Error al iniciar sesión');
-          return { success: false, error: message };
+          const backendCode = error.response?.data?.code;
+          return {
+            success: false,
+            error: backendMessage || 'Error al iniciar sesión',
+            code: backendCode,
+          };
         }
       },
 

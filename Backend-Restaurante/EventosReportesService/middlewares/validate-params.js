@@ -4,6 +4,14 @@ export const validateUuidParam = (paramName = 'id') => [
   param(paramName).notEmpty().withMessage(`El ${paramName} es requerido`),
 ];
 
+export const validateMongoIdParam = (paramName = 'id') => [
+  param(paramName)
+    .notEmpty()
+    .withMessage(`El ${paramName} es requerido`)
+    .isMongoId()
+    .withMessage(`El ${paramName} no tiene un formato válido`),
+];
+
 export const validateUserIdParam = (paramName = 'userId') => [
   param(paramName).notEmpty().withMessage(`El ${paramName} es requerido`),
 ];

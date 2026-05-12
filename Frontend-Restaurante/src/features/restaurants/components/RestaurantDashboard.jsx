@@ -105,7 +105,7 @@ export const RestaurantDashboard = () => {
           title="Reservas" 
           value={stats?.upcomingReservations || '0'} 
           icon={Calendar} 
-          color="purple"
+          color="bronze"
         />
         <AnalyticsCard 
           title="Staff en Turno" 

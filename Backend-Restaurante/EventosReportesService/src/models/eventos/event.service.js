@@ -15,6 +15,7 @@ export const fetchEvents = async (filters = {}, options = {}) => {
   if (filters.restaurantId) query.restaurantId = filters.restaurantId;
   if (filters.eventType) query.eventType = filters.eventType;
   if (filters.status) query.status = filters.status;
+  else if (!filters.upcoming) query.status = { $ne: 'cancelled' };
   if (filters.upcoming === 'true') {
     query.eventDate = { $gte: new Date(new Date().toISOString().slice(0, 10)) };
     query.status = 'scheduled';
@@ -51,9 +52,20 @@ export const cancelEventRecord = async (id) => {
   const event = await Event.findOne({ _id: id, isActive: true });
   if (!event) return null;
   if (event.status === 'cancelled') return { already: true };
+  if (event.status === 'completed') return { notAllowed: true };
+
   event.status = 'cancelled';
   await event.save();
   return event;
+};
+
+export const deleteEventRecord = async (id) => {
+  const event = await Event.findOne({ _id: id, isActive: true });
+  if (!event) return null;
+
+  await EventParticipant.deleteMany({ eventId: id });
+  await Event.deleteOne({ _id: id });
+  return { deleted: true };
 };
 
 export const registerParticipantRecord = async (eventId, participantData) => {
@@ -108,6 +120,7 @@ export default {
   fetchEventById,
   updateEventRecord,
   cancelEventRecord,
+  deleteEventRecord,
   registerParticipantRecord,
   unregisterParticipantRecord,
   fetchEventParticipants,

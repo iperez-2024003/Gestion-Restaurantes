@@ -158,18 +158,24 @@ export const loginUserHelper = async (emailOrUsername, password) => {
   try {
     // Validation is now handled by express-validator middleware in routes
 
+    const createLoginError = (message, code) => {
+      const error = new Error(message);
+      error.code = code;
+      return error;
+    };
+
     // Buscar usuario por email o username
     const user = await findUserByEmailOrUsername(emailOrUsername);
 
     if (!user) {
-      throw new Error('Credenciales inválidas');
+      throw createLoginError('Usuario no encontrado', 'USER_NOT_FOUND');
     }
 
     // Verificar contraseña
     const isValidPassword = await verifyPassword(user.Password, password);
 
     if (!isValidPassword) {
-      throw new Error('Credenciales inválidas');
+      throw createLoginError('Contraseña incorrecta', 'INVALID_PASSWORD');
     }
 
     // Verificar si el email está verificado

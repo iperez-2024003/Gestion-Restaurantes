@@ -16,7 +16,7 @@ export const MenuFlipCard = ({ title, category, price, time, servings, image }) 
                 <p className="text-white font-black text-xl">{price}</p>
                 <p className="text-[#b98c52] text-[10px] font-black uppercase tracking-widest mt-1">Precio sugerido</p>
               </div>
-              <button className="px-6 py-2 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black rounded-xl text-[10px] uppercase tracking-widest hover:to-[#a97d45] transition-colors">
+              <button className="px-6 py-2 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black rounded-xl text-[10px] uppercase tracking-widest hover:to-[#a97d45] transition-colors shadow-lg shadow-[rgba(185,140,82,0.18)]">
                 Ver Detalles
               </button>
             </div>
@@ -33,7 +33,7 @@ export const MenuFlipCard = ({ title, category, price, time, servings, image }) 
                   <p className="title-text">
                     <strong>{title}</strong>
                   </p>
-                  <svg fillRule="nonzero" height="15px" width="15px" viewBox="0,0,256,256" xmlns="http://www.w3.org/2000/svg"><g style={{mixBlendMode: 'normal'}} fillRule="nonzero" fill="#A855F7"><g transform="scale(8,8)"><path d="M25,27l-9,-6.75l-9,6.75v-23h18z" /></g></g></svg>
+                  <svg fillRule="nonzero" height="15px" width="15px" viewBox="0,0,256,256" xmlns="http://www.w3.org/2000/svg"><g style={{mixBlendMode: 'normal'}} fillRule="nonzero" fill="#b98c52"><g transform="scale(8,8)"><path d="M25,27l-9,-6.75l-9,6.75v-23h18z" /></g></g></svg>
                 </div>
                 <div className="card-footer">
                    <div className="flex items-center gap-1">
@@ -159,7 +159,7 @@ const StyledWrapper = styled.div`
   }
 
   .front-content .badge {
-    background-color: rgba(168, 85, 247, 0.2);
+    background-color: rgba(185, 140, 82, 0.18);
     padding: 4px 12px;
     border-radius: 12px;
     backdrop-filter: blur(8px);
@@ -168,17 +168,17 @@ const StyledWrapper = styled.div`
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #e879f9;
-    border: 1px solid rgba(168, 85, 247, 0.2);
+    color: #f7f1e7;
+    border: 1px solid rgba(185, 140, 82, 0.24);
   }
 
   .description {
     width: 100%;
     padding: 15px;
-    background-color: rgba(24, 24, 27, 0.4);
+    background-color: rgba(24, 24, 27, 0.58);
     backdrop-filter: blur(12px);
     border-radius: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .title-row {
@@ -197,7 +197,7 @@ const StyledWrapper = styled.div`
   .card-footer {
     display: flex;
     gap: 15px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.72);
     font-size: 10px;
     font-weight: 700;
   }

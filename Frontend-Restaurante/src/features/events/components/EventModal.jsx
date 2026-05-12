@@ -27,7 +27,7 @@ const EVENT_TYPES = [
 ];
 
 const inputClass = 'w-full px-6 py-4 rounded-2xl bg-[#fffaf3] border border-[#dcc7a5] text-zinc-900 placeholder-zinc-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all text-sm font-medium';
-const labelClass = 'flex items-center gap-2 text-[10px] font-black text-zinc-600 mb-2 uppercase tracking-[0.2em] ml-1';
+const labelClass = 'flex items-center gap-2 text-[10px] font-black text-zinc-900 mb-2 uppercase tracking-[0.2em] ml-1';
 
 export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = null }) => {
   const [form, setForm] = useState({
@@ -42,6 +42,7 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
     image_url: '',
   });
   const [imagePreview, setImagePreview] = useState('');
+  const [imageFile, setImageFile] = useState(null);
 
   useEffect(() => {
     if (initialData) {
@@ -57,6 +58,7 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
         image_url: initialData.image_url || initialData.imageUrl || '',
       });
       setImagePreview(initialData.image_url || initialData.imageUrl || '');
+      setImageFile(null);
     } else {
       setForm({
         name: '',
@@ -70,6 +72,7 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
         image_url: '',
       });
       setImagePreview('');
+      setImageFile(null);
     }
   }, [initialData, isOpen]);
 
@@ -81,10 +84,11 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setImageFile(file);
+
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result?.toString() || '';
-      setForm((prev) => ({ ...prev, image_url: dataUrl }));
       setImagePreview(dataUrl);
     };
     reader.readAsDataURL(file);
@@ -92,7 +96,11 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    onSubmit(form);
+    const submitData = { ...form };
+    if (imageFile) {
+      submitData.imageFile = imageFile;
+    }
+    onSubmit(submitData);
   };
 
   if (!isOpen) return null;

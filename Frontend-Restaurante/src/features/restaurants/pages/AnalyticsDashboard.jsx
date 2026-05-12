@@ -228,9 +228,9 @@ export const AnalyticsDashboard = () => {
       {/* ── KPI CARDS ────────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
         {[
-          { label: 'Ingresos Hoy', value: `Q${overview?.today?.revenue || 0}`, icon: DollarSign, color: 'purple' },
-          { label: 'Órdenes Hoy', value: overview?.today?.orders || 0, icon: ShoppingBag, color: 'indigo' },
-          { label: 'Reservas Hoy', value: overview?.today?.reservations || 0, icon: Users, color: 'purple' },
+          { label: 'Ingresos Hoy', value: `Q${overview?.today?.revenue || 0}`, icon: DollarSign, color: 'bronze' },
+          { label: 'Órdenes', value: overview?.today?.orders || 0, icon: ShoppingCart, color: 'blue' },
+          { label: 'Reservas Hoy', value: overview?.today?.reservations || 0, icon: Users, color: 'bronze' },
           { label: 'Total Histórico', value: `Q${overview?.all_time?.total_revenue || 0}`, icon: TrendingUp, color: 'indigo' }
         ].map((kpi, idx) => (
           <motion.div 

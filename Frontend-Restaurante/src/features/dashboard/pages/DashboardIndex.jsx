@@ -79,7 +79,7 @@ export const DashboardIndex = () => {
             Bienvenido al panel central de BuenProvecho. Tienes todo el control de la red gastronómica en tus manos.
           </p>
         </div>
-        <BrandLogo size="md" className="hidden lg:block opacity-40 grayscale" />
+        <BrandLogo size="lg" className="hidden lg:block opacity-40 grayscale" />
       </motion.div>
 
       {/* Grid de Acciones y Monitor */}

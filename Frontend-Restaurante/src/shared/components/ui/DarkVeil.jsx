@@ -5,8 +5,8 @@ import * as THREE from 'three';
 const VeilShader = {
   uniforms: {
     uTime: { value: 0 },
-    uColor: { value: new THREE.Color('#A855F7') },
-    uBgColor: { value: new THREE.Color('#000000') },
+    uColor: { value: new THREE.Color('#d7b77f') },
+    uBgColor: { value: new THREE.Color('#f7f1e7') },
     uResolution: { value: new THREE.Vector2() }
   },
   vertexShader: `
@@ -52,8 +52,8 @@ const VeilMesh = () => {
   
   const uniforms = useMemo(() => ({
     uTime: { value: 0 },
-    uColor: { value: new THREE.Color('#A855F7') },
-    uBgColor: { value: new THREE.Color('#000000') },
+    uColor: { value: new THREE.Color('#d7b77f') },
+    uBgColor: { value: new THREE.Color('#f7f1e7') },
     uResolution: { value: new THREE.Vector2(size.width, size.height) }
   }), [size]);
 
@@ -77,11 +77,11 @@ const VeilMesh = () => {
 
 export const DarkVeil = () => {
   return (
-    <div className="absolute inset-0 z-0 bg-black pointer-events-none">
+    <div className="absolute inset-0 z-0 bg-[#f7f1e7] pointer-events-none">
       <Canvas camera={{ position: [0, 0, 1] }}>
         <VeilMesh />
       </Canvas>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#f7f1e7]/60 via-transparent to-[#f7f1e7]" />
     </div>
   );
 };

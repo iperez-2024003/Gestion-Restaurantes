@@ -282,4 +282,32 @@ router.post(
   authController.createManager
 );
 
+/**
+ * @swagger
+ * /api/v1/auth/managers:
+ *   get:
+ *     tags: [Managers]
+ *     summary: Obtiene lista de todos los gerentes (SUPER_ADMIN only)
+ */
+router.get(
+  '/managers',
+  validateJWT,
+  requireSuperAdmin,
+  authController.getManagers
+);
+
+/**
+ * @swagger
+ * /api/v1/auth/managers/:managerId/restaurant:
+ *   patch:
+ *     tags: [Managers]
+ *     summary: Cambia la sede de un gerente (SUPER_ADMIN only)
+ */
+router.patch(
+  '/managers/:managerId/restaurant',
+  validateJWT,
+  requireSuperAdmin,
+  authController.updateManagerRestaurant
+);
+
 export default router;

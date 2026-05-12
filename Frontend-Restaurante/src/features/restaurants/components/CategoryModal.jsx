@@ -42,7 +42,7 @@ export const CategoryModal = ({ isOpen, onClose, restaurantId }) => {
     }
   };
 
-  const labelClass = "flex items-center gap-2 text-[10px] font-black text-zinc-500 mb-2 uppercase tracking-[0.2em] ml-1";
+  const labelClass = "flex items-center gap-2 text-[10px] font-black text-zinc-900 mb-2 uppercase tracking-[0.2em] ml-1";
   const inputClass = "w-full px-6 py-4 rounded-2xl bg-[#fffaf3] border border-[#dcc7a5] text-zinc-900 placeholder-zinc-600 focus:bg-[#fffaf3] focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/20 focus:border-[#d7b77f] transition-all text-sm font-medium";
 
   return (

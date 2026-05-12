@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { restaurantesApi as api } from '../../../shared/api/axios';
+import { authApi, restaurantesApi as api } from '../../../shared/api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOrderStore } from '../../orders/store/useOrderStore';
 import { CartDrawer } from '../../orders/components/CartDrawer';
@@ -9,6 +9,8 @@ import { checkReservationAvailability, createReservation } from '../../../shared
 import { getTables } from '../../../shared/api/tables';
 import { getRestaurantReviews } from '../../../shared/api/reviews';
 import { showError, showSuccess } from '../../../shared/utils/toast';
+import ScrollStack, { ScrollStackItem } from '../../../shared/components/ui/ScrollStack';
+import { MenuFlipCard } from '../../../shared/components/ui/MenuFlipCard';
 import {
   ShoppingBag,
   Users,
@@ -37,6 +39,7 @@ export const PublicMenu = () => {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [reviewAuthors, setReviewAuthors] = useState({});
 
   const { cart, addToCart } = useOrderStore();
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -218,6 +221,48 @@ export const PublicMenu = () => {
     if (restaurant_id) fetchData();
   }, [restaurant_id]);
 
+  useEffect(() => {
+    const loadReviewAuthors = async () => {
+      const uniqueUserIds = [...new Set(reviews.map((review) => review.user_id).filter(Boolean))];
+
+      if (uniqueUserIds.length === 0) {
+        setReviewAuthors({});
+        return;
+      }
+
+      try {
+        const results = await Promise.allSettled(
+          uniqueUserIds.map(async (userId) => {
+            const response = await authApi.post('/auth/profile/by-id', { userId });
+            const profile = response.data?.data || {};
+            return {
+              userId,
+              label: [profile.name, profile.surname].filter(Boolean).join(' ').trim() || profile.username || `Comensal ${String(userId).slice(-4)}`,
+            };
+          })
+        );
+
+        const nextAuthors = {};
+        results.forEach((result, index) => {
+          const userId = uniqueUserIds[index];
+          if (result.status === 'fulfilled' && result.value?.label) {
+            nextAuthors[userId] = result.value.label;
+          }
+        });
+
+        setReviewAuthors(nextAuthors);
+      } catch (error) {
+        setReviewAuthors({});
+      }
+    };
+
+    if (reviews.length > 0) {
+      loadReviewAuthors();
+    } else {
+      setReviewAuthors({});
+    }
+  }, [reviews]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center font-outfit p-4">
@@ -253,6 +298,12 @@ export const PublicMenu = () => {
   const categoryItems = activeCategory
     ? items.filter(item => item.menu_id === activeCategory)
     : items;
+
+  const featuredItems = items.slice(0, 3);
+  const reviewAverage = reviews.length > 0
+    ? (reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length).toFixed(1)
+    : Number(restaurant.rating || 4.9).toFixed(1);
+  const reviewCount = reviews.length || restaurant.total_reviews || 0;
 
   const zoneLabelMap = {
     terrace: 'Terraza',
@@ -496,52 +547,110 @@ export const PublicMenu = () => {
         </AnimatePresence>
       </div>
 
-      {/* ── REVIEWS SECTION ─────────────────────────────────────────────────────── */}
-      {reviews.length > 0 && (
-        <div className="max-w-6xl mx-auto px-4 md:px-8 pt-32">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6 md:gap-8">
-            <div>
-              <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-4 block">Comunidad Gourmet</span>
-              <h2 className="text-5xl font-black text-white tracking-tighter uppercase leading-[0.9]">Reseñas de <span className="text-zinc-600">Comensales</span></h2>
-            </div>
-            <div className="flex items-center gap-4 bg-zinc-900/40 backdrop-blur-xl px-8 py-5 rounded-[2rem] border border-[#dcc7a5]/10">
-              <span className="text-4xl font-black text-white leading-none">{restaurant.rating || '4.9'}</span>
-              <div className="flex text-[#b98c52]">
-                {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current" />)}
-              </div>
-            </div>
+      {/* ── SIGNATURE DISHES ─────────────────────────────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-4 md:px-8 pt-28">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 md:mb-14">
+          <div>
+            <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-4 block">Selección del Chef</span>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-[0.92] text-white">
+              Platos que <span className="text-zinc-600">abren el apetito</span>
+            </h2>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {reviews.map((rev) => (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                key={rev.id}
-                className="bg-[#fffaf3]/60 backdrop-blur-3xl p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-[#dcc7a5]/30 hover:border-[#d7b77f]/50 transition-all group"
-              >
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-10 h-10 md:w-12 md:h-12 bg-[#d7b77f]/20 rounded-2xl flex items-center justify-center font-black text-[#b98c52] text-sm border border-[#dcc7a5]">
-                    {(rev.user?.Username || rev.user?.username || 'G').charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="text-sm font-black text-white uppercase tracking-tight">{rev.user?.Username || rev.user?.username || 'Gourmet'}</p>
-                    <div className="flex text-[#b98c52] scale-75 origin-left">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className={`w-4 h-4 ${i < rev.rating ? 'fill-current' : 'opacity-20'}`} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-[11px] text-zinc-500 font-bold italic leading-relaxed uppercase tracking-wider">
-                  "{rev.comment}"
-                </p>
-              </motion.div>
-            ))}
+          <div className="rounded-[2rem] border border-[#dcc7a5]/20 bg-zinc-900/50 backdrop-blur-xl px-6 py-5 text-right">
+            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#b98c52]">Valoración promedio</p>
+            <p className="mt-2 text-4xl font-black text-white leading-none">{reviewAverage}</p>
+            <p className="mt-2 text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500">{reviewCount} reseñas</p>
           </div>
         </div>
-      )}
+
+        <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+          {(featuredItems.length > 0 ? featuredItems : [
+            {
+              id: 'demo-f1', name: 'Tártara de la Casa', category: 'Entrada', price: 85, image_url: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&q=80',
+            },
+            {
+              id: 'demo-f2', name: 'Filete Premium', category: 'Fuerte', price: 145, image_url: 'https://images.unsplash.com/photo-1497644083578-611b798c60f0?auto=format&fit=crop&q=80',
+            },
+            {
+              id: 'demo-f3', name: 'Postre Firmado', category: 'Postre', price: 58, image_url: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&q=80',
+            },
+          ]).map((item, index) => (
+            <MenuFlipCard
+              key={item.id || index}
+              title={item.name}
+              category={item.category || 'Especialidad'}
+              price={`Q${item.price || item.average_price || 0}`}
+              time={item.preparation_time || '20-30 min'}
+              servings={item.portion_size || '1-2 pax'}
+              image={item.image_url || item.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80'}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* ── REVIEWS SECTION ─────────────────────────────────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-4 md:px-8 pt-32">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6 md:gap-8">
+          <div>
+            <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-4 block">Comunidad Gourmet</span>
+            <h2 className="text-5xl font-black text-white tracking-tighter uppercase leading-[0.9]">Reseñas de <span className="text-zinc-600">Comensales</span></h2>
+          </div>
+          <div className="flex items-center gap-4 bg-zinc-900/40 backdrop-blur-xl px-8 py-5 rounded-[2rem] border border-[#dcc7a5]/10">
+            <span className="text-4xl font-black text-white leading-none">{reviewAverage}</span>
+            <div className="flex text-[#b98c52]">
+              {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current" />)}
+            </div>
+          </div>
+        </div>
+
+        {reviews.length > 0 ? (
+          <ScrollStack useWindowScroll={true} itemStackDistance={18} baseScale={0.94} rotationAmount={0.25} blurAmount={1}>
+            <ScrollStackItem itemClassName="bg-transparent shadow-none p-0 my-0 h-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {reviews.slice(0, 6).map((rev, index) => {
+                  const reviewerLabel = reviewAuthors[rev.user_id] || rev.user?.Username || rev.user?.username || `Comensal ${index + 1}`;
+                  const reviewerInitial = reviewerLabel.charAt(0).toUpperCase();
+
+                  return (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      key={rev.id}
+                      className="bg-[#fffaf3]/60 backdrop-blur-3xl p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-[#dcc7a5]/30 hover:border-[#d7b77f]/50 transition-all group"
+                    >
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="w-10 h-10 md:w-12 md:h-12 bg-[#d7b77f]/20 rounded-2xl flex items-center justify-center font-black text-[#b98c52] text-sm border border-[#dcc7a5]">
+                          {reviewerInitial}
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-white uppercase tracking-tight">{reviewerLabel}</p>
+                          <div className="flex text-[#b98c52] scale-75 origin-left">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`w-4 h-4 ${i < rev.rating ? 'fill-current' : 'opacity-20'}`} />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-zinc-500 font-bold italic leading-relaxed uppercase tracking-wider">
+                        "{rev.comment || 'Una experiencia memorable que vale la pena repetir.'}"
+                      </p>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </ScrollStackItem>
+          </ScrollStack>
+        ) : (
+          <div className="rounded-[3rem] border border-dashed border-[#dcc7a5]/30 bg-[#fffaf3]/40 p-10 md:p-16 text-center backdrop-blur-3xl">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#b98c52] mb-4">Sin reseñas aún</p>
+            <h3 className="text-3xl md:text-4xl font-black tracking-tighter uppercase text-white">Sé el primero en dejar huella</h3>
+            <p className="mt-4 text-zinc-500 font-medium max-w-2xl mx-auto">
+              Cuando aparezcan las primeras reseñas, esta sección se transformará en una vitrina viva de experiencia real.
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* ── FOOTER ───────────────────────────────────────────────────────────────── */}
       <footer className="mt-48 px-8 py-24 bg-zinc-950 border-t border-[#dcc7a5]/10 relative overflow-hidden">

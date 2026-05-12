@@ -77,7 +77,7 @@ export const Sidebar = () => {
       </button>
 
       <div className="h-20 flex items-center px-6 overflow-hidden">
-        <BrandLogo size={isCollapsed ? 'sm' : 'md'} className="transition-all duration-300" />
+        <BrandLogo size={isCollapsed ? 'sm' : 'lg'} className="transition-all duration-300" />
       </div>
 
       <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2 scrollbar-hide">
