@@ -69,42 +69,23 @@ export const AdminEventsPage = () => {
       if (!restaurantId) return;
       setCreating(true);
 
-      const imageFile = formData.imageFile;
-      const { imageFile: _, ...dataWithoutFile } = formData;
-
       const payload = {
-        ...dataWithoutFile,
+        ...formData,
         restaurant_id: restaurantId,
-        start_time: `${dataWithoutFile.start_time}:00`,
-        end_time: `${dataWithoutFile.end_time}:00`,
-        max_participants: Number(dataWithoutFile.max_participants),
-        price_per_person: Number(dataWithoutFile.price_per_person),
+        start_time: formData.start_time.length === 5 ? `${formData.start_time}:00` : formData.start_time,
+        end_time: formData.end_time.length === 5 ? `${formData.end_time}:00` : formData.end_time,
+        max_participants: Number(formData.max_participants),
+        price_per_person: Number(formData.price_per_person),
       };
 
       const selectedEventId = getEventId(selectedEvent);
 
-      if (imageFile) {
-        const uploadFormData = new FormData();
-        uploadFormData.append('image', imageFile);
-        Object.keys(payload).forEach(key => {
-          uploadFormData.append(key, payload[key]);
-        });
-
-        if (selectedEventId) {
-          await updateEvent(selectedEventId, uploadFormData);
-          showSuccess('¡Evento actualizado con éxito!');
-        } else {
-          await createEvent(uploadFormData);
-          showSuccess('¡Experiencia publicada con éxito!');
-        }
+      if (selectedEventId) {
+        await updateEvent(selectedEventId, payload);
+        showSuccess('¡Evento actualizado con éxito!');
       } else {
-        if (selectedEventId) {
-          await updateEvent(selectedEventId, payload);
-          showSuccess('¡Evento actualizado con éxito!');
-        } else {
-          await createEvent(payload);
-          showSuccess('¡Experiencia publicada con éxito!');
-        }
+        await createEvent(payload);
+        showSuccess('¡Experiencia publicada con éxito!');
       }
 
       handleCloseModal();
@@ -220,7 +201,7 @@ export const AdminEventsPage = () => {
                 >
                   <div className="h-52 relative overflow-hidden shrink-0">
                     <img
-                      src={event.image_url || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop'}
+                      src={event.imageUrl || event.image_url || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop'}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       alt={event.name}
                     />

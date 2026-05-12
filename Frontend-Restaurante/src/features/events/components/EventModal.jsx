@@ -97,9 +97,13 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const submitData = { ...form };
-    if (imageFile) {
-      submitData.imageFile = imageFile;
+    
+    // Si hay una nueva imagen cargada localmente, usamos el preview (Base64)
+    // para evitar el uso de FormData que el backend de eventos no soporta actualmente
+    if (imageFile && imagePreview) {
+      submitData.image_url = imagePreview;
     }
+    
     onSubmit(submitData);
   };
 
