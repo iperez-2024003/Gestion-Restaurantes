@@ -22,6 +22,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { EventModal } from '../components/EventModal';
+import { ParticipantsModal } from '../components/ParticipantsModal';
 
 export const AdminEventsPage = () => {
   const { id: restaurantId } = useParams();
@@ -30,6 +31,8 @@ export const AdminEventsPage = () => {
   const [creating, setCreating] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [participantsModalOpen, setParticipantsModalOpen] = useState(false);
+  const [eventForParticipants, setEventForParticipants] = useState(null);
 
   const getEventId = (event) => event?.id || event?._id || event?.eventId || event?.event_id || '';
 
@@ -62,6 +65,16 @@ export const AdminEventsPage = () => {
   const handleCloseModal = () => {
     setModalOpen(false);
     setSelectedEvent(null);
+  };
+
+  const handleOpenParticipants = (event) => {
+    setEventForParticipants(event);
+    setParticipantsModalOpen(true);
+  };
+
+  const handleCloseParticipants = () => {
+    setParticipantsModalOpen(false);
+    setEventForParticipants(null);
   };
 
   const handleSubmitEvent = async (formData) => {
@@ -237,9 +250,17 @@ export const AdminEventsPage = () => {
                         <Clock className="w-4 h-4 text-[#b98c52]" />
                         <span className="text-[10px] font-black text-[#8b6435] uppercase tracking-widest">{event.start_time?.slice(0, 5)} - {event.end_time?.slice(0, 5)}</span>
                       </div>
-                      <div className="flex items-center gap-4 p-4 bg-[#f3e4ca]/40 rounded-2xl border border-[#dcc7a5]">
-                        <Users className="w-4 h-4 text-[#b98c52]" />
-                        <span className="text-[10px] font-black text-[#8b6435] uppercase tracking-widest">{event.current_participants} / {event.max_participants} Participantes</span>
+                      <div className="flex items-center justify-between p-4 bg-[#f3e4ca]/40 rounded-2xl border border-[#dcc7a5]">
+                        <div className="flex items-center gap-4">
+                          <Users className="w-4 h-4 text-[#b98c52]" />
+                          <span className="text-[10px] font-black text-[#8b6435] uppercase tracking-widest">{event.current_participants} / {event.max_participants} Participantes</span>
+                        </div>
+                        <button 
+                          onClick={() => handleOpenParticipants(event)}
+                          className="px-3 py-1 bg-[#b98c52] text-white text-[8px] font-black uppercase tracking-widest rounded-lg hover:bg-[#8b6435] transition-all"
+                        >
+                          Ver Lista
+                        </button>
                       </div>
                     </div>
 
@@ -282,6 +303,12 @@ export const AdminEventsPage = () => {
         onSubmit={handleSubmitEvent}
         creating={creating}
         initialData={selectedEvent}
+      />
+      <ParticipantsModal 
+        isOpen={participantsModalOpen}
+        onClose={handleCloseParticipants}
+        eventId={getEventId(eventForParticipants)}
+        eventName={eventForParticipants?.name}
       />
     </div>
   );

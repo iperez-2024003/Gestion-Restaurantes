@@ -194,3 +194,16 @@ export const getEventParticipants = async (req, res) => {
     return res.status(500).json({ ok: false, message: 'Error interno del servidor while retrieving participants', error: process.env.NODE_ENV === 'development' ? error.message : undefined });
   }
 };
+
+export const updateParticipantStatus = async (req, res) => {
+  try {
+    const { participantId } = req.params;
+    const { payment_status } = req.body;
+    const participant = await eventService.updateParticipantStatusRecord(participantId, payment_status);
+    if (!participant) return res.status(404).json({ ok: false, message: 'Participante no encontrado' });
+    return res.status(200).json({ ok: true, message: 'Estado actualizado exitosamente', participant });
+  } catch (error) {
+    console.error('Error updating participant status:', error);
+    return res.status(500).json({ ok: false, message: 'Error interno del servidor while updating participant', error: process.env.NODE_ENV === 'development' ? error.message : undefined });
+  }
+};

@@ -114,6 +114,15 @@ export const fetchEventParticipants = async (eventId) => {
   return participants;
 };
 
+export const updateParticipantStatusRecord = async (participantId, paymentStatus) => {
+  const participant = await EventParticipant.findByIdAndUpdate(
+    participantId,
+    { paymentStatus },
+    { new: true }
+  );
+  return participant;
+};
+
 export default {
   createEventRecord,
   fetchEvents,
@@ -124,4 +133,5 @@ export default {
   registerParticipantRecord,
   unregisterParticipantRecord,
   fetchEventParticipants,
+  updateParticipantStatusRecord,
 };

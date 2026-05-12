@@ -11,5 +11,7 @@ export const cancelEvent = (eventId) => api.patch(`/events/${eventId}/cancel`);
 export const deleteEvent = (eventId) => api.delete(`/events/${eventId}`);
 
 export const registerToEvent = (eventId, data) => api.post(`/events/${eventId}/register`, data);
+export const getEventParticipants = (eventId) => api.get(`/events/${eventId}/participants`);
+export const updateParticipantStatus = (participantId, status) => api.patch(`/events/participants/${participantId}`, { payment_status: status });
 
 

@@ -11,6 +11,7 @@ import {
   registerParticipant,
   unregisterParticipant,
   getEventParticipants,
+  updateParticipantStatus,
 } from './event.controller.js';
 import { validateJWT } from '../../../middlewares/validate-JWT.js';
 import { requireSuperAdmin, requireRole } from '../../../middlewares/require-role.js';
@@ -33,5 +34,6 @@ router.delete('/:id', [validateJWT, requireAdminOrRestaurantAdmin, validateMongo
 router.post('/:id/register', [validateJWT, validateMongoIdParam('id'), validateParticipantRegistration], registerParticipant);
 router.delete('/:id/unregister', validateJWT, validateMongoIdParam('id'), unregisterParticipant);
 router.get('/:id/participants', validateJWT, validateMongoIdParam('id'), getEventParticipants);
+router.patch('/participants/:participantId', validateJWT, updateParticipantStatus);
 
 export default router;
