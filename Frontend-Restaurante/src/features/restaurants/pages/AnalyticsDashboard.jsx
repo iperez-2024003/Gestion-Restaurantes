@@ -9,6 +9,7 @@ import {
   TrendingUp, 
   Users, 
   ShoppingBag, 
+  ShoppingCart,
   DollarSign, 
   DownloadCloud, 
   Loader2, 
