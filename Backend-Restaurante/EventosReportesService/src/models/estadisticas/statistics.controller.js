@@ -46,10 +46,19 @@ export const getRestaurantOverview = async (req, res) => {
 
     const { start, end } = getTodayBounds();
 
-    const [todayOrders, todayRevenue, todayReservations, totalOrders, totalRevenue] = await Promise.all([
+    const [
+      todayOrders, 
+      todayRevenueAgg, 
+      todayReservations, 
+      totalOrders, 
+      totalRevenueAgg,
+      activeOrdersCount,
+      staffCount,
+      recentStaff
+    ] = await Promise.all([
       Order.countDocuments({ restaurant_id: id, createdAt: { $gte: start, $lte: end } }),
       Order.aggregate([
-        { $match: { restaurant_id: id, payment_status: 'paid' } },
+        { $match: { restaurant_id: id, payment_status: 'paid', createdAt: { $gte: start, $lte: end } } },
         { $group: { _id: null, total: { $sum: '$total' } } },
       ]),
       Reservation.countDocuments({ restaurant_id: id, createdAt: { $gte: start, $lte: end } }),
@@ -58,12 +67,16 @@ export const getRestaurantOverview = async (req, res) => {
         { $match: { restaurant_id: id, payment_status: 'paid' } },
         { $group: { _id: null, total: { $sum: '$total' } } },
       ]),
+      Order.countDocuments({ 
+        restaurant_id: id, 
+        status: { $in: ['pending', 'confirmed', 'preparing', 'ready', 'served'] } 
+      }),
+      User.countByRestaurant(id),
+      User.findByRestaurant(id, 5)
     ]);
 
-    const paidToday = await Order.aggregate([
-      { $match: { restaurant_id: id, payment_status: 'paid', createdAt: { $gte: start, $lte: end } } },
-      { $group: { _id: null, total: { $sum: '$total' } } },
-    ]);
+    const todayRevenue = todayRevenueAgg[0]?.total || 0;
+    const totalRevenue = totalRevenueAgg[0]?.total || 0;
 
     return res.status(200).json({
       success: true,
@@ -76,21 +89,24 @@ export const getRestaurantOverview = async (req, res) => {
           category: restaurant.category,
         },
         summary: {
-          tables: todayReservations, // Usando reservaciones como proxy o mesas totales si existiera el modelo
-          dishes: 0, // Esto se podría contar del menú
-          staff: 0, // Esto se podría contar de los empleados
-          today_revenue: roundMoney(paidToday[0]?.total),
+          tables: todayReservations,
+          dishes: 0,
+          staff: staffCount,
+          today_revenue: roundMoney(todayRevenue),
           today_orders: todayOrders,
+          active_orders: activeOrdersCount
         },
         today: {
-          orders: todayOrders,
-          revenue: roundMoney(paidToday[0]?.total),
+          orders: activeOrdersCount, 
+          total_today: todayOrders,
+          revenue: roundMoney(todayRevenue),
           reservations: todayReservations,
         },
         all_time: {
           total_orders: totalOrders,
-          total_revenue: roundMoney(totalRevenue[0]?.total),
+          total_revenue: roundMoney(totalRevenue),
         },
+        recentStaff: staffCount > 0 ? recentStaff : []
       },
     });
   } catch (error) {

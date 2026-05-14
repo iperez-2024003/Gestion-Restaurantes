@@ -41,4 +41,39 @@ export const User = {
       return 0;
     }
   },
+
+  /**
+   * Cuenta staff de un restaurante llamando al AuthService
+   */
+  countByRestaurant: async (restaurantId) => {
+    try {
+      const response = await fetch(`${AUTH_SERVICE_URL}/api/v1/users/restaurant/${restaurantId}/count`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(3000),
+      });
+      if (!response.ok) return 0;
+      const data = await response.json();
+      return data?.data?.count || 0;
+    } catch {
+      return 0;
+    }
+  },
+  /**
+   * Obtiene usuarios de un restaurante llamando al AuthService
+   */
+  findByRestaurant: async (restaurantId, limit = 5) => {
+    try {
+      const response = await fetch(`${AUTH_SERVICE_URL}/api/v1/users/restaurant/${restaurantId}?limit=${limit}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(3000),
+      });
+      if (!response.ok) return [];
+      const data = await response.json();
+      return data?.data || [];
+    } catch {
+      return [];
+    }
+  },
 };

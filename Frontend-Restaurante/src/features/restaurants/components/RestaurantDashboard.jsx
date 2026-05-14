@@ -35,7 +35,16 @@ export const RestaurantDashboard = () => {
       try {
         setLoading(true);
         const res = await eventosApi.get(`/statistics/restaurant/${id}/overview`);
-        setStats(res.data.data);
+        const backendData = res.data.data;
+        
+        // Mapear datos del backend al formato esperado por el componente
+        setStats({
+          salesToday: backendData?.today?.revenue || 0,
+          activeOrders: backendData?.today?.orders || 0,
+          upcomingReservations: backendData?.today?.reservations || 0,
+          staffCount: backendData?.summary?.staff || 0,
+          recentStaff: backendData?.recentStaff || []
+        });
       } catch (error) {
         console.error('Error fetching stats:', error);
         setError('No se pudieron cargar las estadísticas actuales.');
