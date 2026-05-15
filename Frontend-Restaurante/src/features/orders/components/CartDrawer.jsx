@@ -83,7 +83,7 @@ export const CartDrawer = ({ isOpen, onClose, restaurantId, tableNumber }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-md z-50"
+            className="fixed inset-0 bg-black/40 backdrop-blur-md z-[70]"
           />
 
           <motion.div
@@ -91,7 +91,7 @@ export const CartDrawer = ({ isOpen, onClose, restaurantId, tableNumber }) => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-white/95 backdrop-blur-3xl shadow-[0_0_60px_rgba(110,80,45,0.08)] z-50 flex flex-col font-outfit border-l border-[#dcc7a5]/10"
+            className="fixed top-0 right-0 h-full w-full max-w-md bg-white/95 backdrop-blur-3xl shadow-[0_0_60px_rgba(110,80,45,0.08)] z-[70] flex flex-col font-outfit border-l border-[#dcc7a5]/10"
           >
             <div className="p-6 md:p-10 border-b border-[#dcc7a5]/10 flex justify-between items-center bg-white/80">
               <div>

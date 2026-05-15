@@ -713,21 +713,38 @@ export const PublicMenu = () => {
         )}
       </div>
 
-      {/* ── FOOTER ───────────────────────────────────────────────────────────────── */}
-      <footer className="mt-48 px-8 py-24 bg-zinc-950 border-t border-[#dcc7a5]/10 relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-[#b98c52] to-transparent opacity-20" />
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <ChefHat className="w-16 h-16 text-[#caa56d] mx-auto mb-10 opacity-20" />
-          <span className="text-[#6b5e4e] text-[10px] font-black uppercase tracking-[0.5em] mb-6 block">Encuéntranos en</span>
-          <h2 className="text-4xl font-black text-white tracking-tighter uppercase mb-2">{restaurant.address}</h2>
-          <p className="text-[#caa56d] font-black text-xl mb-16 tracking-widest">{restaurant.phone}</p>
-
-          <div className="pt-8 md:pt-16 border-t border-zinc-900 flex flex-col items-center gap-6 md:gap-8">
-            <div className="flex gap-6 md:gap-12">
-              <span className="text-zinc-500 hover:text-[#b98c52] cursor-pointer transition-all font-black text-[10px] uppercase tracking-widest">Instagram</span>
-              <span className="text-zinc-500 hover:text-[#b98c52] cursor-pointer transition-all font-black text-[10px] uppercase tracking-widest">Facebook</span>
+      {/* ── FOOTER PREMIUM "LA INSTANCIA" STYLE ───────────────────────────────────── */}
+      <footer className="mt-48 px-8 py-24 bg-[#1c1408] border-t border-[#dcc7a5]/20 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#b98c52]/10 to-transparent pointer-events-none" />
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="mb-12 relative flex justify-center items-center">
+            <div className="absolute w-full h-[1px] bg-gradient-to-r from-transparent via-[#b98c52]/30 to-transparent" />
+            <div className="bg-[#1c1408] px-6 relative">
+              <ChefHat className="w-12 h-12 text-[#b98c52]" />
             </div>
-            <p className="text-zinc-800 text-[9px] font-black tracking-[0.6em] uppercase">Powered by BuenProvecho Premium OS</p>
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl font-medium text-[#fcf8f2] tracking-wide mb-6 font-serif">{restaurant.name}</h2>
+          
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-12 mb-16">
+            <div className="flex items-center gap-3 text-[#dcc7a5]/80 hover:text-[#dcc7a5] transition-colors">
+              <MapPin className="w-4 h-4 text-[#b98c52]" />
+              <span className="text-sm tracking-widest uppercase">{restaurant.address}</span>
+            </div>
+            <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-[#b98c52]/50" />
+            <div className="flex items-center gap-3 text-[#dcc7a5]/80 hover:text-[#dcc7a5] transition-colors">
+              <Phone className="w-4 h-4 text-[#b98c52]" />
+              <span className="text-sm tracking-widest uppercase">{restaurant.phone}</span>
+            </div>
+          </div>
+
+          <div className="pt-12 border-t border-[#dcc7a5]/10 flex flex-col items-center gap-8">
+            <div className="flex gap-10">
+              <a href="#" className="text-[#b98c52] hover:text-[#fcf8f2] transition-colors font-bold text-[10px] uppercase tracking-[0.2em]">Instagram</a>
+              <a href="#" className="text-[#b98c52] hover:text-[#fcf8f2] transition-colors font-bold text-[10px] uppercase tracking-[0.2em]">Facebook</a>
+              <a href="#" className="text-[#b98c52] hover:text-[#fcf8f2] transition-colors font-bold text-[10px] uppercase tracking-[0.2em]">Reservas</a>
+            </div>
+            <p className="text-[#dcc7a5]/40 text-[9px] font-medium tracking-[0.4em] uppercase">Powered by BuenProvecho Premium OS</p>
           </div>
         </div>
       </footer>

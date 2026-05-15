@@ -167,34 +167,22 @@ export const LoginPage = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="hidden lg:block flex-1 h-[600px] relative"
         >
-          <div className="w-full h-full rounded-[2.5rem] overflow-hidden border border-primary-200/50 shadow-premium relative group">
-            <AnimatePresence mode="wait">
+          <div className="w-full h-full rounded-[2.5rem] overflow-hidden border border-primary-200/50 shadow-premium relative group bg-[#1c1408]">
+            <AnimatePresence initial={false}>
               <motion.img
                 key={currentImage}
                 src={uploadImages[currentImage]}
-                initial={{ opacity: 0, scale: 1.1 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1 }}
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: "tween", ease: "easeInOut", duration: 0.8 }}
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </AnimatePresence>
-            <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent" />
-            
-            <div className="absolute bottom-10 left-10 right-10 text-white">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-1.5 bg-primary-500 rounded-lg">
-                  <ShieldCheck size={16} className="text-white" />
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Plataforma Certificada</span>
-              </div>
-              <h3 className="text-4xl font-black mb-3 leading-tight tracking-tighter text-white">Sabor y Gestión <br /> en un solo lugar</h3>
-              <p className="text-primary-100/80 text-lg font-medium max-w-md">La herramienta definitiva para el éxito de tu restaurante.</p>
-            </div>
 
-            <div className="absolute top-10 right-10 flex gap-2">
+            <div className="absolute top-10 right-10 flex gap-2 z-10">
               {uploadImages.map((_, i) => (
-                <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentImage ? 'w-8 bg-primary-400' : 'w-2 bg-white/30'}`} />
+                <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentImage ? 'w-8 bg-primary-400' : 'w-2 bg-white/50 backdrop-blur-md'}`} />
               ))}
             </div>
           </div>

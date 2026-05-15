@@ -64,17 +64,28 @@ export const ClientDashboard = () => {
   const firstFeaturedMenuPath = featuredRestaurants[0]?.id ? `/menu/${featuredRestaurants[0].id}` : '/dashboard';
   const featuredRestaurant = filteredRestaurants[0] || restaurants[0];
 
+const FALLBACK_IMAGES = [
+  'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0f?auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1466978913421-bac2e5e75149?auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1502301103665-0b95cc738daf?auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80'
+];
+
   const loopItems = featuredRestaurants.length > 0
-    ? featuredRestaurants.map((restaurant) => ({
+    ? featuredRestaurants.map((restaurant, index) => ({
         id: restaurant.id,
         name: restaurant.name,
         category: restaurant.category || 'Experiencia Gourmet',
-        image: restaurant.cover_image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80',
+        image: restaurant.cover_image_url || restaurant.logo_url || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length],
       }))
     : [
-        { id: 'demo-1', name: 'BuenProvecho Club', category: 'Experiencias', image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80' },
-        { id: 'demo-2', name: 'Promos VIP', category: 'Ofertas', image: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0f?auto=format&fit=crop&q=80' },
-        { id: 'demo-3', name: 'Mesa Premium', category: 'Reservas', image: 'https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&q=80' },
+        { id: 'demo-1', name: 'BuenProvecho Club', category: 'Experiencias', image: FALLBACK_IMAGES[0] },
+        { id: 'demo-2', name: 'Promos VIP', category: 'Ofertas', image: FALLBACK_IMAGES[1] },
+        { id: 'demo-3', name: 'Mesa Premium', category: 'Reservas', image: FALLBACK_IMAGES[2] },
       ];
 
   const quickActions = [
@@ -436,7 +447,7 @@ export const ClientDashboard = () => {
                     >
                       <div className="relative h-52 overflow-hidden md:h-60">
                         <img
-                          src={restaurant.cover_image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80'}
+                          src={restaurant.cover_image_url || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]}
                           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                           alt={restaurant.name}
                         />
