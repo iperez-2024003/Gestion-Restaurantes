@@ -80,7 +80,7 @@ export const StaffPage = () => {
 
       <div className="flex flex-col lg:flex-row gap-12">
         {/* Formulario de Registro */}
-        <div className="w-full lg:w-[420px] shrink-0">
+        <div className="w-full lg:w-[420px]">
           <Card className="p-8 md:p-10 shadow-gold border-primary-200">
             <div className="flex items-center gap-4 mb-10">
               <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center border border-primary-200">
@@ -181,32 +181,32 @@ export const StaffPage = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="bg-primary-50 border-b border-primary-100">
-                      <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ink/80">Colaborador</th>
-                      <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ink/80 text-center">Rango</th>
-                      <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ink/80 text-right">Mando</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-primary-100/50">
-                    {staff.map((member) => (
-                      <tr key={member.id} className="hover:bg-primary-50/30 transition-colors group">
-                        <td className="px-8 py-6">
+                      <tr className="bg-primary-50 border-b border-primary-100">
+                        <th className="px-4 sm:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ink/80">Colaborador</th>
+                        <th className="px-4 sm:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ink/80 text-center">Rango</th>
+                        <th className="px-4 sm:px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ink/80 text-right">Mando</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-primary-100/50">
+                      {staff.map((member) => (
+                        <tr key={member.id} className="hover:bg-primary-50/30 transition-colors group">
+                          <td className="px-4 sm:px-8 py-6">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-2xl bg-primary-50 border border-primary-200 overflow-hidden flex items-center justify-center shrink-0 shadow-sm">
                               <StaffAvatar name={member.name} surname={member.surname} profilePicture={member.profilePicture} />
                             </div>
                             <div className="min-w-0">
-                              <div className="font-black text-ink text-sm tracking-tight truncate">{member.name} {member.surname}</div>
+                              <div className="font-black text-ink text-xs md:text-sm tracking-tight truncate">{member.name} {member.surname}</div>
                               <div className="text-[10px] text-muted-brown font-black uppercase tracking-widest truncate">@{member.username}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-8 py-6 text-center">
+                        <td className="px-4 sm:px-8 py-6 text-center">
                           <Badge variant={member.role === 'RESTAURANT_ADMIN_ROLE' ? 'primary' : 'success'} className="px-4 py-1.5 rounded-full text-[9px]">
                             {member.role === 'RESTAURANT_ADMIN_ROLE' ? '👑 Admin' : '🛡️ Staff'}
                           </Badge>
                         </td>
-                        <td className="px-8 py-6 text-right">
+                        <td className="px-4 sm:px-8 py-6 text-right">
                           <Button
                             variant="ghost"
                             onClick={() => handleToggleRole(member)}

@@ -239,7 +239,7 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
             <Button 
               type="submit" 
               isLoading={creating}
-              className="px-12 py-5 rounded-3xl shadow-gold"
+              className="w-full md:w-auto px-8 md:px-12 py-5 rounded-3xl shadow-gold"
             >
               <Rocket className="w-4 h-4 mr-2" /> 
               {initialData ? 'Guardar Cambios' : 'Publicar Experiencia'}

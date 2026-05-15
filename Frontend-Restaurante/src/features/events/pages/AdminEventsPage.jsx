@@ -183,7 +183,7 @@ export const AdminEventsPage = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => handleOpenModal()}
-          className="h-fit px-10 py-6 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl shadow-[rgba(185,140,82,0.2)] hover:to-[#a97d45] transition-all border border-[#d7b77f]/30 flex items-center gap-3 shrink-0"
+          className="h-fit w-full md:w-auto px-6 md:px-10 py-6 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl shadow-[rgba(185,140,82,0.2)] hover:to-[#a97d45] transition-all border border-[#d7b77f]/30 flex items-center justify-center gap-3 shrink-0"
         >
           <Plus className="w-5 h-5" /> Nueva Experiencia
         </motion.button>

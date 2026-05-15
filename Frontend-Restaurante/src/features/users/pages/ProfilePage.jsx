@@ -157,7 +157,7 @@ export const ProfilePage = () => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button type="submit" isLoading={isLoading} className="px-10">
+                <Button type="submit" isLoading={isLoading} className="w-full md:w-auto px-6 md:px-10">
                   <Save size={18} className="mr-2" /> Guardar Cambios
                 </Button>
               </div>
@@ -179,7 +179,7 @@ export const ProfilePage = () => {
                 <Input label="Confirmar Nueva" name="confirmPassword" type="password" value={passwordData.confirmPassword} onChange={handlePasswordChange} required placeholder="Repite contraseña" />
               </div>
               <div className="flex justify-end pt-4">
-                <Button type="submit" variant="ghost" isLoading={isLoading} className="px-10 border-primary-200">
+                <Button type="submit" variant="ghost" isLoading={isLoading} className="w-full md:w-auto px-6 md:px-10 border-primary-200">
                   Actualizar Contraseña
                 </Button>
               </div>
@@ -195,7 +195,7 @@ export const ProfilePage = () => {
                 <p className="text-xs text-red-600/70 font-medium mt-1 uppercase tracking-widest">La eliminación es irreversible</p>
               </div>
             </div>
-            <Button variant="danger" className="px-8" onClick={() => toast.error('Contacta a soporte para eliminar tu cuenta')}>
+            <Button variant="danger" className="w-full md:w-auto px-6 md:px-8" onClick={() => toast.error('Contacta a soporte para eliminar tu cuenta')}>
               Eliminar Cuenta
             </Button>
           </div>

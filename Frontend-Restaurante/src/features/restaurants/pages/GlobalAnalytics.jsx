@@ -102,7 +102,7 @@ export const GlobalAnalytics = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
            <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-2">Network intelligence</p>
-           <h1 className="text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none">Global <span className="text-zinc-600">Analytics</span></h1>
+           <h1 className="text-3xl md:text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none">Global <span className="text-zinc-600">Analytics</span></h1>
         </div>
         
         <div className="flex items-center gap-4 bg-white/70 backdrop-blur-xl px-6 py-3 rounded-2xl border border-[#dcc7a5]/10">
@@ -114,7 +114,7 @@ export const GlobalAnalytics = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         {[
             { label: 'Sedes Activas', value: totalRestaurants, icon: Building2, color: 'bronze' },
             { label: 'Usuarios Red', value: totalUsers, icon: Users, color: 'blue' },
@@ -139,7 +139,7 @@ export const GlobalAnalytics = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Top Restaurants Chart */}
-        <div className="bg-white/80 backdrop-blur-3xl p-10 rounded-[3rem] border border-[#dcc7a5]/10 shadow-2xl">
+        <div className="bg-white/80 backdrop-blur-3xl p-5 md:p-10 rounded-[3rem] border border-[#dcc7a5]/10 shadow-2xl">
           <div className="flex items-center justify-between mb-12">
             <div className="flex items-center gap-4">
               <Award className="w-8 h-8 text-[#b98c52]" />
@@ -149,8 +149,8 @@ export const GlobalAnalytics = () => {
               </div>
             </div>
           </div>
-          <div className="h-96">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-64 md:h-96">
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <BarChart data={topRestaurants}>
                 <CartesianGrid strokeDasharray="8 8" vertical={false} stroke="#dcc7a5" />
                 <XAxis 
@@ -189,7 +189,7 @@ export const GlobalAnalytics = () => {
         </div>
 
         {/* Detailed Table */}
-        <div className="bg-[#fffaf3]/60 backdrop-blur-3xl p-10 rounded-[3rem] border border-[#dcc7a5] shadow-2xl overflow-hidden flex flex-col">
+        <div className="bg-[#fffaf3]/60 backdrop-blur-3xl p-5 md:p-10 rounded-[3rem] border border-[#dcc7a5] shadow-2xl overflow-hidden flex flex-col">
            <div className="mb-10">
               <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-widest mb-1">Auditoría Operativa</p>
               <h3 className="text-2xl font-black text-zinc-900 tracking-tight uppercase leading-none">Desempeño <span className="text-zinc-600">Detallado</span></h3>
@@ -208,7 +208,7 @@ export const GlobalAnalytics = () => {
                    <tr key={i} className="group hover:bg-[#d7b77f]/5 transition-all">
                      <td className="py-6 px-4">
                         <div className="flex flex-col">
-                           <span className="font-black text-white text-sm uppercase tracking-tight">{rest.Restaurant.name}</span>
+                           <span className="font-black text-zinc-900 text-sm uppercase tracking-tight">{rest.Restaurant.name}</span>
                            <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">ID: {rest.Restaurant.id?.slice(0, 8)}</span>
                         </div>
                      </td>
@@ -218,7 +218,7 @@ export const GlobalAnalytics = () => {
                         </span>
                      </td>
                      <td className="py-6 px-4 text-right">
-                        <span className="text-lg font-black text-white tracking-tighter">Q{parseFloat(rest.revenue).toLocaleString()}</span>
+                        <span className="text-lg font-black text-zinc-900 tracking-tighter">Q{parseFloat(rest.revenue).toLocaleString()}</span>
                      </td>
                    </tr>
                  ))}

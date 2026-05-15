@@ -258,7 +258,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
             <button type="button" onClick={onClose} className="text-[10px] font-black uppercase text-muted-brown hover:text-ink tracking-widest transition-colors">
               Descartar Cambios
             </button>
-            <Button type="submit" isLoading={loading} className="px-10">
+            <Button type="submit" isLoading={loading} className="w-full md:w-auto px-6 md:px-10">
               <Save size={18} className="mr-2" />
               {restaurant ? 'Guardar Cambios' : 'Crear Sede'}
             </Button>

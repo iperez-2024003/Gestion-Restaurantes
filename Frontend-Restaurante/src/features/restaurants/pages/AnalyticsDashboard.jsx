@@ -169,13 +169,13 @@ export const AnalyticsDashboard = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="space-y-12 pb-20 font-outfit"
+      className="space-y-12 pb-20 font-outfit w-full min-w-0 overflow-x-hidden"
     >
       {/* ── HEADER ───────────────────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
            <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-2">Business Intelligence</p>
-           <h1 className="text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none">Operational <span className="text-zinc-600">Performance</span></h1>
+           <h1 className="text-3xl md:text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none">Operational <span className="text-zinc-600">Performance</span></h1>
         </div>
 
         <div className="w-full md:w-auto rounded-3xl border border-[#dcc7a5]/30 bg-white/70 p-3 backdrop-blur-2xl shadow-xl">
@@ -227,7 +227,7 @@ export const AnalyticsDashboard = () => {
       </div>
 
       {/* ── KPI CARDS ────────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-8">
         {[
           { label: 'Ingresos Hoy', value: `Q${overview?.today?.revenue || 0}`, icon: DollarSign, color: 'bronze' },
           { label: 'Órdenes', value: overview?.today?.orders || 0, icon: ShoppingCart, color: 'blue' },
@@ -237,7 +237,7 @@ export const AnalyticsDashboard = () => {
           <motion.div 
             key={idx}
             variants={itemVariants}
-            className="bg-white/80 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-[#dcc7a5]/5 hover:border-[#b98c52]/20 transition-all group relative overflow-hidden"
+            className="bg-white/80 backdrop-blur-3xl p-5 md:p-8 rounded-[2.5rem] border border-[#dcc7a5]/5 hover:border-[#b98c52]/20 transition-all group relative overflow-hidden"
           >
             <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-${kpi.color}-500/5 rounded-full blur-2xl transition-all`} />
             <div className="relative z-10 flex flex-col gap-6">
@@ -388,21 +388,21 @@ export const AnalyticsDashboard = () => {
       {/* ── ADDITIONAL STATS ─────────────────────────────────────────────────────── */}
       <motion.div 
         variants={itemVariants}
-        className="bg-white/80 border border-[#dcc7a5]/10 p-12 rounded-[4rem] text-zinc-900 overflow-hidden relative shadow-2xl"
+        className="bg-white/80 border border-[#dcc7a5]/10 p-6 md:p-12 rounded-[2.5rem] md:rounded-[4rem] text-zinc-900 overflow-hidden relative shadow-2xl"
       >
         <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(185,140,82,0.06),transparent)]" />
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
           <div className="text-center md:text-left max-w-xl">
             <h2 className="text-4xl font-black tracking-tighter uppercase mb-4 leading-none">Inteligencia <span className="text-zinc-600">Operativa</span></h2>
             <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs leading-loose">Optimiza tu inventario y maximiza la rentabilidad analizando el comportamiento de tus comensales en tiempo real.</p>
           </div>
-          <div className="flex gap-6">
-             <div className="bg-white/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-[#dcc7a5]/10 flex flex-col items-center min-w-[180px]">
+          <div className="w-full md:w-auto grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+             <div className="bg-white/70 backdrop-blur-xl p-4 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-[#dcc7a5]/10 flex flex-col items-center min-w-0">
                <Target className="w-8 h-8 text-[#b98c52] mb-4" />
                <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Ticket Medio</p>
                <p className="text-3xl font-black text-zinc-900 leading-none">Q145</p>
              </div>
-             <div className="bg-white/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-[#dcc7a5]/10 flex flex-col items-center min-w-[180px]">
+             <div className="bg-white/70 backdrop-blur-xl p-4 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-[#dcc7a5]/10 flex flex-col items-center min-w-0">
                <Zap className="w-8 h-8 text-[#6b8bd6] mb-4" />
                <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Fidelización</p>
                <p className="text-3xl font-black text-zinc-900 leading-none">88%</p>

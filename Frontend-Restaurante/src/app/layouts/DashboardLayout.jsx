@@ -44,7 +44,7 @@ export const DashboardLayout = () => {
   ];
 
   return (
-    <div className={`flex bg-primary-50 font-outfit text-ink ${isClient ? 'min-h-screen' : 'h-screen overflow-hidden'}`}>
+    <div className={`flex w-full max-w-full overflow-x-hidden bg-primary-50 font-outfit text-ink ${isClient ? 'min-h-screen' : 'min-h-screen md:h-screen md:overflow-hidden flex-col md:flex-row'}`}>
       {/* Sidebar Desktop - Solo para Staff/Admins */}
       {!isClient && <Sidebar />}
 
@@ -76,16 +76,16 @@ export const DashboardLayout = () => {
               <motion.div 
                 initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="fixed inset-y-0 left-0 w-[280px] z-[70] md:hidden"
+                className="fixed inset-y-0 left-0 w-[280px] max-w-[82vw] z-[70] md:hidden"
               >
                 <div className="h-full relative bg-white shadow-2xl">
                   <button 
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="absolute top-6 right-[-45px] w-10 h-10 bg-white rounded-xl flex items-center justify-center text-ink shadow-lg"
+                    className="absolute top-3 right-3 w-10 h-10 bg-white rounded-xl flex items-center justify-center text-ink shadow-lg border border-primary-200 z-50"
                   >
                     <X size={20} />
                   </button>
-                  <Sidebar />
+                  <Sidebar isMobileDrawer={true} />
                 </div>
               </motion.div>
             </>
@@ -96,7 +96,7 @@ export const DashboardLayout = () => {
       <div className="flex-1 flex flex-col relative min-w-0">
         {/* Header Superior Premium - Ocultar para clientes si el StaggeredMenu ya lo cubre */}
         {!isClient && (
-          <header className="h-20 md:h-24 bg-white/70 backdrop-blur-xl border-b border-primary-200/50 flex items-center justify-between px-6 md:px-12 z-50">
+          <header className="h-20 md:h-24 bg-white/70 backdrop-blur-xl border-b border-primary-200/50 flex items-center justify-between px-4 sm:px-6 md:px-12 z-50 sticky top-0 md:relative">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsMobileMenuOpen(true)}
@@ -138,16 +138,16 @@ export const DashboardLayout = () => {
         )}
 
         {/* Zona de Contenido */}
-        <main className={`flex-1 relative z-10 ${isClient ? 'overflow-x-hidden w-full' : 'overflow-x-hidden overflow-y-auto p-4 md:p-8 lg:p-12 scrollbar-hide'}`}>
+        <main className={`flex-1 relative z-10 w-full max-w-full ${isClient ? 'overflow-x-hidden w-full' : 'overflow-x-hidden md:overflow-y-auto p-3 sm:p-4 md:p-8 lg:p-12 scrollbar-hide'}`}>
           {/* Background Accents */}
-          <div className="fixed top-24 right-0 w-[500px] h-[500px] bg-primary-300/10 blur-[120px] rounded-full pointer-events-none -z-10" />
-          <div className="fixed bottom-0 left-0 w-[400px] h-[400px] bg-primary-400/5 blur-[120px] rounded-full pointer-events-none -z-10" />
+          <div className="hidden md:block fixed top-24 right-0 w-[500px] h-[500px] bg-primary-300/10 blur-[120px] rounded-full pointer-events-none -z-10" />
+          <div className="hidden md:block fixed bottom-0 left-0 w-[400px] h-[400px] bg-primary-400/5 blur-[120px] rounded-full pointer-events-none -z-10" />
 
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className={isClient ? 'w-full mx-auto max-w-[1600px] min-h-screen px-4 md:px-8 lg:px-12 pb-20' : ''}
+            className={isClient ? 'w-full mx-auto max-w-[1600px] min-h-screen px-4 md:px-8 lg:px-12 pb-20' : 'w-full min-w-0'}
           >
             <Outlet />
           </motion.div>

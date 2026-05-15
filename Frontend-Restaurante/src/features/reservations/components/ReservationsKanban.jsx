@@ -44,16 +44,16 @@ export const ReservationsKanban = () => {
   }, [restaurantId, fetchReservations]);
 
   return (
-    <div className="font-outfit space-y-12 animate-in fade-in duration-700">
+    <div className="font-outfit space-y-12 animate-in fade-in duration-700 w-full min-w-0 overflow-x-hidden">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
            <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-2">Guest Relations</p>
-           <h1 className="text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none">Reservas <span className="text-[#8b6435]">Kanban</span></h1>
+           <h1 className="text-3xl md:text-5xl font-black text-zinc-900 tracking-tighter uppercase leading-none">Reservas <span className="text-[#8b6435]">Kanban</span></h1>
         </div>
         
         <button
           onClick={() => fetchReservations({ restaurant_id: restaurantId, limit: 100 })}
-          className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#fffaf3] text-zinc-900 font-black uppercase tracking-widest text-[10px] border border-[#dcc7a5] hover:border-[#b98c52] transition-all shadow-2xl"
+          className="w-full md:w-auto flex items-center justify-center gap-3 px-6 md:px-8 py-4 rounded-2xl bg-[#fffaf3] text-zinc-900 font-black uppercase tracking-widest text-[10px] border border-[#dcc7a5] hover:border-[#b98c52] transition-all shadow-2xl"
         >
           <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Sincronizar
@@ -72,7 +72,7 @@ export const ReservationsKanban = () => {
             return (
               <div
                 key={column.id}
-                className="min-w-[280px] md:min-w-[350px] w-[280px] md:w-[350px] h-full flex flex-col"
+                className="min-w-[260px] md:min-w-[350px] w-[260px] md:w-[350px] h-full flex flex-col"
               >
                 <div className={`flex items-center justify-between mb-6 px-6 py-4 rounded-3xl border ${column.color} backdrop-blur-xl`}>
                   <h3 className="font-black uppercase tracking-widest text-[11px]">{column.label}</h3>

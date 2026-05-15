@@ -11,7 +11,7 @@ import { getImageUrl } from '../utils/getImageUrl';
 import { BrandLogo } from './ui/BrandLogo';
 import { Badge } from './ui/Badge';
 
-export const Sidebar = () => {
+export const Sidebar = ({ isMobileDrawer = false }) => {
   const { role, user, logout } = useAuthStore();
   const location = useLocation();
   const { id: urlId } = useParams();
@@ -65,16 +65,18 @@ export const Sidebar = () => {
 
   return (
     <motion.aside 
-      animate={{ width: isCollapsed ? 80 : 280 }}
-      className="hidden md:flex h-screen bg-white/80 backdrop-blur-2xl border-r border-primary-200/50 flex-col relative z-40 shadow-premium"
+      animate={{ width: isMobileDrawer ? '100%' : (isCollapsed ? 80 : 280) }}
+      className={`${isMobileDrawer ? 'flex' : 'hidden md:flex'} ${isMobileDrawer ? 'h-full' : 'h-screen'} bg-white/80 backdrop-blur-2xl border-r border-primary-200/50 flex-col relative z-40 shadow-premium`}
     >
       {/* Botón de Colapso */}
-      <button 
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-24 w-6 h-6 bg-white border border-primary-200 rounded-full flex items-center justify-center text-primary-600 shadow-sm hover:bg-primary-50 transition-colors z-50"
-      >
-        {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-      </button>
+      {!isMobileDrawer && (
+        <button 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-3 top-24 w-6 h-6 bg-white border border-primary-200 rounded-full flex items-center justify-center text-primary-600 shadow-sm hover:bg-primary-50 transition-colors z-50"
+        >
+          {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        </button>
+      )}
 
       <div className="h-20 flex items-center px-6 overflow-hidden">
         <BrandLogo size={isCollapsed ? 'sm' : 'lg'} className="transition-all duration-300" />
@@ -101,7 +103,9 @@ export const Sidebar = () => {
               <NavLink to={`/dashboard/restaurants/${id}/menu`} icon={Utensils}>Menú</NavLink>
               <NavLink to={`/dashboard/restaurants/${id}/orders`} icon={ClipboardList}>Órdenes</NavLink>
               <NavLink to={`/dashboard/restaurants/${id}/reservations`} icon={Calendar}>Reservaciones</NavLink>
-              <NavLink to={`/dashboard/restaurants/${id}/analytics`} icon={BarChart3}>Reportes</NavLink>
+              {role === 'RESTAURANT_ADMIN_ROLE' && (
+                <NavLink to={`/dashboard/restaurants/${id}/analytics`} icon={BarChart3}>Reportes</NavLink>
+              )}
               <NavLink to={`/dashboard/restaurants/${id}/kitchen`} icon={Flame}>Cocina</NavLink>
               {role === 'RESTAURANT_ADMIN_ROLE' && (
                 <>

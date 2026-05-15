@@ -10,7 +10,7 @@ const baseStyle = {
 };
 
 export const showSuccess = (message) =>
-  toast.success(message, {
+  toast.success(message || 'Operación exitosa', {
     style: {
       ...baseStyle,
       background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
@@ -21,7 +21,7 @@ export const showSuccess = (message) =>
   });
 
 export const showError = (message) =>
-  toast.error(message, {
+  toast.error(message || 'Ocurrió un error', {
     style: {
       ...baseStyle,
       background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
@@ -32,7 +32,7 @@ export const showError = (message) =>
   });
 
 export const showInfo = (message) =>
-  toast(message, {
+  toast(message || 'Información', {
     style: {
       ...baseStyle,
       background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
@@ -43,7 +43,7 @@ export const showInfo = (message) =>
   });
 
 export const showWarning = (message) =>
-  toast(message, {
+  toast(message || 'Atención', {
     style: {
       ...baseStyle,
       background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',

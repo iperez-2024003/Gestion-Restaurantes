@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { restaurantesApi as api, eventosApi } from '../../../shared/api/axios';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { useRestaurantStore } from '../store/useRestaurantStore';
@@ -16,18 +16,35 @@ import { motion } from 'framer-motion';
 
 export const RestaurantDashboard = () => {
   const { id } = useParams();
+  const location = useLocation();
   const { restaurants } = useRestaurantStore();
   const { user, role } = useAuthStore();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const isStaff = role === 'STAFF_ROLE';
+
+  const normalizeRestaurantId = (value) => {
+    if (!value) return '';
+    if (typeof value === 'object') {
+      return String(value.id || value._id || '').trim().toLowerCase();
+    }
+    return String(value).trim().toLowerCase();
+  };
 
   const restaurant = restaurants.find(r => r.id === id);
 
   useEffect(() => {
-    if ((role === 'STAFF_ROLE' || role === 'RESTAURANT_ADMIN_ROLE') && user?.restaurantId && id !== user.restaurantId) {
-       navigate(`/dashboard/restaurants/${user.restaurantId}`, { replace: true });
+    const roleHasFixedRestaurant = role === 'STAFF_ROLE' || role === 'RESTAURANT_ADMIN_ROLE';
+    const currentId = normalizeRestaurantId(id);
+    const userRestaurantId = normalizeRestaurantId(user?.restaurantId);
+
+    if (roleHasFixedRestaurant && userRestaurantId && currentId && currentId !== userRestaurantId) {
+       const targetPath = `/dashboard/restaurants/${userRestaurantId}`;
+       if (location.pathname !== targetPath) {
+         navigate(targetPath, { replace: true });
+       }
        return;
     }
 
@@ -54,7 +71,7 @@ export const RestaurantDashboard = () => {
     };
 
     if (id) fetchStats();
-  }, [id, role, user?.restaurantId, navigate]);
+  }, [id, role, user?.restaurantId, navigate, location.pathname]);
 
   if (loading) {
     return (
@@ -66,7 +83,7 @@ export const RestaurantDashboard = () => {
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 w-full min-w-0 overflow-x-hidden">
       {/* Header de Sede */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
@@ -83,14 +100,16 @@ export const RestaurantDashboard = () => {
           </p>
         </div>
         
-        <div className="flex gap-3">
-          <Button variant="ghost" onClick={() => navigate(`/dashboard/restaurants/${id}/menu`)}>
+        <div className="flex gap-3 flex-wrap">
+          <Button variant="ghost" className="w-full sm:w-auto" onClick={() => navigate(`/dashboard/restaurants/${id}/menu`)}>
             <Utensils size={18} /> Menú
           </Button>
-          <Button variant="secondary" onClick={() => navigate(`/dashboard/restaurants/${id}/analytics`)}>
-            <LayoutDashboard size={18} /> Analytics
-          </Button>
-          <Button variant="primary" onClick={() => navigate(`/dashboard/restaurants/${id}/orders`)}>
+          {!isStaff && (
+            <Button variant="secondary" className="w-full sm:w-auto" onClick={() => navigate(`/dashboard/restaurants/${id}/analytics`)}>
+              <LayoutDashboard size={18} /> Analytics
+            </Button>
+          )}
+          <Button variant="primary" className="w-full sm:w-auto" onClick={() => navigate(`/dashboard/restaurants/${id}/orders`)}>
             <ClipboardList size={18} /> Ver Órdenes
           </Button>
         </div>
@@ -127,7 +146,7 @@ export const RestaurantDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Acciones de Turno */}
         <Card className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
             <h3 className="text-xl font-black text-ink uppercase tracking-tight">Gestión Operativa</h3>
             <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
               <Rocket size={20} />
@@ -142,7 +161,7 @@ export const RestaurantDashboard = () => {
               { label: 'Mesas', icon: LayoutDashboard, to: `/dashboard/restaurants/${id}/tables` },
             ].map((action, i) => (
               <Link key={i} to={action.to} className="group">
-                <div className="flex flex-col items-center p-6 bg-primary-50/30 border border-primary-100 rounded-[2rem] group-hover:bg-primary-500 group-hover:text-white group-hover:border-primary-500 transition-all duration-300">
+                <div className="flex flex-col items-center p-4 md:p-6 bg-primary-50/30 border border-primary-100 rounded-[2rem] group-hover:bg-primary-500 group-hover:text-white group-hover:border-primary-500 transition-all duration-300">
                   <action.icon size={28} className="mb-3 text-primary-500 group-hover:text-white transition-colors" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-center">{action.label}</span>
                 </div>
@@ -172,9 +191,11 @@ export const RestaurantDashboard = () => {
               </div>
             )}
           </div>
-          <Button variant="ghost" className="w-full mt-6 text-[10px]" onClick={() => navigate(`/dashboard/restaurants/${id}/staff`)}>
-            Ver Todo el Equipo <ChevronRight size={14} />
-          </Button>
+          {!isStaff && (
+            <Button variant="ghost" className="w-full mt-6 text-[10px]" onClick={() => navigate(`/dashboard/restaurants/${id}/staff`)}>
+              Ver Todo el Equipo <ChevronRight size={14} />
+            </Button>
+          )}
         </Card>
       </div>
     </div>

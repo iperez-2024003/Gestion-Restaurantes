@@ -41,7 +41,17 @@ export const DashboardIndex = () => {
         navigate(restaurantId ? `/dashboard/restaurants/${restaurantId}/staff` : '/dashboard/users');
         break;
       case 'reports':
-        navigate('/dashboard/analytics');
+        // Navigate based on role to avoid unauthorized redirects that
+        // mount/unmount analytics pages (which can trigger Recharts size warnings)
+        if (role === 'SUPER_ADMIN_ROLE') {
+          navigate('/dashboard/analytics');
+        } else if (role === 'RESTAURANT_ADMIN_ROLE' && restaurantId) {
+          navigate(`/dashboard/restaurants/${restaurantId}/analytics`);
+        } else {
+          // For STAFF or other roles without access, redirect to restaurant dashboard
+          // to avoid bouncing to /dashboard which causes intermediate mounts.
+          navigate(restaurantId ? `/dashboard/restaurants/${restaurantId}` : '/dashboard');
+        }
         break;
       default:
         break;
@@ -63,7 +73,7 @@ export const DashboardIndex = () => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="space-y-10"
+      className="space-y-10 px-4"
     >
       {/* Bienvenida Premium */}
       <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -83,10 +93,10 @@ export const DashboardIndex = () => {
       </motion.div>
 
       {/* Grid de Acciones y Monitor */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Card de Acciones Críticas */}
         <motion.div variants={itemVariants} className="xl:col-span-2">
-          <Card className="h-full flex flex-col p-8">
+          <Card className="h-full flex flex-col p-5 md:p-8">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-12 h-12 bg-primary-50 rounded-2xl flex items-center justify-center text-primary-600 border border-primary-100">
                 <Zap size={24} />
@@ -101,7 +111,9 @@ export const DashboardIndex = () => {
               <ActionButton label="Nueva Orden" icon={PlusCircle} color="gold" onClick={() => handleQuickAction('orders')} />
               <ActionButton label="Clientes" icon={Search} color="blue" onClick={() => handleQuickAction('clients')} />
               <ActionButton label="Nuevo Staff" icon={UserPlus} color="orange" onClick={() => handleQuickAction('staff')} />
-              <ActionButton label="Reportes" icon={FileText} color="cyan" onClick={() => handleQuickAction('reports')} />
+              {role !== 'STAFF_ROLE' && (
+                <ActionButton label="Reportes" icon={FileText} color="cyan" onClick={() => handleQuickAction('reports')} />
+              )}
             </div>
 
             <div className="mt-auto pt-10">
@@ -137,7 +149,7 @@ export const DashboardIndex = () => {
       {/* Banner de Soporte / Manual */}
       <motion.div variants={itemVariants}>
         <Card className="bg-ink p-8 md:p-10 border-none relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-[400px] h-full bg-primary-500/10 skew-x-12 translate-x-20 transition-transform group-hover:translate-x-16" />
+          <div className="hidden lg:block absolute top-0 right-0 w-[400px] h-full bg-primary-500/10 skew-x-12 translate-x-20 transition-transform group-hover:translate-x-16" />
 
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex items-center gap-6">
