@@ -137,9 +137,9 @@ export const RestaurantDashboard = () => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
               { label: 'Órdenes', icon: PlusCircle, to: `/dashboard/restaurants/${id}/orders` },
+              { label: 'Reservas', icon: Calendar, to: `/dashboard/restaurants/${id}/reservations` },
               { label: 'Cocina', icon: Flame, to: `/dashboard/restaurants/${id}/kitchen` },
               { label: 'Mesas', icon: LayoutDashboard, to: `/dashboard/restaurants/${id}/tables` },
-              { label: 'Menú', icon: Utensils, to: `/dashboard/restaurants/${id}/menu` },
             ].map((action, i) => (
               <Link key={i} to={action.to} className="group">
                 <div className="flex flex-col items-center p-6 bg-primary-50/30 border border-primary-100 rounded-[2rem] group-hover:bg-primary-500 group-hover:text-white group-hover:border-primary-500 transition-all duration-300">

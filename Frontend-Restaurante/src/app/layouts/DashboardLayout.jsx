@@ -22,8 +22,6 @@ export const DashboardLayout = () => {
 
   const quickAccess = (() => {
     if (role === 'SUPER_ADMIN_ROLE') return { to: '/dashboard/restaurants', label: 'Gestionar Sedes' };
-    if (role === 'RESTAURANT_ADMIN_ROLE') return { to: '/dashboard/restaurants', label: 'Cambiar Sede' };
-    if (role === 'STAFF_ROLE' && user?.restaurantId) return { to: `/dashboard/restaurants/${user.restaurantId}`, label: 'Mi Sede' };
     return null;
   })();
 

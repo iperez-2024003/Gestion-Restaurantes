@@ -310,4 +310,18 @@ router.patch(
   authController.updateManagerRestaurant
 );
 
+/**
+ * @swagger
+ * /api/v1/auth/managers/:managerId:
+ *   delete:
+ *     tags: [Managers]
+ *     summary: Elimina permanentemente un gerente (SUPER_ADMIN only)
+ */
+router.delete(
+  '/managers/:managerId',
+  validateJWT,
+  requireSuperAdmin,
+  authController.deleteManager
+);
+
 export default router;

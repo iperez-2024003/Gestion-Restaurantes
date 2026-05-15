@@ -82,8 +82,8 @@ export const LoginPage = () => {
           className="w-full max-w-md"
         >
           <Card className="p-8 lg:p-10 border-primary-200/50">
-            <div className="text-center mb-8">
-              <BrandLogo size="lg" className="mb-4" />
+            <div className="text-center mb-8 flex flex-col items-center">
+              <BrandLogo size="lg" className="mb-4 mx-auto" />
               <h1 className="text-3xl font-black text-ink mb-1">Bienvenido</h1>
               <p className="text-muted-brown text-sm font-medium">Gestiona tu restaurante con elegancia.</p>
             </div>

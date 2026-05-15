@@ -34,6 +34,7 @@ const ScrollStack = ({
   const lenisRef = useRef(null);
   const cardsRef = useRef([]);
   const lastTransformsRef = useRef(new Map());
+  const cardOffsetsRef = useRef([]);
   const isUpdatingRef = useRef(false);
 
   const calculateProgress = useCallback((scrollTop, start, end) => {
@@ -96,7 +97,7 @@ const ScrollStack = ({
     cardsRef.current.forEach((card, i) => {
       if (!card) return;
 
-      const cardTop = getElementOffset(card);
+      const cardTop = cardOffsetsRef.current[i] || 0;
       const triggerStart = cardTop - stackPositionPx - itemStackDistance * i;
       const triggerEnd = cardTop - scaleEndPositionPx;
       const pinStart = cardTop - stackPositionPx - itemStackDistance * i;
@@ -271,11 +272,41 @@ const ScrollStack = ({
       card.style.webkitPerspective = '1000px';
     });
 
-    setupLenis();
+    const measureOffsets = () => {
+      const scroller = scrollerRef.current;
+      if (!scroller) return;
 
+      cardOffsetsRef.current = cards.map(card => {
+        let top = 0;
+        let curr = card;
+        if (useWindowScroll) {
+          while (curr) {
+            top += curr.offsetTop;
+            curr = curr.offsetParent;
+          }
+        } else {
+          while (curr && curr !== scroller) {
+            top += curr.offsetTop;
+            curr = curr.offsetParent;
+          }
+        }
+        return top;
+      });
+    };
+
+    measureOffsets();
+    setupLenis();
     updateCardTransforms();
 
+    const handleResize = () => {
+      measureOffsets();
+      updateCardTransforms();
+    };
+
+    window.addEventListener('resize', handleResize);
+
     return () => {
+      window.removeEventListener('resize', handleResize);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -285,6 +316,7 @@ const ScrollStack = ({
       stackCompletedRef.current = false;
       cardsRef.current = [];
       transformsCache.clear();
+      cardOffsetsRef.current = [];
       isUpdatingRef.current = false;
     };
   }, [
@@ -300,7 +332,8 @@ const ScrollStack = ({
     useWindowScroll,
     onStackComplete,
     setupLenis,
-    updateCardTransforms
+    updateCardTransforms,
+    children // Add children to re-measure when content changes
   ]);
 
   // Container styles based on scroll mode

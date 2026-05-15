@@ -59,6 +59,11 @@ const reservationSchema = new Schema(
       maxlength: [1000, 'Special requests cannot exceed 1000 characters'],
     },
     table_preference: String,
+    table_id: {
+      type: String,
+      default: null,
+      index: true,
+    },
     occasion: String,
     confirmation_sent: {
       type: Boolean,

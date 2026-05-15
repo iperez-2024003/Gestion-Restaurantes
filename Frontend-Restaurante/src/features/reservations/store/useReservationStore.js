@@ -16,7 +16,7 @@ export const useReservationStore = create((set, get) => ({
     set({ loading: true });
     try {
       const response = await getReservations(params);
-      set({ reservations: response.data?.reservations || [], loading: false });
+      set({ reservations: response.data?.data || [], loading: false });
     } catch (error) {
       set({ loading: false });
       showError(error.response?.data?.message || 'Error al obtener reservaciones');

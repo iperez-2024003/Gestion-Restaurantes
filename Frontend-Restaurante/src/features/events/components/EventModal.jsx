@@ -14,6 +14,8 @@ import {
   Rocket
 } from 'lucide-react';
 import { translateEventType } from '../../../shared/utils/i18n';
+import { Input } from '../../../shared/components/ui/Input';
+import { Button } from '../../../shared/components/ui/Button';
 
 const EVENT_TYPES = [
   'tasting',
@@ -25,9 +27,6 @@ const EVENT_TYPES = [
   'live_music',
   'other',
 ];
-
-const inputClass = 'w-full px-6 py-4 rounded-2xl bg-[#fffaf3] border border-[#dcc7a5] text-zinc-900 placeholder-zinc-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d7b77f]/25 focus:border-[#b98c52] transition-all text-sm font-medium';
-const labelClass = 'flex items-center gap-2 text-[10px] font-black text-zinc-900 mb-2 uppercase tracking-[0.2em] ml-1';
 
 export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = null }) => {
   const [form, setForm] = useState({
@@ -98,8 +97,6 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
     e.preventDefault();
     const submitData = { ...form };
     
-    // Si hay una nueva imagen cargada localmente, usamos el preview (Base64)
-    // para evitar el uso de FormData que el backend de eventos no soporta actualmente
     if (imageFile && imagePreview) {
       submitData.image_url = imagePreview;
     }
@@ -110,166 +107,143 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#f7f1e7]/90 backdrop-blur-xl flex justify-center items-center z-50 p-4 font-outfit overflow-y-auto">
+    <div className="fixed inset-0 bg-ink/60 backdrop-blur-md flex justify-center items-center z-50 p-4 font-outfit overflow-y-auto">
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white/90 rounded-[2.5rem] md:rounded-[3.5rem] border border-[#dcc7a5]/70 shadow-[0_30px_100px_rgba(110,80,45,0.14)] w-full max-w-4xl overflow-hidden my-auto max-h-[92vh] flex flex-col"
+        className="bg-[#fefcf8] rounded-[3rem] md:rounded-[4rem] border border-primary-200 shadow-gold w-full max-w-4xl overflow-hidden my-auto max-h-[92vh] flex flex-col relative"
       >
-        <div className="px-6 md:px-10 py-6 md:py-8 border-b border-[#dcc7a5]/70 bg-[#fffaf3] relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 opacity-5">
-             <Sparkles className="w-40 h-40 text-[#b98c52]" />
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary-400 to-primary-600"></div>
+
+        <div className="px-8 md:px-12 py-8 border-b border-primary-100 bg-white/50 flex justify-between items-center relative z-10">
+          <div>
+            <span className="text-[10px] font-black text-primary-600 uppercase tracking-[0.4em] mb-2 block">Programación de Experiencias</span>
+            <h2 className="text-3xl md:text-4xl font-black text-ink tracking-tighter uppercase leading-none">
+              {initialData ? 'Editar Evento' : 'Nueva Experiencia'}
+            </h2>
           </div>
-          <div className="flex justify-between items-center relative z-10">
-            <div>
-              <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-2 block">Programación de Experiencias</span>
-              <h2 className="text-3xl font-black text-zinc-900 tracking-tighter uppercase leading-none">
-                {initialData ? (
-                  <>
-                    Editar <span className="text-[#8b6435]">Evento</span>
-                  </>
-                ) : (
-                  <>
-                    Nueva <span className="text-[#b98c52]">Experiencia</span>
-                  </>
-                )}
-              </h2>
-            </div>
-            <button 
-              onClick={onClose} 
-              className="p-4 rounded-2xl bg-[#fffaf3] text-zinc-500 hover:text-zinc-900 transition-all border border-[#dcc7a5]"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          <button 
+            onClick={onClose} 
+            className="p-3 rounded-2xl bg-primary-100 text-primary-600 hover:bg-primary-500 hover:text-white transition-all shadow-sm"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
-        <form onSubmit={handleFormSubmit} className="p-6 md:p-10 space-y-8 overflow-y-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        <form onSubmit={handleFormSubmit} className="p-8 md:p-12 space-y-8 overflow-y-auto flex-1 scrollbar-hide">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="lg:col-span-2">
-              <label className={labelClass}><FileText className="w-3 h-3" /> Nombre del Evento</label>
-              <input 
+              <Input 
+                label="Nombre del Evento" 
+                icon={FileText}
                 value={form.name} 
                 onChange={(e) => updateForm('name', e.target.value)} 
                 placeholder="Ej. Gala de Vinos Reserva" 
-                className={inputClass}
                 required
               />
             </div>
 
-            <div>
-              <label className={labelClass}><Sparkles className="w-3 h-3" /> Categoría</label>
-              <select 
-                value={form.event_type} 
-                onChange={(e) => updateForm('event_type', e.target.value)}
-                className={inputClass}
-              >
-                {EVENT_TYPES.map((type) => (
-                  <option key={type} value={type} className="bg-zinc-950">{translateEventType(type)}</option>
-                ))}
-              </select>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-ink/80 ml-1">Categoría</label>
+              <div className="relative group">
+                <Sparkles className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-brown group-focus-within:text-primary-500 transition-colors" />
+                <select 
+                  value={form.event_type} 
+                  onChange={(e) => updateForm('event_type', e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#fffdf9] border border-[#dcc7a5] text-ink text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all appearance-none"
+                >
+                  {EVENT_TYPES.map((type) => (
+                    <option key={type} value={type}>{translateEventType(type)}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label className={labelClass}><Calendar className="w-3 h-3" /> Fecha del Evento</label>
-              <input 
-                type="date" 
-                value={form.event_date} 
-                onChange={(e) => updateForm('event_date', e.target.value)} 
-                className={inputClass}
-                required
-              />
-            </div>
+            <Input 
+              label="Fecha del Evento" 
+              type="date" 
+              icon={Calendar}
+              value={form.event_date} 
+              onChange={(e) => updateForm('event_date', e.target.value)} 
+              required
+            />
 
-            <div>
-              <label className={labelClass}><Clock className="w-3 h-3" /> Hora de Inicio</label>
-              <input 
-                type="time" 
-                value={form.start_time} 
-                onChange={(e) => updateForm('start_time', e.target.value)} 
-                className={inputClass}
-              />
-            </div>
+            <Input 
+              label="Hora de Inicio" 
+              type="time" 
+              icon={Clock}
+              value={form.start_time} 
+              onChange={(e) => updateForm('start_time', e.target.value)} 
+            />
 
-            <div>
-              <label className={labelClass}><Clock className="w-3 h-3" /> Hora de Finalización</label>
-              <input 
-                type="time" 
-                value={form.end_time} 
-                onChange={(e) => updateForm('end_time', e.target.value)} 
-                className={inputClass}
-              />
-            </div>
+            <Input 
+              label="Hora de Finalización" 
+              type="time" 
+              icon={Clock}
+              value={form.end_time} 
+              onChange={(e) => updateForm('end_time', e.target.value)} 
+            />
 
-            <div>
-              <label className={labelClass}><Users className="w-3 h-3" /> Capacidad (Pax)</label>
-              <input 
-                type="number" 
-                value={form.max_participants} 
-                onChange={(e) => updateForm('max_participants', e.target.value)} 
-                className={inputClass}
-                min={1}
-              />
-            </div>
+            <Input 
+              label="Capacidad (Pax)" 
+              type="number" 
+              icon={Users}
+              value={form.max_participants} 
+              onChange={(e) => updateForm('max_participants', e.target.value)} 
+              min={1}
+            />
 
-            <div>
-              <label className={labelClass}><DollarSign className="w-3 h-3" /> Precio por Persona (Q)</label>
-              <input 
-                type="number" 
-                value={form.price_per_person} 
-                onChange={(e) => updateForm('price_per_person', e.target.value)} 
-                className={inputClass}
-                min={0}
-              />
-            </div>
+            <Input 
+              label="Precio por Persona (Q)" 
+              type="number" 
+              icon={DollarSign}
+              value={form.price_per_person} 
+              onChange={(e) => updateForm('price_per_person', e.target.value)} 
+              min={0}
+            />
 
             <div className="lg:col-span-2 space-y-3">
-              <label className={labelClass}><ImageIcon className="w-3 h-3" /> Banner del Evento</label>
-              <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#dcc7a5] bg-[#fffaf3] px-6 py-8 text-center transition-all hover:border-[#b98c52] hover:bg-white">
+              <label className="text-[10px] font-black uppercase tracking-widest text-ink/80 ml-1">Banner del Evento</label>
+              <label className="flex cursor-pointer flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-primary-200 bg-white/50 px-6 py-10 text-center transition-all hover:border-primary-500 hover:bg-white group">
                 <input type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
-                <span className="text-xs font-black uppercase tracking-[0.2em] text-[#8b6435]">Subir imagen desde tu equipo</span>
-                <span className="mt-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">JPG, PNG o WEBP</span>
+                <ImageIcon size={32} className="text-primary-300 group-hover:text-primary-500 transition-colors mb-3" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary-600 group-hover:text-primary-700">Subir imagen promocional</span>
+                <span className="mt-2 text-[9px] font-bold uppercase tracking-widest text-muted-brown">Relación recomendada 16:9</span>
               </label>
               {imagePreview && (
-                <div className="overflow-hidden rounded-[2rem] border border-[#dcc7a5] bg-white shadow-sm">
-                  <img src={imagePreview} alt="Vista previa del banner" className="h-52 w-full object-cover" />
+                <div className="overflow-hidden rounded-[2.5rem] border border-primary-200 bg-white shadow-sm mt-4">
+                  <img src={imagePreview} alt="Vista previa" className="h-52 w-full object-cover" />
                 </div>
               )}
             </div>
 
             <div className="lg:col-span-2">
-              <label className={labelClass}><FileText className="w-3 h-3" /> Descripción Detallada</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-ink/80 ml-1 mb-2 block">Descripción Detallada</label>
               <textarea 
                 value={form.description} 
                 onChange={(e) => updateForm('description', e.target.value)} 
                 placeholder="Describe la experiencia para tus clientes..." 
-                className={`${inputClass} min-h-[120px] resize-none`}
+                className="w-full px-6 py-4 rounded-2xl bg-[#fffdf9] border border-[#dcc7a5] text-ink text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all min-h-[120px] resize-none"
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-4 md:gap-6 pt-8 border-t border-[#dcc7a5]/70">
+          <div className="flex items-center justify-end gap-6 pt-10 border-t border-primary-100">
             <button
               type="button"
               onClick={onClose}
-              className="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-[0.2em] transition-colors"
+              className="text-[10px] font-black text-muted-brown hover:text-ink uppercase tracking-[0.2em] transition-colors"
             >
               Cancelar
             </button>
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <Button 
               type="submit" 
-              disabled={creating}
-              className="px-10 py-5 rounded-3xl bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-[rgba(185,140,82,0.18)] hover:to-[#a97d45] transition-all flex items-center justify-center gap-3 disabled:opacity-50 border border-[#d7b77f]/30"
+              isLoading={creating}
+              className="px-12 py-5 rounded-3xl shadow-gold"
             >
-              {creating ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                <>
-                  <Rocket className="w-4 h-4" /> 
-                  {initialData ? 'Actualizar Evento' : 'Publicar Experiencia'}
-                </>
-              )}
-            </motion.button>
+              <Rocket className="w-4 h-4 mr-2" /> 
+              {initialData ? 'Guardar Cambios' : 'Publicar Experiencia'}
+            </Button>
           </div>
         </form>
       </motion.div>

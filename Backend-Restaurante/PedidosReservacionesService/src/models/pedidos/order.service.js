@@ -72,7 +72,18 @@ const loadOrderWithItems = async (orderId) => {
   const order = await Order.findById(orderId);
   if (!order) return null;
   const items = await OrderItem.find({ order_id: orderId });
-  return serializeOrder(order, items.map(serializeOrderItem));
+  const enrichedItems = await Promise.all(items.map(async (item) => {
+    const menuItem = await MenuItem.findById(item.menu_item_id).lean();
+    return {
+      ...serializeOrderItem(item),
+      MenuItem: menuItem ? {
+        id: menuItem._id.toString(),
+        name: menuItem.name,
+        price: menuItem.price
+      } : null
+    };
+  }));
+  return serializeOrder(order, enrichedItems);
 };
 
 export const createOrderRecord = async (payload) => {

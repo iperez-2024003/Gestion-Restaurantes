@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../../../shared/api/axios';
 import { toast } from 'react-hot-toast';
 import { useRestaurantStore } from '../../restaurants/store/useRestaurantStore';
-import { UserPlus, ShieldCheck, Mail, Phone, Lock, Building2, User, Loader2, Rocket, UserCheck, Edit2, Check, X } from 'lucide-react';
+import { UserPlus, ShieldCheck, Mail, Phone, Lock, Building2, User, Loader2, Rocket, UserCheck, Edit2, Check, X, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Card } from '../../../shared/components/ui/Card';
 import { Input } from '../../../shared/components/ui/Input';
@@ -91,6 +91,20 @@ export const AdminUserManagement = () => {
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error al actualizar sede');
+    }
+  };
+
+  const handleDeleteManager = async (managerId, name) => {
+    if (!window.confirm(`¿Seguro que deseas eliminar a ${name}? Esta acción es permanente.`)) return;
+
+    try {
+      const res = await api.delete(`/auth/managers/${managerId}`);
+      if (res.data.success) {
+        toast.success('Gerente eliminado exitosamente');
+        fetchManagers();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error al eliminar gerente');
     }
   };
 
@@ -192,86 +206,83 @@ export const AdminUserManagement = () => {
             <p className="text-muted-brown font-medium">No hay gerentes registrados aún</p>
           </Card>
         ) : (
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden border-primary-100 shadow-premium">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="bg-primary-50 border-b border-primary-100">
-                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase text-ink/80 tracking-widest">Nombre</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase text-ink/80 tracking-widest">Email</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase text-ink/80 tracking-widest">Teléfono</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase text-ink/80 tracking-widest">Sede Asignada</th>
-                    <th className="px-6 py-4 text-center text-[10px] font-black uppercase text-ink/80 tracking-widest">Acciones</th>
+                    <th className="px-6 py-6 text-left text-[10px] font-black uppercase text-ink/80 tracking-widest">Nombre</th>
+                    <th className="px-6 py-6 text-left text-[10px] font-black uppercase text-ink/80 tracking-widest">Credenciales</th>
+                    <th className="px-6 py-6 text-left text-[10px] font-black uppercase text-ink/80 tracking-widest">Sede Asignada</th>
+                    <th className="px-6 py-6 text-center text-[10px] font-black uppercase text-ink/80 tracking-widest">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-primary-100">
                   {managers.map((manager) => (
-                    <motion.tr key={manager.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="hover:bg-primary-50/50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div>
-                          <p className="text-sm font-black text-ink">{manager.name} {manager.surname}</p>
-                          <p className="text-[10px] text-muted-brown font-medium">{manager.id}</p>
+                    <motion.tr key={manager.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="hover:bg-primary-50/50 transition-colors group">
+                      <td className="px-6 py-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center text-primary-600 font-black border border-primary-200">
+                            {manager.name?.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="text-sm font-black text-ink">{manager.name} {manager.surname}</p>
+                            <p className="text-[10px] text-muted-brown font-black uppercase tracking-widest">ID: {manager.id}</p>
+                          </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <p className="text-xs font-semibold text-ink">{manager.email}</p>
+                      <td className="px-6 py-6">
+                        <p className="text-xs font-bold text-ink">{manager.email}</p>
+                        <p className="text-[10px] text-muted-brown font-black uppercase tracking-widest">{manager.phone}</p>
                       </td>
-                      <td className="px-6 py-4">
-                        <p className="text-xs font-semibold text-ink">{manager.phone}</p>
-                      </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-6">
                         {editingId === manager.id ? (
                           <select
                             value={editingRestaurant || manager.restaurant_id}
                             onChange={(e) => setEditingRestaurant(e.target.value)}
-                          className="w-full px-3 py-2 text-xs font-bold border border-[#dcc7a5] rounded-lg bg-[#fffdf9] text-ink focus:ring-2 focus:ring-[#d7b77f]/20 focus:border-[#b98c52] transition-all"
+                          className="w-full px-3 py-2 text-[10px] font-black uppercase tracking-widest border border-primary-200 rounded-lg bg-white text-ink outline-none focus:border-primary-500 transition-all"
                           >
                             <option value="">Seleccionar...</option>
                             {restaurants.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                           </select>
                         ) : (
-                          <Badge variant="primary">{manager.restaurantName}</Badge>
+                          <Badge variant="primary" className="px-3 py-1">{manager.restaurantName}</Badge>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-6">
                         <div className="flex items-center justify-center gap-2">
                           {editingId === manager.id ? (
                             <>
-                              <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                              <button
                                 onClick={() => handleUpdateManagerRestaurant(manager.id, editingRestaurant || manager.restaurant_id)}
-                                className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
-                                title="Guardar"
+                                className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-500 hover:text-white transition-all border border-emerald-100"
                               >
                                 <Check size={16} />
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => {
-                                  setEditingId(null);
-                                  setEditingRestaurant(null);
-                                }}
-                                className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
-                                title="Cancelar"
+                              </button>
+                              <button
+                                onClick={() => { setEditingId(null); setEditingRestaurant(null); }}
+                                className="p-2 bg-ink/5 text-ink rounded-xl hover:bg-ink hover:text-white transition-all border border-ink/10"
                               >
                                 <X size={16} />
-                              </motion.button>
+                              </button>
                             </>
                           ) : (
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => {
-                                setEditingId(manager.id);
-                                setEditingRestaurant(manager.restaurant_id);
-                              }}
-                              className="p-2 bg-primary-50 text-primary-600 rounded-lg hover:bg-primary-100 transition-colors"
-                              title="Cambiar sede"
-                            >
-                              <Edit2 size={16} />
-                            </motion.button>
+                            <>
+                              <button
+                                onClick={() => { setEditingId(manager.id); setEditingRestaurant(manager.restaurant_id); }}
+                                className="p-2 bg-primary-100 text-primary-600 rounded-xl hover:bg-primary-500 hover:text-white transition-all border border-primary-200 shadow-sm"
+                                title="Cambiar sede"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteManager(manager.id, manager.name)}
+                                className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all border border-red-100 shadow-sm"
+                                title="Eliminar usuario"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </>
                           )}
                         </div>
                       </td>

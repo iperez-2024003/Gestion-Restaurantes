@@ -21,6 +21,7 @@ const serializeReservation = (reservation) => {
     status: data.status,
     special_requests: data.special_requests,
     table_preference: data.table_preference,
+    table_id: data.table_id,
     occasion: data.occasion,
     confirmation_sent: data.confirmation_sent,
     reminder_sent: data.reminder_sent,
@@ -55,7 +56,7 @@ const validateRestaurantReservationRules = async ({ restaurantId, reservationDat
   }
 
   if (restaurant.acceptsReservations === false) {
-    throw new Error('This restaurant does not accept reservations');
+    throw new Error('Este restaurante no acepta reservaciones en este momento');
   }
 
   const timeValue = normalizeTime(reservationTime).slice(0, 5);
@@ -63,13 +64,13 @@ const validateRestaurantReservationRules = async ({ restaurantId, reservationDat
   const closingTime = String(restaurant.closingTime || '22:00').slice(0, 5);
 
   if (timeValue < openingTime || timeValue > closingTime) {
-    throw new Error(`Restaurant operating hours: ${openingTime} - ${closingTime}`);
+    throw new Error(`Horario de atención: ${openingTime} - ${closingTime}`);
   }
 
   const dateTime = new Date(`${reservationDate}T${timeValue}:00`);
   const minimumTime = new Date(Date.now() + 60 * 60 * 1000);
   if (dateTime < minimumTime) {
-    throw new Error('Reservation must be at least 1 hour in advance');
+    throw new Error('La reservación debe hacerse con al menos 1 hora de anticipación');
   }
 
   const capacity = restaurant.capacity || 50;
@@ -95,6 +96,20 @@ export const createReservationRecord = async (payload) => {
     partySize: payload.party_size,
   });
 
+  if (payload.table_id) {
+    const timeValue = normalizeTime(payload.reservation_time).slice(0, 5);
+    const conflict = await Reservation.findOne({
+      restaurant_id: payload.restaurant_id,
+      reservation_date: payload.reservation_date,
+      reservation_time: timeValue,
+      table_id: payload.table_id,
+      status: { $in: ['pending', 'confirmed', 'seated'] }
+    });
+    if (conflict) {
+      throw new Error('La mesa seleccionada ya ha sido reservada para este horario');
+    }
+  }
+
   const reservation = await Reservation.create({
     reservation_number: await generateReservationNumber(),
     restaurant_id: payload.restaurant_id,
@@ -107,6 +122,7 @@ export const createReservationRecord = async (payload) => {
     party_size: Number(payload.party_size),
     special_requests: payload.special_requests,
     table_preference: payload.table_preference,
+    table_id: payload.table_id || null,
     occasion: payload.occasion,
     status: 'pending',
   });
@@ -212,8 +228,23 @@ export const checkReservationAvailability = async ({ restaurant_id, reservation_
     partySize: party_size,
   });
 
+  const timeValue = normalizeTime(reservation_time);
+  const timeQuery = timeValue.length > 5 ? { $regex: new RegExp(`^${timeValue.slice(0, 5)}`) } : timeValue;
+
+  // Buscar reservaciones activas en ese bloque para ver qué mesas están ocupadas
+  const activeReservations = await Reservation.find({
+    restaurant_id,
+    reservation_date,
+    reservation_time: timeQuery,
+    status: { $in: ['pending', 'confirmed', 'seated'] },
+    table_id: { $ne: null }
+  });
+
+  const occupiedTableIds = activeReservations.map(res => res.table_id);
+
   return {
-    available: true,
+    is_available: true,
+    occupied_tables: occupiedTableIds,
     restaurant: {
       id: restaurant._id?.toString?.() || restaurant._id,
       name: restaurant.name,

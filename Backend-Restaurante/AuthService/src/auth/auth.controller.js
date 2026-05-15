@@ -13,7 +13,7 @@ import { getUserProfileHelper } from '../../helpers/profile-operations.js';
 import { asyncHandler } from '../../middlewares/server-genericError-handler.js';
 import { extractRefreshTokenFromRequest } from '../../middlewares/refresh-token.js';
 import { config } from '../../configs/config.js';
-import { User, UserProfile } from '../users/user.model.js';
+import { User, UserProfile, UserEmail, UserPasswordReset } from '../users/user.model.js';
 import { Role, UserRole } from '../auth/role.model.js';
 import { uploadImage, deleteImage } from '../../helpers/cloudinary-service.js';
 import { hashPassword, verifyPassword } from '../../utils/password-utils.js';
@@ -734,6 +734,79 @@ export const updateManagerRestaurant = asyncHandler(async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error al cambiar la sede del gerente',
+      error: error.message,
+    });
+  }
+});
+
+// ─── DELETE MANAGER (SUPER_ADMIN ONLY) ─────────────────────────────────────────
+export const deleteManager = asyncHandler(async (req, res) => {
+  try {
+    const isSuperAdmin = req.userRoleNames?.includes('SUPER_ADMIN_ROLE');
+    if (!isSuperAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Solo administradores globales pueden eliminar gerentes',
+      });
+    }
+
+    const { managerId } = req.params;
+
+    // Verificar que el usuario existe
+    const manager = await User.findByPk(managerId, {
+      include: [
+        { model: UserProfile, as: 'UserProfile' },
+        { model: UserRole, as: 'UserRoles', include: [{ model: Role, as: 'Role' }] }
+      ]
+    });
+
+    if (!manager) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado',
+      });
+    }
+
+    // Verificar que sea un gerente o staff (no un super admin)
+    const isManagerOrStaff = manager.UserRoles?.some(ur => 
+      ['RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE'].includes(ur.Role.Name)
+    );
+
+    if (!isManagerOrStaff) {
+      return res.status(400).json({
+        success: false,
+        message: 'Solo se pueden eliminar usuarios con rol de Gerente o Staff desde este apartado',
+      });
+    }
+
+    // Si tiene foto en Cloudinary, eliminarla
+    if (manager.UserProfile?.ProfilePicture && manager.UserProfile.ProfilePicture.includes('cloudinary.com')) {
+      try {
+        await deleteImage(manager.UserProfile.ProfilePicture);
+      } catch (err) {
+        console.warn('Error al eliminar imagen de Cloudinary:', err);
+      }
+    }
+
+    // Eliminar registros relacionados manualmente (o dejar que la DB lo haga si hay CASCADE)
+    // En este caso, lo haremos por seguridad
+    await UserRole.destroy({ where: { user_id: manager.Id } });
+    await UserProfile.destroy({ where: { user_id: manager.Id } });
+    await UserEmail.destroy({ where: { user_id: manager.Id } });
+    await UserPasswordReset.destroy({ where: { user_id: manager.Id } });
+    
+    // Finalmente eliminar al usuario
+    await manager.destroy();
+
+    return res.status(200).json({
+      success: true,
+      message: `El usuario ${manager.Username} ha sido eliminado permanentemente`,
+    });
+  } catch (error) {
+    console.error('Error in deleteManager controller:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al eliminar el usuario',
       error: error.message,
     });
   }

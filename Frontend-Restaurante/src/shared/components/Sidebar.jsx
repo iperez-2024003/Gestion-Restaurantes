@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Users, Utensils, ClipboardList, Calendar, 
   BarChart3, UserCircle, LogOut, Flame, Settings, Star, 
-  ChevronLeft, ChevronRight, Menu
+  ChevronLeft, ChevronRight, Menu, LayoutGrid
 } from 'lucide-react';
 import { getImageUrl } from '../utils/getImageUrl';
 import { BrandLogo } from './ui/BrandLogo';
@@ -100,12 +100,14 @@ export const Sidebar = () => {
               <NavLink to={`/dashboard/restaurants/${id}`} icon={LayoutDashboard}>Resumen</NavLink>
               <NavLink to={`/dashboard/restaurants/${id}/menu`} icon={Utensils}>Menú</NavLink>
               <NavLink to={`/dashboard/restaurants/${id}/orders`} icon={ClipboardList}>Órdenes</NavLink>
+              <NavLink to={`/dashboard/restaurants/${id}/reservations`} icon={Calendar}>Reservaciones</NavLink>
+              <NavLink to={`/dashboard/restaurants/${id}/analytics`} icon={BarChart3}>Reportes</NavLink>
               <NavLink to={`/dashboard/restaurants/${id}/kitchen`} icon={Flame}>Cocina</NavLink>
               {role === 'RESTAURANT_ADMIN_ROLE' && (
                 <>
                   <NavLink to={`/dashboard/restaurants/${id}/staff`} icon={Users}>Empleados</NavLink>
-                  <NavLink to={`/dashboard/restaurants/${id}/tables`} icon={LayoutDashboard}>Mesas</NavLink>
-                  <NavLink to={`/dashboard/restaurants/${id}/events`} icon={Calendar}>Eventos</NavLink>
+                  <NavLink to={`/dashboard/restaurants/${id}/tables`} icon={LayoutGrid}>Mesas</NavLink>
+                  <NavLink to={`/dashboard/restaurants/${id}/events`} icon={Star}>Eventos</NavLink>
                 </>
               )}
             </div>

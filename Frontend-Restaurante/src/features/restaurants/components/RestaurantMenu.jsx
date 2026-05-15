@@ -118,8 +118,8 @@ export const RestaurantMenu = () => {
           onClick={() => setActiveCategory(null)}
           className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 flex items-center gap-2 border whitespace-nowrap ${
             !activeCategory 
-              ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white border-[#b98c52] shadow-2xl shadow-[rgba(185,140,82,0.2)]' 
-              : 'bg-zinc-950 border-zinc-800 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900'
+              ? 'bg-gradient-to-r from-primary-400 to-primary-600 text-white border-primary-500 shadow-gold' 
+              : 'bg-white/50 border-primary-200 text-muted-brown hover:text-ink hover:bg-primary-100'
           }`}
         >
           <LayoutGrid className="w-3 h-3" /> Catálogo Completo
@@ -130,8 +130,8 @@ export const RestaurantMenu = () => {
             onClick={() => setActiveCategory(m.id)}
             className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all duration-500 border ${
               activeCategory === m.id 
-                ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white border-[#b98c52] shadow-2xl shadow-[rgba(185,140,82,0.2)]' 
-                : 'bg-zinc-950 border-zinc-800 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900'
+                ? 'bg-gradient-to-r from-primary-400 to-primary-600 text-white border-primary-500 shadow-gold' 
+                : 'bg-white/50 border-primary-200 text-muted-brown hover:text-ink hover:bg-primary-100'
             }`}
           >
             {m.name}

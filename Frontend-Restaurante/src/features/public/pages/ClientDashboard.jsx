@@ -322,12 +322,12 @@ export const ClientDashboard = () => {
             </div>
           </div>
 
-          <div id="vip" className="relative overflow-hidden rounded-[2.5rem] border border-[#dcc7a5]/70 bg-[#2f2317] p-5 text-white shadow-[0_30px_100px_rgba(47,35,23,0.26)] md:rounded-[4rem] md:p-8">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,183,127,0.22),transparent_48%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.08),transparent_45%)]" />
+          <div id="vip" className="relative overflow-hidden rounded-[2.5rem] border border-[#dcc7a5] bg-gradient-to-br from-[#fdfbf7] to-[#f5efdf] p-5 text-ink shadow-[0_30px_100px_rgba(185,140,82,0.15)] md:rounded-[4rem] md:p-8">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,183,127,0.3),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.8),transparent_50%)]" />
             <div className="relative z-10 flex h-full flex-col gap-6">
               <div>
-                <p className="mb-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#f3e4ca]">Atajos rápidos</p>
-                <h3 className="text-2xl font-black tracking-tighter md:text-3xl">Todo el cliente se siente más vivo</h3>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#b98c52]">Club VIP BuenProvecho</p>
+                <h3 className="text-2xl font-black tracking-tighter md:text-3xl text-ink">Experiencia <span className="text-primary-600">Personalizada</span></h3>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
@@ -339,50 +339,54 @@ export const ClientDashboard = () => {
                       key={card.action}
                       type="button"
                       onClick={card.onClick}
-                      className="group rounded-[2rem] border border-white/10 bg-white/10 p-5 text-left transition-all hover:bg-white/15"
+                      className="group rounded-[2rem] border border-primary-200 bg-white/60 p-5 text-left transition-all hover:bg-white hover:shadow-gold hover:-translate-y-0.5"
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div>
-                          <p className="mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-[#f3e4ca]">{card.eyebrow}</p>
-                          <p className="text-xl font-black tracking-tight">{card.action}</p>
+                          <p className="mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-primary-600">{card.eyebrow}</p>
+                          <p className="text-xl font-black tracking-tight text-ink uppercase">{card.action}</p>
                         </div>
-                        <Icon className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                        <Icon className="h-5 w-5 text-primary-500 transition-transform group-hover:translate-x-1" />
                       </div>
                     </button>
                   );
                 })}
               </div>
 
-              <div className="mt-auto rounded-[2rem] border border-white/10 bg-white/8 p-5">
+              <div className="mt-auto rounded-[2.5rem] border border-primary-300 bg-gradient-to-r from-primary-400 to-primary-600 p-6 shadow-gold text-white">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#f3e4ca]">Club VIP BuenProvecho</p>
-                    <h4 className="mt-2 text-xl font-black uppercase tracking-tight">Puntos acumulados</h4>
+                    <p className="text-[10px] font-black uppercase tracking-[0.35em] text-primary-100">Beneficio Exclusivo</p>
+                    <h4 className="mt-2 text-xl font-black uppercase tracking-tight">Puntos Acumulados</h4>
                   </div>
-                  <Trophy className="h-7 w-7 text-[#f3e4ca]" />
+                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                    <Trophy className="h-6 w-6 text-white" />
+                  </div>
                 </div>
-                <div className="mt-4 flex items-end justify-between gap-4">
+                <div className="mt-6 flex items-end justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <Sparkles className="h-6 w-6 text-[#f3e4ca]" />
-                    <p className="text-5xl font-black leading-none">{user?.points || 0}</p>
+                    <Sparkles className="h-7 w-7 text-primary-200 animate-pulse" />
+                    <p className="text-6xl font-black leading-none tracking-tighter">{user?.points || 0}</p>
                   </div>
-                  <p className="max-w-[10rem] text-right text-[10px] font-black uppercase tracking-[0.2em] text-[#f3e4ca]">
-                    Canjeable por Q{(user?.points || 0) * 0.5} en tu próxima cena
-                  </p>
+                  <div className="text-right">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">Dinero Real</p>
+                    <p className="text-xl font-black text-white leading-none mt-1">Q{(user?.points || 0) * 0.5}</p>
+                    <p className="text-[8px] font-bold uppercase tracking-widest text-primary-100 mt-2">Canjeable en sala</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </motion.section>
 
-        <ScrollStack useWindowScroll={true} itemStackDistance={20} baseScale={0.9} rotationAmount={0.5} blurAmount={2}>
-          <ScrollStackItem itemClassName="bg-transparent shadow-none my-0 p-0 h-auto">
+        <ScrollStack useWindowScroll={true} itemStackDistance={30} baseScale={1} rotationAmount={0} blurAmount={0} stackPosition="0">
+          <ScrollStackItem itemClassName="bg-transparent shadow-none my-0 p-0 h-auto z-50">
             <motion.div
               variants={fadeUpSection}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
-              className="flex items-center gap-3 overflow-x-auto px-2 pb-8 scroll-mt-28 scrollbar-hide md:px-0"
+              className="flex items-center gap-3 overflow-x-auto px-4 py-4 scroll-mt-28 scrollbar-hide md:px-0 backdrop-blur-md bg-white/40 rounded-[2rem] border border-white/50"
               id="restaurants"
             >
               {['Todos', ...categories].map((category) => (
@@ -419,58 +423,57 @@ export const ClientDashboard = () => {
               <motion.div variants={staggerList} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.12 }} className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 md:gap-10">
                 <AnimatePresence mode="popLayout">
                   {filteredRestaurants.map((restaurant, index) => (
-                    <ScrollStackItem key={restaurant.id} itemClassName="bg-transparent shadow-none p-0 my-0 h-auto">
-                      <motion.button
-                        type="button"
-                        variants={staggerItem}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ delay: index * 0.05 }}
-                        onClick={() => navigate(`/menu/${restaurant.id}`)}
-                        className="group relative w-full overflow-hidden rounded-[2.5rem] border border-[#dcc7a5]/70 bg-white/90 text-left shadow-[0_28px_90px_rgba(110,80,45,0.12)] backdrop-blur-3xl transition-all hover:-translate-y-1 hover:border-[#b98c52]/35 hover:shadow-[0_34px_110px_rgba(185,140,82,0.16)]"
-                      >
-                        <div className="relative h-52 overflow-hidden md:h-60">
-                          <img
-                            src={restaurant.cover_image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80'}
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            alt={restaurant.name}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#2f2317]/70 via-transparent to-transparent opacity-80" />
-                          <div className="absolute left-5 top-5 rounded-full border border-[#dcc7a5] bg-white/85 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#8b6435] shadow-lg backdrop-blur-xl">
-                            {restaurant.category || 'Casual'}
-                          </div>
-                          <div className="absolute right-5 top-5 rounded-full border border-[#dcc7a5] bg-white/85 px-4 py-2 text-[10px] font-black text-[#8b6435] shadow-lg backdrop-blur-xl">
-                            {restaurant.rating || '4.5'} ⭐
-                          </div>
+                    <motion.button
+                      key={restaurant.id}
+                      type="button"
+                      variants={staggerItem}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ delay: index * 0.05 }}
+                      onClick={() => navigate(`/menu/${restaurant.id}`)}
+                      className="group relative w-full overflow-hidden rounded-[2.5rem] border border-[#dcc7a5]/70 bg-white/90 text-left shadow-[0_28px_90px_rgba(110,80,45,0.12)] backdrop-blur-3xl transition-all hover:-translate-y-1 hover:border-[#b98c52]/35 hover:shadow-[0_34px_110px_rgba(185,140,82,0.16)]"
+                    >
+                      <div className="relative h-52 overflow-hidden md:h-60">
+                        <img
+                          src={restaurant.cover_image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80'}
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          alt={restaurant.name}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#2f2317]/70 via-transparent to-transparent opacity-80" />
+                        <div className="absolute left-5 top-5 rounded-full border border-[#dcc7a5] bg-white/85 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#8b6435] shadow-lg backdrop-blur-xl">
+                          {restaurant.category || 'Casual'}
                         </div>
+                        <div className="absolute right-5 top-5 rounded-full border border-[#dcc7a5] bg-white/85 px-4 py-2 text-[10px] font-black text-[#8b6435] shadow-lg backdrop-blur-xl">
+                          {restaurant.rating || '4.5'} ⭐
+                        </div>
+                      </div>
 
-                        <div className="p-6 text-zinc-900 md:p-8">
-                          <div className="mb-3 flex items-start justify-between gap-4">
-                            <div>
-                              <p className="mb-2 text-[10px] font-black uppercase tracking-[0.35em] text-[#b98c52]">Restaurante</p>
-                              <h3 className="text-2xl font-black uppercase leading-[1.02] tracking-tight md:text-[1.85rem]">{restaurant.name}</h3>
-                            </div>
-                            <span className="inline-flex whitespace-nowrap rounded-full border border-[#dcc7a5] bg-[#f3e4ca] px-3 py-2 text-[9px] font-black uppercase tracking-widest text-[#8b6435]">
-                              {restaurant.rating || '4.5'}
-                            </span>
+                      <div className="p-6 text-zinc-900 md:p-8">
+                        <div className="mb-3 flex items-start justify-between gap-4">
+                          <div>
+                            <p className="mb-2 text-[10px] font-black uppercase tracking-[0.35em] text-[#b98c52]">Restaurante</p>
+                            <h3 className="text-2xl font-black uppercase leading-[1.02] tracking-tight md:text-[1.85rem]">{restaurant.name}</h3>
                           </div>
-                          <div className="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                            <MapPin className="h-4 w-4 shrink-0 text-[#b98c52]" />
-                            <span className="truncate">{restaurant.address || 'Ubicación Premium'}</span>
-                          </div>
-
-                          <div className="mb-6 flex flex-wrap gap-2">
-                            <span className="inline-flex items-center rounded-full border border-[#dcc7a5] bg-[#fffaf3] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.25em] text-[#8b6435]">Abierto hoy</span>
-                            <span className="inline-flex items-center rounded-full border border-[#dcc7a5] bg-white px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600">Menú directo</span>
-                          </div>
-
-                          <span className="inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-[#2b2015] bg-[#2b2015] py-3 text-[10px] font-black uppercase tracking-[0.25em] text-white transition-all group-hover:border-[#d7b77f]/30 group-hover:bg-gradient-to-r group-hover:from-[#d7b77f] group-hover:to-[#b98c52] group-hover:shadow-lg group-hover:shadow-[rgba(185,140,82,0.18)]">
-                            Explorar Menú <ArrowRight className="h-4 w-4" />
+                          <span className="inline-flex whitespace-nowrap rounded-full border border-[#dcc7a5] bg-[#f3e4ca] px-3 py-2 text-[9px] font-black uppercase tracking-widest text-[#8b6435]">
+                            {restaurant.rating || '4.5'}
                           </span>
                         </div>
-                      </motion.button>
-                    </ScrollStackItem>
+                        <div className="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                          <MapPin className="h-4 w-4 shrink-0 text-[#b98c52]" />
+                          <span className="truncate">{restaurant.address || 'Ubicación Premium'}</span>
+                        </div>
+
+                        <div className="mb-6 flex flex-wrap gap-2">
+                          <span className="inline-flex items-center rounded-full border border-[#dcc7a5] bg-[#fffaf3] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.25em] text-[#8b6435]">Abierto hoy</span>
+                          <span className="inline-flex items-center rounded-full border border-[#dcc7a5] bg-white px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600">Menú directo</span>
+                        </div>
+
+                        <span className="inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-[#2b2015] bg-[#2b2015] py-3 text-[10px] font-black uppercase tracking-[0.25em] text-white transition-all group-hover:border-[#d7b77f]/30 group-hover:bg-gradient-to-r group-hover:from-[#d7b77f] group-hover:to-[#b98c52] group-hover:shadow-lg group-hover:shadow-[rgba(185,140,82,0.18)]">
+                          Explorar Menú <ArrowRight className="h-4 w-4" />
+                        </span>
+                      </div>
+                    </motion.button>
                   ))}
                 </AnimatePresence>
               </motion.div>
