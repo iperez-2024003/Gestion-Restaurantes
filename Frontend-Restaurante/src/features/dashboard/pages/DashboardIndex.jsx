@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../../auth/store/useAuthStore';
@@ -13,7 +13,7 @@ import { Card } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
 import { ClientDashboard } from '../../public/pages/ClientDashboard';
 
-export const DashboardIndex = () => {
+const DashboardIndexComponent = () => {
   const { role, user } = useAuthStore();
   const navigate = useNavigate();
 
@@ -170,3 +170,5 @@ export const DashboardIndex = () => {
     </motion.div>
   );
 };
+
+export const DashboardIndex = memo(DashboardIndexComponent);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -45,7 +45,7 @@ const itemVariants = {
   }
 };
 
-export const AnalyticsDashboard = () => {
+const AnalyticsDashboardComponent = () => {
   const { id } = useParams();
   const { token } = useAuthStore();
   const [loading, setLoading] = useState(true);
@@ -414,3 +414,4 @@ export const AnalyticsDashboard = () => {
   );
 };
 
+export const AnalyticsDashboard = memo(AnalyticsDashboardComponent);

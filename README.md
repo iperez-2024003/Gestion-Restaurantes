@@ -25,6 +25,9 @@
 
 ## ✨ Mejoras recientes
 
+- **Arquitectura Frontend Nivel Senior**: Implementación de Code Splitting (`React.lazy`), `<Suspense>` y `React.memo` para optimizar tiempos de carga y evitar re-renders.
+- **Validaciones Robustas y Custom Hooks**: Formularios protegidos con validación estricta en tiempo real mediante `useFormValidation` y optimización de búsquedas con `useDebounce`.
+- **UI/UX y Responsividad Premium**: Dashboards administrativos adaptables a cualquier dispositivo móvil de forma fluida.
 - Refresh tokens persistidos en PostgreSQL, con rotación y revocación.
 - Detección de reutilización de refresh token para cerrar sesiones comprometidas.
 - Cookie `HttpOnly` para la sesión extendida.
@@ -262,6 +265,7 @@ El sistema trabaja con 4 roles conectados entre backend y frontend. La separaci�
 - [x] Sincronización de Sockets en PedidosService
 - [x] Scripts de orquestación (pnpm run dev)
 - [x] Exportación a Excel y analíticas
+- [x] Diseño Premium y Responsividad Completa (Frontend UI)
 - [ ] Pasarela de pagos (Stripe)
 - [ ] Notificaciones push PWA
 

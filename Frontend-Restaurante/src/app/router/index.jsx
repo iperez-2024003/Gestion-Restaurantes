@@ -1,31 +1,46 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { LoginPage } from '../../features/auth/pages/LoginPage';
-import { RegisterPage } from '../../features/auth/pages/RegisterPage';
-import { VerifyEmailPage } from '../../features/auth/pages/VerifyEmailPage';
-import { ForgotPasswordPage } from '../../features/auth/pages/ForgotPasswordPage';
-import { ResetPasswordPage } from '../../features/auth/pages/ResetPasswordPage';
-import { ProfilePage } from '../../features/users/pages/ProfilePage';
-import { RestaurantsPage } from '../../features/restaurants/components/RestaurantsPage';
-import { RestaurantMenu } from '../../features/restaurants/components/RestaurantMenu';
-import { TablesPage } from '../../features/restaurants/components/TablesPage';
-import { StaffPage } from '../../features/restaurants/components/StaffPage';
-import { RestaurantDashboard } from '../../features/restaurants/components/RestaurantDashboard';
-import { OrdersKanban } from '../../features/orders/components/OrdersKanban';
-import { ReservationsKanban } from '../../features/reservations/components/ReservationsKanban';
-import { PublicMenu } from '../../features/public/pages/PublicMenu';
-import { EventsFeed } from '../../features/events/pages/EventsFeed';
-import { AdminUserManagement } from '../../features/users/pages/AdminUserManagement';
-import { DashboardLayout } from '../layouts/DashboardLayout';
+import { Suspense, lazy } from 'react';
 import { ProtectedRoute } from './ProtectedRoute';
 
-import { ClientHistory } from '../../features/public/pages/ClientHistory';
-import { AdminEventsPage } from '../../features/events/pages/AdminEventsPage';
-import { AnalyticsDashboard } from '../../features/restaurants/pages/AnalyticsDashboard';
-import { GlobalAnalytics } from '../../features/restaurants/pages/GlobalAnalytics';
-import { ExportAnalytics } from '../../features/restaurants/pages/ExportAnalytics';
-import { GlobalClients } from '../../features/users/pages/GlobalClients';
-import { KitchenDisplay } from '../../features/orders/pages/KitchenDisplay';
-import { DashboardIndex } from '../../features/dashboard/pages/DashboardIndex';
+const PageLoader = () => (
+  <div className="min-h-screen flex flex-col items-center justify-center bg-primary-50">
+    <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin mb-4" />
+    <p className="text-[10px] font-black uppercase tracking-widest text-primary-500">Cargando...</p>
+  </div>
+);
+
+const Loadable = (Component) => (props) => (
+  <Suspense fallback={<PageLoader />}>
+    <Component {...props} />
+  </Suspense>
+);
+
+const LoginPage = Loadable(lazy(() => import('../../features/auth/pages/LoginPage').then(m => ({ default: m.LoginPage }))));
+const RegisterPage = Loadable(lazy(() => import('../../features/auth/pages/RegisterPage').then(m => ({ default: m.RegisterPage }))));
+const VerifyEmailPage = Loadable(lazy(() => import('../../features/auth/pages/VerifyEmailPage').then(m => ({ default: m.VerifyEmailPage }))));
+const ForgotPasswordPage = Loadable(lazy(() => import('../../features/auth/pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage }))));
+const ResetPasswordPage = Loadable(lazy(() => import('../../features/auth/pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage }))));
+const ProfilePage = Loadable(lazy(() => import('../../features/users/pages/ProfilePage').then(m => ({ default: m.ProfilePage }))));
+const RestaurantsPage = Loadable(lazy(() => import('../../features/restaurants/components/RestaurantsPage').then(m => ({ default: m.RestaurantsPage }))));
+const RestaurantMenu = Loadable(lazy(() => import('../../features/restaurants/components/RestaurantMenu').then(m => ({ default: m.RestaurantMenu }))));
+const TablesPage = Loadable(lazy(() => import('../../features/restaurants/components/TablesPage').then(m => ({ default: m.TablesPage }))));
+const StaffPage = Loadable(lazy(() => import('../../features/restaurants/components/StaffPage').then(m => ({ default: m.StaffPage }))));
+const RestaurantDashboard = Loadable(lazy(() => import('../../features/restaurants/components/RestaurantDashboard').then(m => ({ default: m.RestaurantDashboard }))));
+const OrdersKanban = Loadable(lazy(() => import('../../features/orders/components/OrdersKanban').then(m => ({ default: m.OrdersKanban }))));
+const ReservationsKanban = Loadable(lazy(() => import('../../features/reservations/components/ReservationsKanban').then(m => ({ default: m.ReservationsKanban }))));
+const PublicMenu = Loadable(lazy(() => import('../../features/public/pages/PublicMenu').then(m => ({ default: m.PublicMenu }))));
+const EventsFeed = Loadable(lazy(() => import('../../features/events/pages/EventsFeed').then(m => ({ default: m.EventsFeed }))));
+const AdminUserManagement = Loadable(lazy(() => import('../../features/users/pages/AdminUserManagement').then(m => ({ default: m.AdminUserManagement }))));
+const DashboardLayout = Loadable(lazy(() => import('../layouts/DashboardLayout').then(m => ({ default: m.DashboardLayout }))));
+
+const ClientHistory = Loadable(lazy(() => import('../../features/public/pages/ClientHistory').then(m => ({ default: m.ClientHistory }))));
+const AdminEventsPage = Loadable(lazy(() => import('../../features/events/pages/AdminEventsPage').then(m => ({ default: m.AdminEventsPage }))));
+const AnalyticsDashboard = Loadable(lazy(() => import('../../features/restaurants/pages/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard }))));
+const GlobalAnalytics = Loadable(lazy(() => import('../../features/restaurants/pages/GlobalAnalytics').then(m => ({ default: m.GlobalAnalytics }))));
+const ExportAnalytics = Loadable(lazy(() => import('../../features/restaurants/pages/ExportAnalytics').then(m => ({ default: m.ExportAnalytics }))));
+const GlobalClients = Loadable(lazy(() => import('../../features/users/pages/GlobalClients').then(m => ({ default: m.GlobalClients }))));
+const KitchenDisplay = Loadable(lazy(() => import('../../features/orders/pages/KitchenDisplay').then(m => ({ default: m.KitchenDisplay }))));
+const DashboardIndex = Loadable(lazy(() => import('../../features/dashboard/pages/DashboardIndex').then(m => ({ default: m.DashboardIndex }))));
 
 
 export const router = createBrowserRouter([

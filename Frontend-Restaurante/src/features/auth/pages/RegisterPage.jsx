@@ -16,10 +16,12 @@ export const RegisterPage = () => {
     username: '',
     email: '',
     password: '',
+    confirmPassword: '',
     phone: '',
     profilePicture: null
   });
   
+  const [fieldErrors, setFieldErrors] = useState({});
   const { register, isLoading } = useAuthStore();
   const navigate = useNavigate();
 
@@ -32,11 +34,36 @@ export const RegisterPage = () => {
     }
   };
 
+  const validateForm = () => {
+    const errors = {};
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Formato de correo inválido";
+    }
+    if (formData.password.length < 8) {
+      errors.password = "La contraseña debe tener mínimo 8 caracteres";
+    }
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Las contraseñas no coinciden";
+    }
+    if (!formData.phone.match(/^\d{8,15}$/)) {
+      errors.phone = "Solo números (8-15 dígitos)";
+    }
+    return errors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      toast.error('Por favor corrige los errores antes de continuar');
+      return;
+    }
+    setFieldErrors({});
+
     const data = new FormData();
     Object.keys(formData).forEach(key => {
-      if (formData[key]) data.append(key, formData[key]);
+      if (key !== 'confirmPassword' && formData[key]) data.append(key, formData[key]);
     });
 
     const result = await register(data);
@@ -76,9 +103,13 @@ export const RegisterPage = () => {
                 <Input label="Nombre" name="name" icon={User} placeholder="Ej. Juan" value={formData.name} onChange={handleChange} required />
                 <Input label="Apellido" name="surname" icon={User} placeholder="Ej. Pérez" value={formData.surname} onChange={handleChange} required />
                 <Input label="Usuario" name="username" icon={Sparkles} placeholder="juanp_24" value={formData.username} onChange={handleChange} required />
-                <Input label="Teléfono" name="phone" icon={Phone} placeholder="12345678" value={formData.phone} onChange={handleChange} required />
-                <Input label="Email Corporativo" name="email" type="email" icon={Mail} placeholder="admin@restaurante.com" value={formData.email} onChange={handleChange} required className="md:col-span-2" />
-                <Input label="Contraseña" name="password" type="password" icon={Lock} placeholder="••••••••" value={formData.password} onChange={handleChange} required className="md:col-span-2" />
+                <Input label="Teléfono" name="phone" icon={Phone} placeholder="12345678" value={formData.phone} onChange={handleChange} error={fieldErrors.phone} required />
+                <Input label="Email Corporativo" name="email" type="email" icon={Mail} placeholder="admin@restaurante.com" value={formData.email} onChange={handleChange} error={fieldErrors.email} required className="md:col-span-2" />
+                
+                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <Input label="Contraseña" name="password" type="password" icon={Lock} placeholder="••••••••" value={formData.password} onChange={handleChange} error={fieldErrors.password} required />
+                  <Input label="Confirmar Contraseña" name="confirmPassword" type="password" icon={Lock} placeholder="••••••••" value={formData.confirmPassword} onChange={handleChange} error={fieldErrors.confirmPassword} required />
+                </div>
                 
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-brown ml-1">Foto de Perfil</label>
