@@ -20,7 +20,7 @@ const RESERVATION_COLUMNS = [
   { id: 'confirmed', label: 'Confirmadas', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
   { id: 'completed', label: 'Finalizadas', color: 'bg-[#f3e4ca] text-[#8b6435] border-[#dcc7a5]' },
   { id: 'no_show', label: 'No asistió', color: 'bg-orange-500/10 text-orange-500 border-orange-500/20' },
-  { id: 'cancelled', label: 'Canceladas', color: 'bg-zinc-800 text-zinc-500 border-zinc-700' },
+  { id: 'cancelled', label: 'Canceladas', color: 'bg-white text-zinc-400 border-zinc-200' },
 ];
 
 export const ReservationsKanban = () => {

@@ -79,7 +79,7 @@ export const MenuItemModal = ({ isOpen, onClose, item = null, restaurantId }) =>
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md overflow-y-auto">
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-primary-50 rounded-[2.5rem] border border-primary-200 shadow-premium w-full max-w-2xl overflow-hidden"
+        className="bg-primary-50 rounded-[2rem] border border-primary-200 shadow-premium w-full max-w-2xl overflow-hidden max-h-[92vh] flex flex-col relative"
       >
         {/* Header */}
         <div className="px-8 py-6 bg-white border-b border-primary-100 flex justify-between items-center">
@@ -94,7 +94,7 @@ export const MenuItemModal = ({ isOpen, onClose, item = null, restaurantId }) =>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-8">
+        <form onSubmit={handleSubmit} className="p-8 space-y-8 overflow-y-auto flex-1 scrollbar-hide">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Columna Izquierda: Imagen */}
             <div className="space-y-4">

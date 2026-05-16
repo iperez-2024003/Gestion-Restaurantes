@@ -21,7 +21,7 @@ export const Input = ({ label, icon: Icon, error, className = '', inputClassName
         )}
         <input
           className={`
-            w-full ${Icon ? (isSimple ? 'pl-10' : 'pl-12') : 'px-5'} ${isSimple ? 'py-2.5' : 'py-4'} rounded-none
+            w-full ${Icon ? (isSimple ? 'pl-10' : 'pl-12') : 'px-5'} ${isSimple ? 'py-2.5' : 'py-4'} rounded-xl
             bg-white ${isSimple ? 'border-2' : 'border-4'} border-[#1c1712] text-[#1c1712] ${isSimple ? 'text-xs' : 'text-sm'} font-black
             placeholder:text-zinc-400 placeholder:font-bold
             focus:outline-none focus:shadow-[${isSimple ? '4px_4px' : '6px_6px'}_0px_#b98c52]

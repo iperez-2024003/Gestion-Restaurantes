@@ -77,7 +77,7 @@ export const TableModal = ({ isOpen, onClose, table = null, restaurantId }) => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-[#fffdf8] rounded-[3rem] md:rounded-[3.75rem] border border-[#dcc7a5]/70 shadow-[0_30px_80px_rgba(33,24,14,0.18)] w-full max-w-lg relative my-auto overflow-hidden"
+        className="bg-[#fffdf8] rounded-[2rem] border border-[#dcc7a5]/70 shadow-[0_30px_80px_rgba(33,24,14,0.18)] w-full max-w-lg relative my-auto max-h-[92vh] flex flex-col overflow-hidden"
       >
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#b98c52] via-[#dcc7a5] to-[#8b6435]" />
 
@@ -112,7 +112,7 @@ export const TableModal = ({ isOpen, onClose, table = null, restaurantId }) => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-8 md:px-10 py-8 space-y-7">
+        <form onSubmit={handleSubmit} className="px-8 md:px-10 py-8 space-y-7 overflow-y-auto flex-1 scrollbar-hide">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
               label="Nº de Mesa"

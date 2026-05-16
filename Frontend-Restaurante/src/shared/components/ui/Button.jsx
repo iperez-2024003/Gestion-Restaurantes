@@ -33,7 +33,7 @@ export const Button = ({
       whileHover={isSimple ? { y: -2 } : { y: -4 }}
       whileTap={{ y: 1, shadow: 'none' }}
       className={`
-        ${isSimple ? 'px-5 py-2.5' : 'px-8 py-4'} rounded-none font-black uppercase ${isSimple ? 'tracking-widest text-[9px]' : 'tracking-[0.2em] text-[11px]'} transition-all duration-200
+        ${isSimple ? 'px-5 py-2.5' : 'px-8 py-4'} rounded-xl font-black uppercase ${isSimple ? 'tracking-widest text-[9px]' : 'tracking-[0.2em] text-[11px]'} transition-all duration-200
         flex items-center justify-center gap-2 disabled:opacity-50
         ${variants[variant]} ${className}
       `}

@@ -118,7 +118,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
     <div className="fixed inset-0 bg-ink/40 backdrop-blur-md flex justify-center items-center z-[100] p-4 overflow-y-auto">
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-primary-50 rounded-[2.5rem] border border-primary-200 shadow-premium w-full max-w-3xl overflow-hidden"
+        className="bg-primary-50 rounded-[2rem] border border-primary-200 shadow-premium w-full max-w-3xl overflow-hidden max-h-[92vh] flex flex-col relative"
       >
         {/* Header */}
         <div className="px-8 py-6 bg-white border-b border-primary-100 flex justify-between items-center">
@@ -142,7 +142,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
         </div>
 
         {/* Form Content */}
-        <form onSubmit={handleSubmit(onSubmit)} className="p-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-8 overflow-y-auto flex-1 scrollbar-hide">
           <div className="min-h-[320px]">
             <AnimatePresence mode="wait">
               {activeTab === 'general' && (

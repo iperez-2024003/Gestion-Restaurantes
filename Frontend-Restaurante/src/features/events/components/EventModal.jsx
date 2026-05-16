@@ -111,7 +111,7 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-[#fefcf8] rounded-[3rem] md:rounded-[4rem] border border-primary-200 shadow-gold w-full max-w-4xl overflow-hidden my-auto max-h-[92vh] flex flex-col relative"
+        className="bg-[#fefcf8] rounded-[2rem] border border-primary-200 shadow-gold w-full max-w-4xl overflow-hidden my-auto max-h-[92vh] flex flex-col relative"
       >
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary-400 to-primary-600"></div>
 
