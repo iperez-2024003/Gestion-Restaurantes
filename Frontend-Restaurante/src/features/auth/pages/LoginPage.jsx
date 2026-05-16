@@ -11,6 +11,8 @@ import LogoBuenProvecho from '../../../assets/img/LogoBuenProvecho.png';
 import { Button } from '../../../shared/components/ui/Button';
 import { Input } from '../../../shared/components/ui/Input';
 
+const uploadImages = [Restaurante1, Restaurante2, Restaurante3];
+
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,13 +21,12 @@ export const LoginPage = () => {
   const { login, isLoading } = useAuthStore();
   const navigate = useNavigate();
 
-  const uploadImages = [Restaurante1, Restaurante2, Restaurante3];
   const [currentImage, setCurrentImage] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % uploadImages.length);
-    }, 6000);
+    }, 5000);
     return () => clearInterval(timer);
   }, []);
 
@@ -74,7 +75,7 @@ export const LoginPage = () => {
           className="lg:col-span-5 p-8 md:p-12 flex flex-col justify-center border-b-4 lg:border-b-0 lg:border-r-4 border-[#1c1712]"
         >
           <div className="mb-10 text-center">
-            <img src={LogoBuenProvecho} alt="Logo" className="h-24 mb-6 mx-auto" />
+            <img src={LogoBuenProvecho} alt="Logo" className="h-32 mb-8 mx-auto" />
             <h1 className="text-3xl font-black text-[#1c1712] uppercase tracking-tighter leading-none mb-2">
               Acceso <span className="text-[#b98c52]">VIP</span>
             </h1>
@@ -146,8 +147,8 @@ export const LoginPage = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 1.2 }}
               src={uploadImages[currentImage]}
-              className="absolute inset-0 w-full h-full object-cover opacity-80"
-              alt="BuenProvecho Experience"
+              className="absolute inset-0 w-full h-full object-cover opacity-90"
+              alt={`Restaurante Showcase ${currentImage + 1}`}
             />
           </AnimatePresence>
 
