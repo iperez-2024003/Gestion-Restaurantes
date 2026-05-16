@@ -157,8 +157,8 @@ const DashboardIndexComponent = () => {
                 <BookOpen size={32} />
               </div>
               <div>
-                <h3 className="text-2xl font-black text-white uppercase tracking-tight">Centro de Conocimiento</h3>
-                <p className="text-primary-200/60 text-sm font-medium">Domina la plataforma con nuestra guía avanzada para expertos.</p>
+                <h3 className="text-2xl font-black text-black uppercase tracking-tight">Centro de Conocimiento</h3>
+                <p className="text-black text-sm font-medium">Domina la plataforma con nuestra guía avanzada para expertos.</p>
               </div>
             </div>
             <Button variant="primary" className="whitespace-nowrap px-8">
