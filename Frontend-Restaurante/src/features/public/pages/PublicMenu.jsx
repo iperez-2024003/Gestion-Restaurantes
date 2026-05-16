@@ -32,6 +32,7 @@ import {
   Home,
   Menu as MenuIcon,
   LayoutGrid,
+  Search,
 } from 'lucide-react';
 
 export const PublicMenu = () => {
@@ -49,6 +50,7 @@ export const PublicMenu = () => {
 
   const { cart, addToCart } = useOrderStore();
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [itemNotes, setItemNotes] = useState({});
   const [itemQuantities, setItemQuantities] = useState({});
   const [reservationOpen, setReservationOpen] = useState(false);
@@ -329,9 +331,12 @@ export const PublicMenu = () => {
     );
   }
 
-  const categoryItems = activeCategory
-    ? items.filter(item => item.menu_id === activeCategory)
-    : items;
+  const categoryItems = items.filter(item => {
+    const matchesCategory = activeCategory ? item.menu_id === activeCategory : true;
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    return matchesCategory && matchesSearch;
+  });
 
   const featuredItems = items.slice(0, 3);
   const reviewAverage = reviews.length > 0
@@ -464,30 +469,47 @@ export const PublicMenu = () => {
         </div>
       </div>
 
-      {/* ── CATEGORIES NAV ───────────────────────────────────────────────────────── */}
+      {/* ── SEARCH & CATEGORIES NAV ───────────────────────────────────────────────────────── */}
       <div className="sticky top-0 z-50 bg-[#fffaf3] border-b-2 border-[#1c1712] px-4 md:px-8 py-6 md:py-8 shadow-[0_10px_0px_#1c1712]">
-        <div className="max-w-7xl mx-auto flex gap-4 overflow-x-auto scrollbar-hide px-2 md:px-0 py-2">
-          <button
-            onClick={() => setActiveCategory(null)}
-            className={`px-8 py-4 rounded text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 transform active:translate-y-1 border-2 border-[#1c1712] flex items-center gap-2 ${!activeCategory
-                ? 'bg-[#1c1712] text-[#fffaf3] shadow-[4px_4px_0px_#b98c52]'
-                : 'bg-[#fffaf3] text-[#1c1712] hover:-translate-y-1 hover:shadow-[4px_4px_0px_#1c1712] active:shadow-none'
-              }`}
-          >
-            <LayoutGrid className="w-4 h-4" /> Ver Todo
-          </button>
-          {menus.map((m) => (
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 md:items-center justify-between">
+          
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide py-2 flex-1">
             <button
-              key={m.id}
-              onClick={() => setActiveCategory(m.id)}
-              className={`px-8 py-4 rounded text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 transform active:translate-y-1 border-2 border-[#1c1712] ${activeCategory === m.id
+              onClick={() => setActiveCategory(null)}
+              className={`px-8 py-4 rounded text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 transform active:translate-y-1 border-2 border-[#1c1712] flex items-center gap-2 ${!activeCategory
                   ? 'bg-[#1c1712] text-[#fffaf3] shadow-[4px_4px_0px_#b98c52]'
                   : 'bg-[#fffaf3] text-[#1c1712] hover:-translate-y-1 hover:shadow-[4px_4px_0px_#1c1712] active:shadow-none'
                 }`}
             >
-              {m.name}
+              <LayoutGrid className="w-4 h-4" /> Ver Todo
             </button>
-          ))}
+            {menus.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setActiveCategory(m.id)}
+                className={`px-8 py-4 rounded text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 transform active:translate-y-1 border-2 border-[#1c1712] ${activeCategory === m.id
+                    ? 'bg-[#1c1712] text-[#fffaf3] shadow-[4px_4px_0px_#b98c52]'
+                    : 'bg-[#fffaf3] text-[#1c1712] hover:-translate-y-1 hover:shadow-[4px_4px_0px_#1c1712] active:shadow-none'
+                  }`}
+              >
+                {m.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Barra de Búsqueda a la Derecha */}
+          <div className="relative w-full md:w-80 group">
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+              <Search className="w-5 h-5 text-[#1c1712]/30 group-focus-within:text-[#b98c52] transition-colors" />
+            </div>
+            <input
+              type="text"
+              placeholder="Busca tu platillo..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full h-14 pl-12 pr-4 bg-white border-2 border-[#1c1712] rounded shadow-[4px_4px_0px_#1c1712] text-sm font-black text-[#1c1712] placeholder:text-zinc-400 outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none transition-all"
+            />
+          </div>
         </div>
       </div>
 

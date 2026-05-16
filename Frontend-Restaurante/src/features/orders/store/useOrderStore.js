@@ -86,14 +86,28 @@ export const useOrderStore = create(
         }
       },
 
+      fetchUserActiveOrders: async (userId) => {
+        set({ loading: true });
+        try {
+          const res = await api.get(`/orders?user_id=${userId}`);
+          const allOrders = res.data.data;
+          // Filtrar las que no están finalizadas ni canceladas
+          const active = allOrders.filter(o => !['paid', 'cancelled'].includes(o.status));
+          set({ activeOrders: active, loading: false });
+        } catch (error) {
+          set({ loading: false });
+          console.error('Error fetching active orders:', error);
+        }
+      },
       updateOrderStatus: async (orderId, status) => {
         try {
           await api.patch(`/orders/${orderId}/status`, { status });
-          // Actualizar estado local
-          const newOrders = get().orders.map(o => 
-            o.id === orderId ? { ...o, status } : o
-          );
-          set({ orders: newOrders });
+          // Actualizar estado local (ambas listas)
+          const updateFn = o => o.id === orderId ? { ...o, status } : o;
+          set({ 
+            orders: get().orders.map(updateFn),
+            activeOrders: (get().activeOrders || []).map(updateFn)
+          });
           showSuccess(`Pedido marcado como: ${status}`);
         } catch (error) {
           showError(error.response?.data?.message || 'Error al actualizar pedido');

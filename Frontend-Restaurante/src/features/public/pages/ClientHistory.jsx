@@ -21,8 +21,10 @@ import {
   Zap,
   Loader2,
   Trophy,
-  FileText
+  FileText,
+  Search,
 } from 'lucide-react';
+import { ActiveOrderTracker } from '../../orders/components/ActiveOrderTracker';
 
 const StarRating = ({ value, onChange }) => (
   <div className="flex gap-2">
@@ -297,6 +299,11 @@ export const ClientHistory = () => {
           </div>
         </section>
       </div>
+
+      {/* RASTREADOR DE PEDIDOS ACTIVOS */}
+      <section className="px-2">
+        <ActiveOrderTracker />
+      </section>
 
       {/* Sección Calificaciones */}
       <section className="pt-20 border-t border-primary-100">
