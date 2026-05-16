@@ -56,15 +56,30 @@ export const getRestaurantOverview = async (req, res) => {
       staffCount,
       recentStaff
     ] = await Promise.all([
-      Order.countDocuments({ restaurant_id: id, createdAt: { $gte: start, $lte: end } }),
+      Order.countDocuments({ 
+        restaurant_id: id, 
+        status: { $ne: 'cancelled' },
+        createdAt: { $gte: start, $lte: end } 
+      }),
       Order.aggregate([
-        { $match: { restaurant_id: id, payment_status: 'paid', createdAt: { $gte: start, $lte: end } } },
+        { 
+          $match: { 
+            restaurant_id: id, 
+            status: { $in: ['confirmed', 'preparing', 'ready', 'served', 'paid'] },
+            createdAt: { $gte: start, $lte: end } 
+          } 
+        },
         { $group: { _id: null, total: { $sum: '$total' } } },
       ]),
       Reservation.countDocuments({ restaurant_id: id, createdAt: { $gte: start, $lte: end } }),
-      Order.countDocuments({ restaurant_id: id }),
+      Order.countDocuments({ restaurant_id: id, status: { $ne: 'cancelled' } }),
       Order.aggregate([
-        { $match: { restaurant_id: id, payment_status: 'paid' } },
+        { 
+          $match: { 
+            restaurant_id: id, 
+            status: { $in: ['confirmed', 'preparing', 'ready', 'served', 'paid'] }
+          } 
+        },
         { $group: { _id: null, total: { $sum: '$total' } } },
       ]),
       Order.countDocuments({ 

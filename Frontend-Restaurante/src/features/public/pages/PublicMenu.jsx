@@ -535,7 +535,7 @@ export const PublicMenu = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   key={item.id}
-                  className="group flex flex-col p-4 bg-[#fffaf3] border-2 border-[#1c1712] rounded-lg shadow-[6px_6px_0px_#1c1712] hover:-translate-y-1 hover:shadow-[8px_8px_0px_#1c1712] transition-all duration-300 w-full max-w-[280px]"
+                  className="group flex flex-col p-4 bg-[#fffaf3] border-2 border-[#1c1712] rounded-lg shadow-[6px_6px_0px_#1c1712] hover:-translate-y-1 hover:shadow-[8px_8px_0px_#1c1712] transition-all duration-300 w-full max-w-[320px]"
                 >
                   <div className="w-full h-40 rounded border-2 border-[#1c1712] overflow-hidden relative flex items-center justify-center bg-white mb-4">
                     {item.image_url ? (
@@ -578,37 +578,35 @@ export const PublicMenu = () => {
                           className="w-full h-9 bg-white border-2 border-[#1c1712] rounded shadow-[2px_2px_0px_#1c1712] text-[10px] font-bold text-[#1c1712] placeholder:text-zinc-400 px-3 outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none transition-all"
                         />
 
-                        {/* Footer de la tarjeta con Precio, Cantidad y Botón SVG */}
-                        <div className="flex justify-between items-center mt-1">
-                          
-                          {/* Controles de Cantidad */}
-                          <div className="flex items-center h-9 border-2 border-[#1c1712] rounded bg-[#fffaf3] overflow-hidden shadow-[2px_2px_0px_#1c1712]">
-                            <button
-                              onClick={() => handleQuantityChange(item.id, -1)}
-                              className="w-7 h-full flex items-center justify-center font-black text-[#1c1712] hover:bg-[#b98c52] hover:text-white transition-colors border-r-2 border-[#1c1712]"
-                            >-</button>
-                            <span className="w-6 text-center font-black text-xs text-[#1c1712]">{itemQuantities[item.id] || 1}</span>
-                            <button
-                              onClick={() => handleQuantityChange(item.id, 1)}
-                              className="w-7 h-full flex items-center justify-center font-black text-[#1c1712] hover:bg-[#1c1712] hover:text-white transition-colors border-l-2 border-[#1c1712]"
-                            >+</button>
+                        {/* Footer de la tarjeta rediseñado para evitar colisiones */}
+                        <div className="mt-4 pt-4 border-t-2 border-[#1c1712]/5 space-y-4">
+                          <div className="flex justify-between items-end">
+                            <span className="text-[9px] font-black text-[#b98c52] uppercase tracking-[0.2em]">Precio Unitario</span>
+                            <div className="text-2xl font-black text-[#1c1712] tracking-tighter leading-none">
+                              <span className="text-xs mr-0.5 text-zinc-400">Q</span>{item.price}
+                            </div>
                           </div>
 
-                          <div className="flex items-center gap-2">
-                            <div className="text-xl font-black text-[#1c1712]">
-                              <span className="text-zinc-500 text-sm mr-0.5 font-bold">Q</span>{item.price}
+                          <div className="flex gap-2 items-center">
+                            {/* Controles de Cantidad */}
+                            <div className="flex-1 flex items-center h-10 border-2 border-[#1c1712] rounded bg-white overflow-hidden shadow-[3px_3px_0px_#1c1712]">
+                              <button
+                                onClick={() => handleQuantityChange(item.id, -1)}
+                                className="flex-1 h-full flex items-center justify-center font-black text-[#1c1712] hover:bg-[#ef4444] hover:text-white transition-colors border-r-2 border-[#1c1712]"
+                              >-</button>
+                              <span className="w-10 text-center font-black text-sm text-[#1c1712]">{itemQuantities[item.id] || 1}</span>
+                              <button
+                                onClick={() => handleQuantityChange(item.id, 1)}
+                                className="flex-1 h-full flex items-center justify-center font-black text-[#1c1712] hover:bg-[#22c55e] hover:text-white transition-colors border-l-2 border-[#1c1712]"
+                              >+</button>
                             </div>
-                            
+
                             <button
                               onClick={() => handleAddToCart(item)}
-                              className="h-9 px-3 bg-[#fffaf3] border-2 border-[#1c1712] rounded transition-all hover:border-[#b98c52] active:translate-y-1 group flex items-center justify-center shadow-[2px_2px_0px_#1c1712] hover:shadow-none"
+                              className="w-12 h-10 bg-[#1c1712] text-[#fffaf3] border-2 border-[#1c1712] rounded flex items-center justify-center shadow-[3px_3px_0px_#b98c52] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all group"
+                              title="Añadir al carrito"
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="w-4 h-4 fill-[#1c1712] group-hover:fill-[#b98c52] transition-colors">
-                                <path d="m397.78 316h-205.13a15 15 0 0 1 -14.65-11.67l-34.54-150.48a15 15 0 0 1 14.62-18.36h274.27a15 15 0 0 1 14.65 18.36l-34.6 150.48a15 15 0 0 1 -14.62 11.67zm-193.19-30h181.25l27.67-120.48h-236.6z" />
-                                <path d="m222 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z" />
-                                <path d="m368.42 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z" />
-                                <path d="m158.08 165.49a15 15 0 0 1 -14.23-10.26l-25.71-77.23h-47.44a15 15 0 1 1 0-30h58.3a15 15 0 0 1 14.23 10.26l29.13 87.49a15 15 0 0 1 -14.23 19.74z" />
-                              </svg>
+                              <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform" />
                             </button>
                           </div>
                         </div>

@@ -50,7 +50,7 @@ export const ResetPasswordPage = () => {
             <ShieldAlert size={32} className="text-white" />
           </div>
 
-          <img src={LogoBuenProvecho} alt="Logo" className="h-12 mx-auto mb-10" />
+          <img src={LogoBuenProvecho} alt="Logo" className="h-24 mx-auto mb-10" />
 
           <div className="mb-10">
             <h1 className="text-3xl font-black text-[#1c1712] uppercase tracking-tighter leading-none mb-4">

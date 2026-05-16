@@ -34,7 +34,7 @@ export const ForgotPasswordPage = () => {
         className="relative z-10 w-full max-w-md"
       >
         <div className="bg-white border-4 border-[#1c1712] p-8 md:p-12 shadow-[16px_16px_0px_#1c1712] text-center">
-          <img src={LogoBuenProvecho} alt="Logo" className="h-12 mx-auto mb-10" />
+          <img src={LogoBuenProvecho} alt="Logo" className="h-24 mx-auto mb-10" />
 
           <AnimatePresence mode="wait">
             {!isSent ? (
