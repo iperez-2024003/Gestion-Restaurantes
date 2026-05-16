@@ -3,22 +3,20 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 import Restaurante1 from '../../../assets/img/Restaurante1.webp';
 import Restaurante2 from '../../../assets/img/Restaurante2.webp';
 import Restaurante3 from '../../../assets/img/Restaurante3.webp';
-import { BrandLogo } from '../../../shared/components/ui/BrandLogo';
+import LogoBuenProvecho from '../../../assets/img/LogoBuenProvecho.png';
 import { Button } from '../../../shared/components/ui/Button';
 import { Input } from '../../../shared/components/ui/Input';
-import { Card } from '../../../shared/components/ui/Card';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [needsVerification, setNeedsVerification] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
-  const { login, resendVerification, isLoading } = useAuthStore();
+  const { login, isLoading } = useAuthStore();
   const navigate = useNavigate();
 
   const uploadImages = [Restaurante1, Restaurante2, Restaurante3];
@@ -61,133 +59,118 @@ export const LoginPage = () => {
     }
 
     toast.error(result.error);
-    if (result.error.toLowerCase().includes('verificar tu email')) {
-      setNeedsVerification(true);
-    }
   };
 
   return (
-    <div className="relative min-h-screen bg-primary-50 flex items-center justify-center overflow-hidden">
-      {/* Fondo CSS Premium (Sin Lag) */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-300/20 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-400/10 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
-      </div>
+    <div className="min-h-screen bg-[#fffaf3] flex items-center justify-center p-6 overflow-hidden relative font-outfit">
+      {/* Decoración sutil */}
+      <div className="absolute top-[-5%] right-[-5%] w-72 h-72 bg-[#b98c52] opacity-5 border-4 border-[#1c1712] -z-0 rotate-12" />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between p-6 lg:p-12 gap-8 lg:gap-16">
+      <div className="relative z-10 w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch border-4 border-[#1c1712] shadow-[20px_20px_0px_#1c1712] bg-white overflow-hidden">
         {/* Lado Izquierdo: Formulario */}
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="w-full max-w-md"
-        >
-          <Card className="p-8 lg:p-10 border-primary-200/50">
-            <div className="text-center mb-8 flex flex-col items-center">
-              <BrandLogo size="lg" className="mb-4 mx-auto" />
-              <h1 className="text-3xl font-black text-ink mb-1">Bienvenido</h1>
-              <p className="text-muted-brown text-sm font-medium">Gestiona tu restaurante con elegancia.</p>
-            </div>
-
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              <Input
-                label="Usuario o correo"
-                icon={Mail}
-                type="text"
-                placeholder="admin@buenprovecho.com o admin"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                error={fieldErrors.email}
-              />
-
-              <div className="space-y-1">
-                <div className="flex justify-between px-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-brown">Contraseña</label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-[10px] font-black uppercase tracking-widest text-primary-600 hover:text-primary-700 transition-colors"
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </Link>
-                </div>
-                <div className="relative">
-                  <Input
-                    icon={Lock}
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    error={fieldErrors.password}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-brown hover:text-primary-500 transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-
-              <Button type="submit" isLoading={isLoading} className="w-full py-3.5 mt-2">
-                Acceder al Sistema <ArrowRight size={18} />
-              </Button>
-
-              {/* Mensaje informativo removido por petición del cliente */}
-
-              <AnimatePresence>
-                {needsVerification && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-primary-100 rounded-xl text-center border border-primary-200"
-                  >
-                    <p className="text-xs text-muted-brown font-medium mb-2">Verificación pendiente</p>
-                    <button type="button" onClick={() => useAuthStore.getState().resendVerification(email)} className="text-xs font-black text-ink hover:text-primary-600 flex items-center justify-center gap-1 mx-auto">
-                      <Sparkles size={14} /> Reenviar enlace
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </form>
-
-            <div className="mt-8 pt-6 border-t border-primary-100 flex items-center justify-between">
-              <span className="text-muted-brown text-sm">¿No tienes cuenta?</span>
-              <Link to="/register" className="text-primary-600 font-black text-sm hover:underline flex items-center gap-1">
-                Regístrate <ArrowRight size={14} />
-              </Link>
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Lado Derecho: Visual Showcase */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="hidden lg:block flex-1 h-[600px] relative"
+          className="lg:col-span-5 p-8 md:p-12 flex flex-col justify-center border-b-4 lg:border-b-0 lg:border-r-4 border-[#1c1712]"
         >
-          <div className="w-full h-full rounded-[2.5rem] overflow-hidden border border-primary-200/50 shadow-premium relative group bg-[#1c1408]">
-            <AnimatePresence initial={false}>
-              <motion.img
-                key={currentImage}
-                src={uploadImages[currentImage]}
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '-100%' }}
-                transition={{ type: "tween", ease: "easeInOut", duration: 0.8 }}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            </AnimatePresence>
+          <div className="mb-10 text-center">
+            <img src={LogoBuenProvecho} alt="Logo" className="h-24 mb-6 mx-auto" />
+            <h1 className="text-3xl font-black text-[#1c1712] uppercase tracking-tighter leading-none mb-2">
+              Acceso <span className="text-[#b98c52]">VIP</span>
+            </h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">
+              Panel de Control Gastronómico
+            </p>
+          </div>
 
-            <div className="absolute top-10 right-10 flex gap-2 z-10">
-              {uploadImages.map((_, i) => (
-                <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentImage ? 'w-8 bg-primary-400' : 'w-2 bg-white/50 backdrop-blur-md'}`} />
-              ))}
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <Input
+              label="Usuario / Email"
+              icon={Mail}
+              type="text"
+              placeholder="admin@buenprovecho.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={fieldErrors.email}
+            />
+
+            <div className="relative">
+              <Input
+                label="Contraseña"
+                icon={Lock}
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                error={fieldErrors.password}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-10 text-[#1c1712]"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <div className="flex justify-end">
+              <Link to="/forgot-password" className="text-[9px] font-black uppercase tracking-widest text-[#b98c52] hover:underline">
+                ¿Olvidaste tu acceso?
+              </Link>
+            </div>
+
+            <Button type="submit" isLoading={isLoading} className="w-full py-5 text-xs">
+              Entrar al Sistema <ArrowRight size={18} className="ml-2" />
+            </Button>
+          </form>
+
+          <div className="mt-10 pt-8 border-t-2 border-[#1c1712]/10 flex flex-col items-center gap-4">
+            <span className="text-[10px] font-black uppercase text-zinc-400">¿Nuevo Restaurante?</span>
+            <Link to="/register" className="text-[10px] font-black uppercase tracking-widest text-[#1c1712] px-6 py-2 border-2 border-[#1c1712] shadow-[4px_4px_0px_#b98c52] hover:-translate-y-1 transition-all">
+              Registrar Cuenta
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* Lado Derecho: Showcase Ampliado */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="hidden lg:block lg:col-span-7 relative bg-[#1c1712]"
+        >
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentImage}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+              src={uploadImages[currentImage]}
+              className="absolute inset-0 w-full h-full object-cover opacity-80"
+              alt="BuenProvecho Experience"
+            />
+          </AnimatePresence>
+          
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1c1712] via-transparent to-transparent opacity-40" />
+
+          {/* Indicadores de imagen minimalistas */}
+          <div className="absolute bottom-10 right-10 flex gap-3 z-30">
+            {uploadImages.map((_, i) => (
+              <div 
+                key={i} 
+                className={`h-1.5 border border-[#1c1712] transition-all duration-500 ${i === currentImage ? 'w-12 bg-[#b98c52]' : 'w-3 bg-white/30'}`} 
+              />
+            ))}
+          </div>
+
+          <div className="absolute top-10 right-10">
+            <div className="w-16 h-16 bg-[#fffaf3] border-4 border-[#1c1712] flex items-center justify-center shadow-[6px_6px_0px_#b98c52]">
+              <Sparkles size={32} className="text-[#b98c52]" />
             </div>
           </div>
         </motion.div>
       </div>
+
     </div>
   );
 };

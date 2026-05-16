@@ -51,15 +51,15 @@ export const ClientHistory = () => {
   const [reviewedOrders, setReviewedOrders] = useState([]);
 
   const statusClass = {
-    pending: 'bg-amber-50 text-amber-600 border-amber-200',
-    preparing: 'bg-orange-50 text-orange-600 border-orange-200',
-    ready: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    served: 'bg-primary-50 text-primary-600 border-primary-200',
-    paid: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    confirmed: 'bg-indigo-50 text-indigo-600 border-indigo-200',
-    completed: 'bg-primary-100 text-primary-700 border-primary-200',
-    no_show: 'bg-rose-50 text-rose-600 border-rose-200',
-    cancelled: 'bg-zinc-50 text-zinc-400 border-zinc-200',
+    pending: 'bg-[#fffaf3] text-amber-600 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]',
+    preparing: 'bg-[#fffaf3] text-orange-600 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]',
+    ready: 'bg-[#fffaf3] text-emerald-600 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]',
+    served: 'bg-[#1c1712] text-[#fffaf3] border-[#1c1712] shadow-[2px_2px_0px_#b98c52]',
+    paid: 'bg-emerald-600 text-white border-[#1c1712] shadow-[2px_2px_0px_#1c1712]',
+    confirmed: 'bg-indigo-600 text-white border-[#1c1712] shadow-[2px_2px_0px_#1c1712]',
+    completed: 'bg-[#1c1712] text-[#fffaf3] border-[#1c1712] shadow-[2px_2px_0px_#b98c52]',
+    no_show: 'bg-rose-600 text-white border-[#1c1712] shadow-[2px_2px_0px_#1c1712]',
+    cancelled: 'bg-zinc-200 text-zinc-600 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]',
   };
 
   const loadData = async () => {
@@ -132,9 +132,9 @@ export const ClientHistory = () => {
 
   if (loading) {
     return (
-      <div className="h-72 md:h-96 flex flex-col items-center justify-center gap-6">
-        <Loader2 className="w-10 md:w-12 h-10 md:h-12 text-primary-500 animate-spin" />
-        <p className="text-muted-brown font-black uppercase tracking-[0.3em] text-[10px]">Sincronizando Bitácora...</p>
+      <div className="h-72 md:h-96 flex flex-col items-center justify-center gap-6 bg-[#fffaf3]">
+        <div className="w-16 h-16 border-4 border-[#1c1712] border-t-[#b98c52] rounded-full animate-spin shadow-[4px_4px_0px_#1c1712]" />
+        <p className="text-[#1c1712] font-black uppercase tracking-[0.4em] text-[10px]">Sincronizando Bitácora...</p>
       </div>
     );
   }
@@ -143,10 +143,10 @@ export const ClientHistory = () => {
     <button
       key={key}
       onClick={onClick}
-      className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+      className={`px-6 py-3 rounded border-2 border-[#1c1712] text-[10px] font-black uppercase tracking-widest transition-all transform active:translate-y-1 ${
         active 
-        ? 'bg-gradient-to-r from-primary-400 to-primary-600 text-white border-primary-400 shadow-md' 
-        : 'bg-white text-muted-brown border-primary-100 hover:border-primary-300 hover:text-ink shadow-sm'
+        ? 'bg-[#1c1712] text-[#fffaf3] shadow-[4px_4px_0px_#b98c52]' 
+        : 'bg-white text-[#1c1712] hover:-translate-y-1 hover:shadow-[4px_4px_0px_#1c1712] active:shadow-none shadow-none'
       }`}
     >
       {label}
@@ -155,19 +155,20 @@ export const ClientHistory = () => {
 
   return (
     <div className="space-y-12 font-outfit animate-in fade-in duration-700 pb-20">
-      {/* Header Premium - Ahora en Oro/Crema para consistencia total */}
-      <div className="bg-gradient-to-br from-[#d7b77f] to-[#b98c52] text-white rounded-[2.5rem] md:rounded-[4rem] p-8 md:p-14 shadow-2xl border border-primary-300 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.3),transparent_60%)]" />
-        <div className="absolute top-0 right-0 p-12 opacity-15 hidden md:block">
-           <History className="w-48 h-48 text-white" />
+      {/* Header Premium - Neobrutalista */}
+      <div className="bg-[#b98c52] text-[#1c1712] rounded-xl p-8 md:p-14 shadow-[12px_12px_0px_#1c1712] border-2 border-[#1c1712] relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-20 hidden md:block">
+           <History className="w-48 h-48 text-[#1c1712]" />
         </div>
         <div className="relative z-10">
-          <Badge variant="outline" className="mb-4 bg-white/20 border-white/40 text-white">Pasaporte Gastronómico</Badge>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[0.85] mb-6 drop-shadow-md">
-            Tu <span className="text-ink">Bitácora</span>
+          <div className="mb-6 inline-flex items-center rounded border-2 border-[#1c1712] bg-[#fffaf3] px-4 py-2 shadow-[4px_4px_0px_#1c1712]">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#1c1712]">Pasaporte Gastronómico</span>
+          </div>
+          <h1 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-[0.8] mb-8">
+            Tu <span className="text-[#fffaf3]">Bitácora</span>
           </h1>
-          <p className="max-w-2xl text-white font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs leading-relaxed drop-shadow-sm">
-            Revive tus mejores momentos y gestiona tus experiencias pasadas en la red más exclusiva de alta cocina.
+          <p className="max-w-2xl text-[#1c1712] font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs leading-relaxed">
+            Revive tus mejores momentos y gestiona tus experiencias pasadas en la red más exclusiva de alta cocina. Diseño neobrutalista premium.
           </p>
         </div>
       </div>
@@ -193,45 +194,45 @@ export const ClientHistory = () => {
             ))}
           </div>
 
-          <div className="space-y-5 max-h-[60vh] overflow-y-auto pr-3 scrollbar-hide">
+          <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-4 scrollbar-hide">
             {filteredOrders.map((order) => (
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 key={order.id} 
               >
-                <Card className="p-6 md:p-8 hover:border-primary-300 transition-all group border-primary-100">
+                <div className="p-6 md:p-8 rounded-xl border-2 border-[#1c1712] bg-white transition-all group hover:-translate-y-1 hover:shadow-[8px_8px_0px_#1c1712]">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <p className="text-[10px] font-black text-muted-brown uppercase tracking-widest mb-1">Orden de Servicio</p>
-                      <p className="font-black text-ink text-xl">#{order.order_number?.split('-').pop()}</p>
+                      <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-widest mb-1">Orden de Servicio</p>
+                      <p className="font-black text-[#1c1712] text-2xl uppercase tracking-tighter">#{order.order_number?.split('-').pop()}</p>
                     </div>
-                    <span className={`text-[10px] font-black uppercase tracking-[0.15em] px-4 py-2 rounded-xl border ${statusClass[order.status] || 'bg-white text-muted-brown border-primary-100'}`}>
+                    <span className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded border-2 ${statusClass[order.status] || 'bg-white text-[#1c1712] border-[#1c1712]'}`}>
                       {translateStatus(order.status)}
                     </span>
                   </div>
                   
-                  <div className="flex items-center justify-between pt-6 border-t border-primary-50">
+                  <div className="flex items-center justify-between pt-6 border-t-2 border-[#1c1712]/5">
                     <div className="flex items-center gap-6">
-                      <p className="text-lg font-black text-primary-600">Q{order.total}</p>
+                      <p className="text-3xl font-black text-[#1c1712]">Q{order.total}</p>
                       <button
                         onClick={() => handleDownloadTicket(order.id)}
-                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-brown hover:text-primary-600 transition-colors"
+                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#1c1712] bg-[#fffaf3] border-2 border-[#1c1712] px-4 py-2 shadow-[3px_3px_0px_#1c1712] transition-all hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#1c1712] active:translate-y-0.5 active:shadow-none"
                       >
                         <FileText className="w-4 h-4" /> Ver Ticket
                       </button>
                     </div>
-                    <p className="text-[10px] text-muted-brown font-black uppercase tracking-widest opacity-60">
+                    <p className="text-[10px] text-zinc-400 font-black uppercase tracking-widest">
                       {new Date(order.createdAt || order.created_at).toLocaleDateString('es-GT')}
                     </p>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             ))}
             {orders.length === 0 && (
-              <div className="bg-primary-50/50 rounded-[2.5rem] p-16 text-center border-2 border-dashed border-primary-200">
-                 <ShoppingBag className="w-12 h-12 text-primary-200 mx-auto mb-4" />
-                 <p className="text-muted-brown font-black uppercase tracking-widest text-[10px]">Sin órdenes registradas</p>
+              <div className="bg-[#fffaf3] rounded-xl p-16 text-center border-2 border-dashed border-[#1c1712]">
+                 <ShoppingBag className="w-12 h-12 text-[#1c1712]/20 mx-auto mb-4" />
+                 <p className="text-[#1c1712] font-black uppercase tracking-widest text-[10px]">Sin órdenes registradas</p>
               </div>
             )}
           </div>
@@ -257,38 +258,40 @@ export const ClientHistory = () => {
             ))}
           </div>
 
-          <div className="space-y-5 max-h-[60vh] overflow-y-auto pr-3 scrollbar-hide">
+          <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-4 scrollbar-hide">
             {filteredReservations.map((reservation) => (
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 key={reservation.id} 
               >
-                <Card className="p-6 md:p-8 hover:border-primary-300 transition-all border-primary-100 bg-gradient-to-br from-white to-primary-50/30">
+                <div className="p-6 md:p-8 rounded-xl border-2 border-[#1c1712] bg-white transition-all group hover:-translate-y-1 hover:shadow-[8px_8px_0px_#b98c52]">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <p className="text-[10px] font-black text-muted-brown uppercase tracking-widest mb-1">Sede Gourmet</p>
-                      <p className="font-black text-ink text-xl">{reservation.restaurant?.name || 'Sede Premium'}</p>
+                      <p className="text-[10px] font-black text-[#b98c52] uppercase tracking-widest mb-1">Sede Gourmet</p>
+                      <p className="font-black text-[#1c1712] text-2xl uppercase tracking-tighter">{reservation.restaurant?.name || 'Sede Premium'}</p>
                     </div>
-                    <span className={`text-[10px] font-black uppercase tracking-[0.15em] px-4 py-2 rounded-xl border ${statusClass[reservation.status] || 'bg-white text-muted-brown border-primary-100'}`}>
+                    <span className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded border-2 ${statusClass[reservation.status] || 'bg-white text-[#1c1712] border-[#1c1712]'}`}>
                       {translateStatus(reservation.status)}
                     </span>
                   </div>
                   
-                  <div className="flex items-center justify-between pt-6 border-t border-primary-50">
-                    <div className="flex items-center gap-3 text-xs font-black text-ink uppercase tracking-tight">
-                       <Zap className="w-4 h-4 text-primary-500" />
-                       {reservation.reservation_date} <span className="text-primary-200 mx-1">|</span> {reservation.reservation_time?.slice(0, 5)}
+                  <div className="flex items-center justify-between pt-6 border-t-2 border-[#1c1712]/5">
+                    <div className="flex items-center gap-3 text-xs font-black text-[#1c1712] uppercase tracking-tight">
+                       <Zap className="w-4 h-4 text-[#b98c52]" />
+                       {reservation.reservation_date} <span className="text-[#1c1712]/10 mx-1">|</span> {reservation.reservation_time?.slice(0, 5)}
                     </div>
-                    <Badge variant="primary" className="px-3 py-1">{reservation.party_size} Comensales</Badge>
+                    <div className="rounded border-2 border-[#1c1712] bg-[#fffaf3] px-4 py-1 text-[10px] font-black uppercase tracking-widest shadow-[2px_2px_0px_#1c1712]">
+                      {reservation.party_size} Comensales
+                    </div>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             ))}
             {reservations.length === 0 && (
-              <div className="bg-primary-50/50 rounded-[2.5rem] p-16 text-center border-2 border-dashed border-primary-200">
-                 <Calendar className="w-12 h-12 text-primary-200 mx-auto mb-4" />
-                 <p className="text-muted-brown font-black uppercase tracking-widest text-[10px]">Sin reservas futuras</p>
+              <div className="bg-[#fffaf3] rounded-xl p-16 text-center border-2 border-dashed border-[#1c1712]">
+                 <Calendar className="w-12 h-12 text-[#1c1712]/20 mx-auto mb-4" />
+                 <p className="text-[#1c1712] font-black uppercase tracking-widest text-[10px]">Sin reservas futuras</p>
               </div>
             )}
           </div>
@@ -309,28 +312,28 @@ export const ClientHistory = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {completedOrders.map((order) => (
             <motion.div 
               whileHover={{ y: -5 }}
               key={order.id} 
             >
-              <Card className="p-8 h-full flex flex-col justify-between border-primary-100 shadow-premium">
+              <div className="p-8 h-full flex flex-col justify-between rounded-xl border-2 border-[#1c1712] bg-white shadow-[6px_6px_0px_#1c1712] transition-all hover:shadow-[8px_8px_0px_#b98c52]">
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge variant="outline" className="text-[8px]">Finalizado</Badge>
-                    <Star className="w-4 h-4 text-primary-400" />
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="rounded border-2 border-[#1c1712] bg-[#fffaf3] px-2 py-0.5 text-[8px] font-black uppercase tracking-widest">Finalizado</div>
+                    <Star className="w-4 h-4 text-[#b98c52] fill-[#b98c52]" />
                   </div>
-                  <p className="font-black text-ink text-2xl mb-1">#{order.order_number?.split('-').pop()}</p>
-                  <p className="text-sm font-black text-primary-600 mb-8 uppercase tracking-widest">Q{order.total}</p>
+                  <p className="font-black text-[#1c1712] text-3xl mb-1 uppercase tracking-tighter">#{order.order_number?.split('-').pop()}</p>
+                  <p className="text-sm font-black text-[#b98c52] mb-8 uppercase tracking-widest">Q{order.total}</p>
                 </div>
                 <button
                   onClick={() => setReviewModal({ open: true, order })}
                   disabled={reviewedOrders.includes(order.id)}
-                  className={`w-full py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all flex items-center justify-center gap-3 border ${
+                  className={`w-full py-4 rounded border-2 border-[#1c1712] font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 transform active:translate-y-1 ${
                     reviewedOrders.includes(order.id)
-                    ? 'bg-zinc-50 text-zinc-400 border-zinc-100 cursor-not-allowed'
-                    : 'bg-white text-ink border-primary-200 hover:bg-primary-500 hover:text-white hover:border-primary-500 shadow-sm'
+                    ? 'bg-zinc-100 text-zinc-400 cursor-not-allowed shadow-none'
+                    : 'bg-[#1c1712] text-[#fffaf3] shadow-[4px_4px_0px_#b98c52] hover:bg-[#b98c52] hover:text-[#1c1712]'
                   }`}
                 >
                   {reviewedOrders.includes(order.id) ? 'Opinión Registrada' : (
@@ -339,12 +342,12 @@ export const ClientHistory = () => {
                     </>
                   )}
                 </button>
-              </Card>
+              </div>
             </motion.div>
           ))}
           {completedOrders.length === 0 && (
-            <div className="col-span-full py-20 bg-primary-50/30 rounded-[3rem] border-2 border-dashed border-primary-100 text-center">
-               <p className="text-muted-brown font-black uppercase tracking-[0.4em] text-[10px]">No hay pedidos pendientes de calificación</p>
+            <div className="col-span-full py-20 bg-[#fffaf3] rounded-xl border-2 border-dashed border-[#1c1712] text-center">
+               <p className="text-[#1c1712] font-black uppercase tracking-[0.4em] text-[10px]">No hay pedidos pendientes de calificación</p>
             </div>
           )}
         </div>

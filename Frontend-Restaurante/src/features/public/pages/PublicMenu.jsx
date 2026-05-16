@@ -30,7 +30,8 @@ import {
   UtensilsCrossed,
   ArrowLeft,
   Home,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  LayoutGrid,
 } from 'lucide-react';
 
 export const PublicMenu = () => {
@@ -379,7 +380,7 @@ export const PublicMenu = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fcf8f2] pb-32 font-outfit selection:bg-[#d7b77f]/30">
+    <div className="min-h-screen bg-[#fffaf3] font-outfit selection:bg-[#d7b77f]/30 flex flex-col">
       {/* ── STICKY NAV HEADER ────────────────────────────────────────────────── */}
       <nav className="fixed top-0 inset-x-0 z-[60] px-4 md:px-6 py-5 pointer-events-none">
         <div className="w-full flex items-center justify-between pointer-events-auto">
@@ -387,9 +388,9 @@ export const PublicMenu = () => {
             initial={{ x: -30, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             onClick={() => window.location.href = '/dashboard'}
-            className="flex items-center gap-3 px-6 py-3.5 bg-white/90 backdrop-blur-3xl border border-[#caa56d]/30 rounded-2xl shadow-[0_15px_40px_rgba(28,23,18,0.08)] text-[10px] font-black uppercase tracking-[0.3em] text-[#1c1712] transition-all hover:scale-105 hover:border-[#caa56d] active:scale-95 group"
+            className="flex items-center gap-3 px-6 py-3.5 bg-[#fffaf3] border-2 border-[#1c1712] rounded shadow-[4px_4px_0px_#1c1712] text-[10px] font-black uppercase tracking-[0.3em] text-[#1c1712] transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0px_#1c1712] active:translate-y-1 active:shadow-none group"
           >
-            <ArrowLeft className="w-4 h-4 text-[#caa56d] group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-4 h-4 text-[#1c1712] group-hover:-translate-x-1 transition-transform" />
             <span>Volver</span>
           </motion.button>
 
@@ -398,9 +399,9 @@ export const PublicMenu = () => {
               initial={{ x: 30, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               onClick={() => window.location.href = '/dashboard/profile'}
-              className="flex items-center justify-center w-12 h-12 bg-white/90 backdrop-blur-3xl border border-[#caa56d]/30 rounded-2xl shadow-[0_15px_40px_rgba(28,23,18,0.08)] text-[#1c1712] transition-all hover:scale-105 hover:border-[#caa56d] active:scale-95"
+              className="flex items-center justify-center w-12 h-12 bg-[#fffaf3] border-2 border-[#1c1712] rounded shadow-[4px_4px_0px_#1c1712] text-[#1c1712] transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0px_#1c1712] active:translate-y-1 active:shadow-none"
             >
-              <Users className="w-5 h-5 text-[#caa56d]" />
+              <Users className="w-5 h-5 text-[#1c1712]" />
             </motion.button>
           </div>
         </div>
@@ -424,7 +425,7 @@ export const PublicMenu = () => {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, ease: [0.23, 1, 0.32, 1] }}
-            className="w-28 h-28 md:w-40 md:h-40 bg-white rounded-[3rem] p-1.5 shadow-[0_40px_100px_rgba(0,0,0,0.15)] mb-8 border border-[#dcc7a5] backdrop-blur-xl ring-8 ring-[#d7b77f]/5 overflow-hidden"
+            className="w-28 h-28 md:w-40 md:h-40 bg-[#fffaf3] rounded border-2 border-[#1c1712] p-1.5 shadow-[8px_8px_0px_#1c1712] mb-8 overflow-hidden"
           >
             <img src={restaurant.logo_url} className="w-full h-full object-contain" alt="Logo" />
           </motion.div>
@@ -435,10 +436,10 @@ export const PublicMenu = () => {
             transition={{ delay: 0.3, duration: 0.8 }}
             className="text-center"
           >
-            <p className="text-[10px] md:text-[12px] font-black text-[#caa56d] uppercase tracking-[0.6em] mb-4">Experiencia Exclusiva</p>
-            <h1 className="text-5xl md:text-8xl lg:text-9xl font-black text-[#1c1712] tracking-tighter uppercase leading-[0.85] mb-8">
+            <p className="text-[10px] md:text-[12px] font-black text-[#b98c52] uppercase tracking-[0.6em] mb-4 bg-[#fffaf3] inline-block px-4 py-1 border-2 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]">Experiencia Exclusiva</p>
+            <h1 className="text-5xl md:text-8xl lg:text-9xl font-black text-[#fffaf3] tracking-tighter uppercase leading-[0.85] mb-8" style={{ textShadow: '4px 4px 0px #1c1712' }}>
               {restaurant.name.split(' ').map((word, i) => (
-                <span key={i} className={i % 2 !== 0 ? "text-[#caa56d]" : ""}>{word} </span>
+                <span key={i} className={i % 2 !== 0 ? "text-[#b98c52]" : ""}>{word} </span>
               ))}
             </h1>
           </motion.div>
@@ -449,39 +450,39 @@ export const PublicMenu = () => {
             transition={{ delay: 0.6 }}
             className="flex flex-wrap justify-center gap-4"
           >
-            <div className="px-8 py-3.5 bg-white border border-[#caa56d]/30 rounded-2xl shadow-[0_15px_40px_rgba(28,23,18,0.06)] flex items-center gap-3">
-              <div className="flex text-[#caa56d]">
+            <div className="px-8 py-3.5 bg-[#fffaf3] border-2 border-[#1c1712] rounded shadow-[4px_4px_0px_#1c1712] flex items-center gap-3">
+              <div className="flex text-[#1c1712]">
                 {[...Array(1)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
               </div>
               <span className="text-[11px] font-black text-[#1c1712] uppercase tracking-widest">{restaurant.rating || '4.9'} Score</span>
             </div>
-            <div className="px-8 py-3.5 bg-[#1c1712] rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.15)] flex items-center gap-3 border border-[#caa56d]/20">
-              <MapPin className="w-4 h-4 text-[#caa56d]" />
-              <span className="text-[11px] font-black text-white uppercase tracking-widest">{restaurant.category}</span>
+            <div className="px-8 py-3.5 bg-[#1c1712] border-2 border-[#1c1712] text-[#fffaf3] rounded shadow-[4px_4px_0px_#b98c52] flex items-center gap-3">
+              <MapPin className="w-4 h-4 text-[#b98c52]" />
+              <span className="text-[11px] font-black uppercase tracking-widest">{restaurant.category}</span>
             </div>
           </motion.div>
         </div>
       </div>
 
       {/* ── CATEGORIES NAV ───────────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-50 bg-[#fcf8f2]/80 backdrop-blur-3xl border-b border-[#dcc7a5]/50 px-4 md:px-8 py-6 md:py-8 shadow-[0_20px_60px_rgba(110,80,45,0.05)]">
-        <div className="max-w-7xl mx-auto flex gap-4 overflow-x-auto scrollbar-hide px-2 md:px-0">
+      <div className="sticky top-0 z-50 bg-[#fffaf3] border-b-2 border-[#1c1712] px-4 md:px-8 py-6 md:py-8 shadow-[0_10px_0px_#1c1712]">
+        <div className="max-w-7xl mx-auto flex gap-4 overflow-x-auto scrollbar-hide px-2 md:px-0 py-2">
           <button
             onClick={() => setActiveCategory(null)}
-            className={`px-10 py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 transform active:scale-95 border ${!activeCategory
-                ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white shadow-[0_20px_50px_rgba(185,140,82,0.15)] border-primary-300'
-                : 'bg-white text-ink border-primary-200 hover:border-primary-400'
+            className={`px-8 py-4 rounded text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 transform active:translate-y-1 border-2 border-[#1c1712] flex items-center gap-2 ${!activeCategory
+                ? 'bg-[#1c1712] text-[#fffaf3] shadow-[4px_4px_0px_#b98c52]'
+                : 'bg-[#fffaf3] text-[#1c1712] hover:-translate-y-1 hover:shadow-[4px_4px_0px_#1c1712] active:shadow-none'
               }`}
           >
-            🍽️ Ver Todo
+            <LayoutGrid className="w-4 h-4" /> Ver Todo
           </button>
           {menus.map((m) => (
             <button
               key={m.id}
               onClick={() => setActiveCategory(m.id)}
-              className={`px-10 py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 transform active:scale-95 border ${activeCategory === m.id
-                  ? 'bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white shadow-[0_20px_50px_rgba(185,140,82,0.15)] border-primary-300'
-                  : 'bg-white text-ink border-primary-200 hover:border-primary-400'
+              className={`px-8 py-4 rounded text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 transform active:translate-y-1 border-2 border-[#1c1712] ${activeCategory === m.id
+                  ? 'bg-[#1c1712] text-[#fffaf3] shadow-[4px_4px_0px_#b98c52]'
+                  : 'bg-[#fffaf3] text-[#1c1712] hover:-translate-y-1 hover:shadow-[4px_4px_0px_#1c1712] active:shadow-none'
                 }`}
             >
               {m.name}
@@ -495,22 +496,22 @@ export const PublicMenu = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-br from-[#d7b77f] to-[#b98c52] rounded-[3rem] md:rounded-[4rem] p-6 md:p-12 shadow-[0_30px_100px_rgba(185,140,82,0.2)] border border-primary-300 relative overflow-hidden group"
+          className="bg-[#b98c52] rounded-xl p-6 md:p-12 shadow-[8px_8px_0px_#1c1712] border-2 border-[#1c1712] relative overflow-hidden group"
         >
           <div className="absolute top-0 right-0 p-4 md:p-8 opacity-20">
-            <Calendar className="w-20 h-20 md:w-32 md:h-32 text-white" />
+            <Calendar className="w-20 h-20 md:w-32 md:h-32 text-[#1c1712]" />
           </div>
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-10">
             <div>
-              <span className="text-[10px] font-black text-white uppercase tracking-[0.4em] mb-4 block">Reservas Exclusivas</span>
-              <h2 className="text-4xl font-black text-ink tracking-tighter uppercase leading-[1.1]">Asegura tu <span className="text-white">Experiencia</span></h2>
-              <p className="text-white mt-4 font-bold uppercase tracking-widest text-[10px]">Atención personalizada y las mejores ubicaciones garantizadas.</p>
+              <span className="text-[10px] font-black text-[#1c1712] uppercase tracking-[0.4em] mb-4 block bg-[#fffaf3] w-fit px-3 py-1 border-2 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]">Reservas Exclusivas</span>
+              <h2 className="text-4xl font-black text-[#1c1712] tracking-tighter uppercase leading-[1.1]">Asegura tu <span className="text-[#fffaf3]" style={{ textShadow: '2px 2px 0px #1c1712' }}>Experiencia</span></h2>
+              <p className="text-[#1c1712] mt-4 font-bold uppercase tracking-widest text-[10px]">Atención personalizada y las mejores ubicaciones garantizadas.</p>
             </div>
             <button
               onClick={() => setReservationOpen(true)}
-              className="px-12 py-6 rounded-2xl bg-ink text-white font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-2xl border border-ink/50"
+              className="px-12 py-6 rounded bg-[#1c1712] text-[#fffaf3] font-black uppercase tracking-widest text-xs hover:-translate-y-1 active:translate-y-1 transition-all shadow-[6px_6px_0px_#fffaf3] hover:shadow-[8px_8px_0px_#fffaf3] active:shadow-none border-2 border-[#1c1712] flex items-center gap-2"
             >
-              Reservar Mesa ✨
+              Reservar Mesa <Sparkles className="w-4 h-4" />
             </button>
           </div>
         </motion.div>
@@ -525,81 +526,96 @@ export const PublicMenu = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center"
           >
             {categoryItems.length > 0 ? (
-              categoryItems.map((item) => (
-                <div
+              categoryItems.map((item, index) => (
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
                   key={item.id}
-                  className="group relative bg-white rounded-[3rem] overflow-hidden border border-[#caa56d]/20 hover:border-[#caa56d]/50 transition-all duration-500 shadow-[0_30px_100px_rgba(28,23,18,0.06)] hover:shadow-[0_40px_120px_rgba(202,165,109,0.12)] hover:-translate-y-2"
+                  className="group flex flex-col p-4 bg-[#fffaf3] border-2 border-[#1c1712] rounded-lg shadow-[6px_6px_0px_#1c1712] hover:-translate-y-1 hover:shadow-[8px_8px_0px_#1c1712] transition-all duration-300 w-full max-w-[280px]"
                 >
-                  <div className="relative h-56 md:h-72 overflow-hidden">
+                  <div className="w-full h-40 rounded border-2 border-[#1c1712] overflow-hidden relative flex items-center justify-center bg-white mb-4">
                     {item.image_url ? (
                       <img
                         src={item.image_url}
-                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         alt={item.name}
                       />
                     ) : (
-                      <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
-                        <ChefHat className="w-16 h-16 text-zinc-800" />
+                      <div className="w-full h-full bg-[#fcf8f2] flex items-center justify-center">
+                        <span className="font-black text-[#dcc7a5] tracking-widest uppercase">Sin Imagen</span>
                       </div>
                     )}
-                    <div className="absolute top-8 right-8 bg-black/60 backdrop-blur-xl px-6 py-3 rounded-2xl shadow-2xl border border-[#dcc7a5]/20">
-                      <span className="font-black text-white text-xl">Q{item.price}</span>
-                    </div>
-                  </div>
-
-                  <div className="p-6 md:p-10">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-3xl font-black text-[#1c1712] tracking-tight uppercase group-hover:text-[#caa56d] transition-colors">{item.name}</h3>
-                    </div>
-
-                    <p className="text-[11px] text-[#6b5e4e] font-bold uppercase tracking-widest leading-relaxed mb-8 line-clamp-3">
-                      {item.description || 'Una obra maestra culinaria preparada con ingredientes de la más alta calidad para su deleite.'}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2 mb-10">
+                    {/* Badges Flotantes */}
+                    <div className="absolute top-3 right-3 flex flex-col gap-2">
                       {item.is_vegetarian && (
-                        <span className="px-4 py-1.5 bg-emerald-500/5 text-emerald-400 border border-emerald-500/20 rounded-full text-[9px] font-black tracking-widest uppercase">Veggie</span>
+                        <span className="bg-[#b98c52] text-[#fffaf3] border-2 border-[#1c1712] px-2 py-1 text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_#1c1712]">Veggie</span>
                       )}
                       {!item.is_available && (
-                        <span className="px-4 py-1.5 bg-red-500/5 text-red-400 border border-red-500/20 rounded-full text-[9px] font-black tracking-widest uppercase italic">No Disponible</span>
+                        <span className="bg-red-500 text-white border-2 border-[#1c1712] px-2 py-1 text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_#1c1712]">Agotado</span>
                       )}
                     </div>
+                  </div>
 
+                  <div className="flex flex-col mb-4">
+                    <h3 className="text-xl font-black text-[#1c1712] text-center uppercase tracking-tight line-clamp-2">{item.name}</h3>
+                    <p className="text-xs font-medium text-zinc-600 text-center mt-2 line-clamp-2 leading-relaxed px-2">
+                      {item.description || 'Una experiencia culinaria inigualable.'}
+                    </p>
+                  </div>
+
+                  <div className="mt-auto">
                     {item.is_available && (
-                      <div className="space-y-6">
-                        <div className="flex items-center gap-4 bg-black/40 rounded-3xl p-2 border border-zinc-900">
-                          <input
-                            type="text"
-                            placeholder="Instrucciones especiales..."
-                            value={itemNotes[item.id] || ''}
-                            onChange={(e) => setItemNotes(prev => ({ ...prev, [item.id]: e.target.value }))}
-                            className="flex-1 bg-transparent border-none text-[10px] font-bold text-zinc-400 placeholder:text-zinc-800 focus:ring-0 px-4"
-                          />
-                          <div className="flex bg-zinc-900 rounded-2xl items-center p-1 border border-zinc-800">
+                      <div className="flex flex-col gap-3">
+                        <input
+                          type="text"
+                          placeholder="Notas especiales..."
+                          value={itemNotes[item.id] || ''}
+                          onChange={(e) => setItemNotes(prev => ({ ...prev, [item.id]: e.target.value }))}
+                          className="w-full h-9 bg-white border-2 border-[#1c1712] rounded shadow-[2px_2px_0px_#1c1712] text-[10px] font-bold text-[#1c1712] placeholder:text-zinc-400 px-3 outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none transition-all"
+                        />
+
+                        {/* Footer de la tarjeta con Precio, Cantidad y Botón SVG */}
+                        <div className="flex justify-between items-center mt-1">
+                          
+                          {/* Controles de Cantidad */}
+                          <div className="flex items-center h-9 border-2 border-[#1c1712] rounded bg-[#fffaf3] overflow-hidden shadow-[2px_2px_0px_#1c1712]">
                             <button
                               onClick={() => handleQuantityChange(item.id, -1)}
-                              className="w-10 h-10 text-white hover:text-[#b98c52] font-black text-lg transition-colors"
+                              className="w-7 h-full flex items-center justify-center font-black text-[#1c1712] hover:bg-[#b98c52] hover:text-white transition-colors border-r-2 border-[#1c1712]"
                             >-</button>
-                            <span className="w-10 text-center font-black text-sm text-white">{itemQuantities[item.id] || 1}</span>
+                            <span className="w-6 text-center font-black text-xs text-[#1c1712]">{itemQuantities[item.id] || 1}</span>
                             <button
                               onClick={() => handleQuantityChange(item.id, 1)}
-                              className="w-10 h-10 text-white hover:text-[#b98c52] font-black text-lg transition-colors"
+                              className="w-7 h-full flex items-center justify-center font-black text-[#1c1712] hover:bg-[#1c1712] hover:text-white transition-colors border-l-2 border-[#1c1712]"
                             >+</button>
                           </div>
+
+                          <div className="flex items-center gap-2">
+                            <div className="text-xl font-black text-[#1c1712]">
+                              <span className="text-zinc-500 text-sm mr-0.5 font-bold">Q</span>{item.price}
+                            </div>
+                            
+                            <button
+                              onClick={() => handleAddToCart(item)}
+                              className="h-9 px-3 bg-[#fffaf3] border-2 border-[#1c1712] rounded transition-all hover:border-[#b98c52] active:translate-y-1 group flex items-center justify-center shadow-[2px_2px_0px_#1c1712] hover:shadow-none"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="w-4 h-4 fill-[#1c1712] group-hover:fill-[#b98c52] transition-colors">
+                                <path d="m397.78 316h-205.13a15 15 0 0 1 -14.65-11.67l-34.54-150.48a15 15 0 0 1 14.62-18.36h274.27a15 15 0 0 1 14.65 18.36l-34.6 150.48a15 15 0 0 1 -14.62 11.67zm-193.19-30h181.25l27.67-120.48h-236.6z" />
+                                <path d="m222 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z" />
+                                <path d="m368.42 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z" />
+                                <path d="m158.08 165.49a15 15 0 0 1 -14.23-10.26l-25.71-77.23h-47.44a15 15 0 1 1 0-30h58.3a15 15 0 0 1 14.23 10.26l29.13 87.49a15 15 0 0 1 -14.23 19.74z" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
-                        <button
-                          onClick={() => handleAddToCart(item)}
-                          className="w-full py-5 bg-[#1c1712] text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.4em] transition-all shadow-xl shadow-black/10 flex items-center justify-center gap-3 hover:bg-[#2b2015] active:scale-[0.98] border border-[#caa56d]/30"
-                        >
-                          <ShoppingBag className="w-4 h-4" /> Añadir a la Orden
-                        </button>
                       </div>
                     )}
                   </div>
-                </div>
+                </motion.div>
               ))
             ) : (
               <div className="col-span-full py-32 text-center bg-zinc-900/20 rounded-[4rem] border border-dashed border-zinc-800">
@@ -653,16 +669,16 @@ export const PublicMenu = () => {
       </div>
 
       {/* ── REVIEWS SECTION ─────────────────────────────────────────────────────── */}
-      <div className="max-w-6xl mx-auto px-4 md:px-8 pt-32">
+      <div className="max-w-6xl mx-auto px-4 md:px-8 pt-32 mb-20">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6 md:gap-8">
           <div className="max-w-2xl">
-            <span className="text-[10px] font-black text-[#caa56d] uppercase tracking-[0.4em] mb-4 block">Comunidad Gourmet</span>
-            <h2 className="text-5xl md:text-7xl font-black text-[#1c1712] tracking-tighter uppercase leading-[0.85]">Ecos de <span className="text-[#caa56d]">Paladares</span></h2>
+            <span className="text-[10px] font-black text-[#b98c52] uppercase tracking-[0.4em] mb-4 block bg-[#fffaf3] w-fit px-3 py-1 border-2 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]">Comunidad Gourmet</span>
+            <h2 className="text-5xl md:text-7xl font-black text-[#1c1712] tracking-tighter uppercase leading-[0.85]">Ecos de <span className="text-[#fffaf3]" style={{ textShadow: '3px 3px 0px #1c1712, -1px -1px 0 #1c1712, 1px -1px 0 #1c1712, -1px 1px 0 #1c1712, 1px 1px 0 #1c1712' }}>Paladares</span></h2>
           </div>
-          <div className="flex items-center gap-4 bg-white border border-[#caa56d]/30 px-8 py-5 rounded-[2rem] shadow-[0_20px_50px_rgba(28,23,18,0.05)]">
+          <div className="flex items-center gap-4 bg-[#fffaf3] border-2 border-[#1c1712] px-8 py-5 rounded shadow-[6px_6px_0px_#1c1712]">
             <span className="text-4xl font-black text-[#1c1712] leading-none">{reviewAverage}</span>
-            <div className="flex text-[#caa56d]">
-              {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current" />)}
+            <div className="flex text-[#1c1712]">
+              {[...Array(5)].map((_, i) => <Star key={i} className={`w-5 h-5 ${i < Math.round(reviewAverage) ? 'fill-[#b98c52]' : 'opacity-20'}`} />)}
             </div>
           </div>
         </div>
@@ -680,22 +696,22 @@ export const PublicMenu = () => {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                   key={rev.id}
-                  className="bg-white/80 backdrop-blur-3xl p-6 md:p-10 rounded-[2.5rem] border border-primary-100 hover:border-primary-400 transition-all group shadow-sm hover:shadow-gold h-full flex flex-col"
+                  className="bg-[#fffaf3] p-6 md:p-8 rounded border-2 border-[#1c1712] hover:-translate-y-1 transition-all group shadow-[6px_6px_0px_#1c1712] hover:shadow-[8px_8px_0px_#1c1712] flex flex-col"
                 >
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-10 h-10 md:w-12 md:h-12 bg-primary-50 rounded-2xl flex items-center justify-center font-black text-primary-600 text-sm border border-primary-200">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-[#b98c52] rounded flex items-center justify-center font-black text-[#fffaf3] text-sm border-2 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]">
                       {reviewerInitial}
                     </div>
                     <div>
-                      <p className="text-sm font-black text-ink uppercase tracking-tight">{reviewerLabel}</p>
-                      <div className="flex text-primary-500 scale-75 origin-left">
+                      <p className="text-sm font-black text-[#1c1712] uppercase tracking-tight">{reviewerLabel}</p>
+                      <div className="flex text-[#1c1712] scale-75 origin-left">
                         {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < rev.rating ? 'fill-current' : 'opacity-20'}`} />
+                          <Star key={i} className={`w-4 h-4 ${i < rev.rating ? 'fill-[#b98c52]' : 'opacity-20'}`} />
                         ))}
                       </div>
                     </div>
                   </div>
-                  <p className="text-[11px] text-muted-brown font-bold italic leading-relaxed uppercase tracking-wider mt-auto">
+                  <p className="text-[11px] text-zinc-600 font-bold italic leading-relaxed uppercase tracking-wider mt-auto">
                     "{rev.comment || 'Una experiencia memorable que vale la pena repetir.'}"
                   </p>
                 </motion.div>
@@ -703,48 +719,46 @@ export const PublicMenu = () => {
             })}
           </div>
         ) : (
-          <div className="rounded-[3rem] border border-dashed border-primary-200 bg-primary-50/30 p-10 md:p-16 text-center backdrop-blur-3xl mb-20">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary-600 mb-4">Sin reseñas aún</p>
-            <h3 className="text-3xl md:text-4xl font-black tracking-tighter uppercase text-ink">Sé el primero en dejar huella</h3>
-            <p className="mt-4 text-muted-brown font-medium max-w-2xl mx-auto">
+          <div className="rounded border-2 border-[#1c1712] bg-[#fffaf3] p-10 md:p-16 text-center mb-20 shadow-[8px_8px_0px_#1c1712]">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#b98c52] mb-4 bg-[#1c1712] w-fit mx-auto px-3 py-1 shadow-[2px_2px_0px_#b98c52]">Sin reseñas aún</p>
+            <h3 className="text-3xl md:text-4xl font-black tracking-tighter uppercase text-[#1c1712]">Sé el primero en dejar huella</h3>
+            <p className="mt-4 text-zinc-600 font-medium max-w-2xl mx-auto">
               Cuando aparezcan las primeras reseñas, esta sección se transformará en una vitrina viva de experiencia real.
             </p>
           </div>
         )}
       </div>
 
-      {/* ── FOOTER PREMIUM "LA INSTANCIA" STYLE ───────────────────────────────────── */}
-      <footer className="mt-48 px-8 py-24 bg-[#1c1408] border-t border-[#dcc7a5]/20 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#b98c52]/10 to-transparent pointer-events-none" />
+      {/* ── FOOTER PREMIUM NEOBRUTALIST ───────────────────────────────────── */}
+      <footer className="px-8 py-24 bg-[#1c1712] border-t-4 border-[#b98c52] relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-2 bg-[#fffaf3]" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="mb-12 relative flex justify-center items-center">
-            <div className="absolute w-full h-[1px] bg-gradient-to-r from-transparent via-[#b98c52]/30 to-transparent" />
-            <div className="bg-[#1c1408] px-6 relative">
-              <ChefHat className="w-12 h-12 text-[#b98c52]" />
+            <div className="bg-[#b98c52] px-6 py-4 relative border-2 border-[#fffaf3] shadow-[4px_4px_0px_#fffaf3]">
+              <ChefHat className="w-12 h-12 text-[#1c1712]" />
             </div>
           </div>
           
-          <h2 className="text-4xl md:text-5xl font-medium text-[#fcf8f2] tracking-wide mb-6 font-serif">{restaurant.name}</h2>
+          <h2 className="text-4xl md:text-5xl font-black text-[#fffaf3] tracking-widest mb-6 uppercase" style={{ textShadow: '4px 4px 0px #b98c52' }}>{restaurant.name}</h2>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-12 mb-16">
-            <div className="flex items-center gap-3 text-[#dcc7a5]/80 hover:text-[#dcc7a5] transition-colors">
+            <div className="flex items-center gap-3 text-[#fffaf3] bg-[#fffaf3]/10 px-4 py-2 border-2 border-[#fffaf3]">
               <MapPin className="w-4 h-4 text-[#b98c52]" />
-              <span className="text-sm tracking-widest uppercase">{restaurant.address}</span>
+              <span className="text-[10px] font-black tracking-widest uppercase">{restaurant.address}</span>
             </div>
-            <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-[#b98c52]/50" />
-            <div className="flex items-center gap-3 text-[#dcc7a5]/80 hover:text-[#dcc7a5] transition-colors">
+            <div className="flex items-center gap-3 text-[#fffaf3] bg-[#fffaf3]/10 px-4 py-2 border-2 border-[#fffaf3]">
               <Phone className="w-4 h-4 text-[#b98c52]" />
-              <span className="text-sm tracking-widest uppercase">{restaurant.phone}</span>
+              <span className="text-[10px] font-black tracking-widest uppercase">{restaurant.phone}</span>
             </div>
           </div>
 
-          <div className="pt-12 border-t border-[#dcc7a5]/10 flex flex-col items-center gap-8">
+          <div className="pt-12 border-t-2 border-[#fffaf3]/20 flex flex-col items-center gap-8">
             <div className="flex gap-10">
-              <a href="#" className="text-[#b98c52] hover:text-[#fcf8f2] transition-colors font-bold text-[10px] uppercase tracking-[0.2em]">Instagram</a>
-              <a href="#" className="text-[#b98c52] hover:text-[#fcf8f2] transition-colors font-bold text-[10px] uppercase tracking-[0.2em]">Facebook</a>
-              <a href="#" className="text-[#b98c52] hover:text-[#fcf8f2] transition-colors font-bold text-[10px] uppercase tracking-[0.2em]">Reservas</a>
+              <a href="#" className="text-[#b98c52] hover:text-[#fffaf3] transition-colors font-black text-[10px] uppercase tracking-[0.2em] hover:-translate-y-1">Instagram</a>
+              <a href="#" className="text-[#b98c52] hover:text-[#fffaf3] transition-colors font-black text-[10px] uppercase tracking-[0.2em] hover:-translate-y-1">Facebook</a>
+              <a href="#" className="text-[#b98c52] hover:text-[#fffaf3] transition-colors font-black text-[10px] uppercase tracking-[0.2em] hover:-translate-y-1">Reservas</a>
             </div>
-            <p className="text-[#dcc7a5]/40 text-[9px] font-medium tracking-[0.4em] uppercase">Powered by BuenProvecho Premium OS</p>
+            <p className="text-[#fffaf3] bg-[#1c1712] border-2 border-[#fffaf3] px-4 py-2 text-[9px] font-black tracking-[0.4em] uppercase shadow-[4px_4px_0px_#b98c52]">Powered by BuenProvecho Neo-OS</p>
           </div>
         </div>
       </footer>

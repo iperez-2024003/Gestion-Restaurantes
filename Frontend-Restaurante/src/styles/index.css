@@ -25,10 +25,7 @@
     font-family: 'Outfit', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--color-primary-50);
-    background-image: 
-      radial-gradient(circle at 0% 0%, rgba(202, 165, 109, 0.08) 0%, transparent 40%),
-      radial-gradient(circle at 100% 100%, rgba(241, 228, 205, 0.4) 0%, transparent 40%);
+    background-color: #fffaf3;
     @apply text-ink;
   }
   

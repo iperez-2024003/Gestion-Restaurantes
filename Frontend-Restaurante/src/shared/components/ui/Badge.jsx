@@ -2,15 +2,15 @@ import React from 'react';
 
 export const Badge = ({ children, variant = 'primary', className = '' }) => {
   const variants = {
-    primary: 'bg-primary-100 text-primary-700',
-    success: 'bg-green-50 text-green-700',
-    danger: 'bg-red-50 text-red-700',
-    warning: 'bg-amber-50 text-amber-700',
-    ink: 'bg-ink text-white'
+    primary: 'bg-[#fffaf3] text-[#1c1712] border-2 border-[#1c1712] shadow-[2px_2px_0px_#b98c52]',
+    success: 'bg-[#22c55e] text-[#fffaf3] border-2 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]',
+    danger: 'bg-[#ef4444] text-[#fffaf3] border-2 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]',
+    warning: 'bg-[#f59e0b] text-[#1c1712] border-2 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]',
+    ink: 'bg-[#1c1712] text-[#fffaf3] border-2 border-[#1c1712] shadow-[2px_2px_0px_#b98c52]'
   };
 
   return (
-    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${variants[variant]} ${className}`}>
+    <span className={`px-4 py-1 rounded-none text-[10px] font-black uppercase tracking-[0.2em] ${variants[variant]} ${className}`}>
       {children}
     </span>
   );

@@ -48,27 +48,41 @@ export const CategoryModal = ({ isOpen, onClose, restaurantId }) => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-[#fefcf8] rounded-[3rem] md:rounded-[4rem] p-8 md:p-12 border border-primary-200 shadow-gold w-full max-w-md relative my-auto"
+        className="bg-[#fffdf8] rounded-[3rem] md:rounded-[3.75rem] border border-[#dcc7a5]/70 shadow-[0_30px_80px_rgba(33,24,14,0.18)] w-full max-w-md relative my-auto overflow-hidden"
       >
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary-400 to-primary-600"></div>
-        
-        {/* Header */}
-        <div className="mb-10 flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-black text-primary-600 uppercase tracking-[0.4em] mb-2 block">Gestión de Menú</span>
-            <h2 className="text-3xl font-black text-ink tracking-tighter uppercase leading-none">
-              Nueva <span className="text-primary-500">Categoría</span>
-            </h2>
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#b98c52] via-[#dcc7a5] to-[#8b6435]" />
+
+        <div className="relative px-8 md:px-10 pt-10 pb-8 bg-[linear-gradient(180deg,#fffdf8_0%,#fcf7ee_100%)] border-b border-[#ead8bd]/70">
+          <div className="absolute top-6 right-6">
+            <button 
+              onClick={onClose} 
+              className="w-10 h-10 rounded-2xl bg-white/90 text-[#8b6435] hover:bg-[#b98c52] hover:text-white transition-all shadow-[0_10px_24px_rgba(185,140,82,0.16)] border border-[#ead8bd] flex items-center justify-center"
+            >
+              <X className="w-4.5 h-4.5" />
+            </button>
           </div>
-          <button 
-            onClick={onClose} 
-            className="p-3 rounded-2xl bg-primary-100 text-primary-600 hover:bg-primary-500 hover:text-white transition-all shadow-sm"
-          >
-            <X className="w-6 h-6" />
-          </button>
+
+          <div className="max-w-[80%]">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f3e4ca] text-[#8b6435] border border-[#dcc7a5] mb-4">
+              <FolderPlus className="w-3.5 h-3.5" />
+              <span className="text-[9px] font-black uppercase tracking-[0.35em]">Gestión de Menú</span>
+            </div>
+
+            <h2 className="text-3xl md:text-[2.75rem] font-black text-ink tracking-tighter uppercase leading-[0.9]">
+              Nueva <span className="text-[#b98c52]">Categoría</span>
+            </h2>
+
+            <p className="mt-3 text-[11px] md:text-xs font-medium text-zinc-500 leading-relaxed max-w-[28rem]">
+              Ordena tu carta con categorías limpias para entradas, bebidas, fondos o especialidades.
+            </p>
+          </div>
+
+          <div className="absolute bottom-[-18px] right-8 w-24 h-24 rounded-full bg-[#fffaf3] border border-[#ead8bd] shadow-[0_10px_30px_rgba(33,24,14,0.08)] flex items-center justify-center">
+            <Type className="w-8 h-8 text-[#b98c52]" />
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="px-8 md:px-10 py-8 space-y-7">
           <Input
             label="Nombre de la Categoría"
             icon={Type}
@@ -79,12 +93,12 @@ export const CategoryModal = ({ isOpen, onClose, restaurantId }) => {
             autoFocus
           />
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-3">
             <Button
               type="button"
               variant="ghost"
               onClick={onClose}
-              className="flex-1 py-5 rounded-3xl"
+              className="flex-1 py-4 rounded-2xl border border-[#ead8bd] bg-white/90 hover:bg-[#fff8ee] text-sm"
             >
               Cancelar
             </Button>
@@ -92,7 +106,7 @@ export const CategoryModal = ({ isOpen, onClose, restaurantId }) => {
               type="submit"
               isLoading={loading}
               disabled={!name.trim()}
-              className="flex-1 py-5 rounded-3xl shadow-gold"
+              className="flex-1 py-4 rounded-2xl shadow-[0_18px_30px_rgba(185,140,82,0.18)] bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-sm"
             >
               <Zap className="w-4 h-4 mr-2" />
               Crear Categoría

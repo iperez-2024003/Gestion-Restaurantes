@@ -62,7 +62,7 @@ export const useOrderStore = create(
           get().clearCart();
           showSuccess('Pedido creado exitosamente');
           set({ loading: false });
-          return res.data;
+          return res.data.data;
         } catch (error) {
           set({ loading: false });
           showError(error.response?.data?.message || 'Error al crear el pedido');

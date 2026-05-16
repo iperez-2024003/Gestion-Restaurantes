@@ -3,9 +3,10 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { KeyRound, ArrowLeft, Loader2, Lock } from 'lucide-react';
-import { DarkVeil } from '../../../shared/components/ui/DarkVeil';
-import { BrandLogo } from '../../../shared/components/ui/BrandLogo';
+import { ArrowLeft, Lock, KeyRound, ShieldAlert } from 'lucide-react';
+import { Button } from '../../../shared/components/ui/Button';
+import { Input } from '../../../shared/components/ui/Input';
+import LogoBuenProvecho from '../../../assets/img/LogoBuenProvecho.png';
 
 export const ResetPasswordPage = () => {
   const [searchParams] = useSearchParams();
@@ -17,102 +18,77 @@ export const ResetPasswordPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!token) {
-      toast.error('Protocolo inválido: Token de seguridad no detectado.');
+      toast.error('Protocolo inválido: Token no detectado.');
       return;
     }
-
     if (newPassword !== confirmPassword) {
-      toast.error('Error de sincronización: Las contraseñas no coinciden.');
+      toast.error('Las contraseñas no coinciden.');
       return;
     }
 
     const result = await resetPassword(token, newPassword);
-
     if (result.success) {
-      toast.success(result.message || 'Credenciales actualizadas exitosamente.');
+      toast.success('Credenciales actualizadas exitosamente.');
       navigate('/login');
-    } else {
-      toast.error(result.error);
-    }
+    } else toast.error(result.error);
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden font-outfit bg-[#f7f1e7] text-zinc-900">
-      <DarkVeil baseColor="#f7f1e7" veilColor="#d7b77f" />
+    <div className="min-h-screen bg-[#fffaf3] flex items-center justify-center p-6 overflow-hidden relative font-outfit">
+      {/* Elementos Brutalistas */}
+      <div className="absolute top-[-5%] left-[-5%] w-64 h-64 bg-[#1c1712] opacity-5 border-4 border-[#1c1712] -z-0 rotate-12" />
+      <div className="absolute bottom-[-5%] right-[-5%] w-80 h-80 bg-[#b98c52] opacity-10 border-8 border-[#1c1712] -z-0 -rotate-6" />
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 w-full max-w-md p-8">
-        <div className="bg-white/80 backdrop-blur-3xl p-12 rounded-[3rem] border border-[#dcc7a5]/70 shadow-[0_30px_100px_rgba(110,80,45,0.14)]">
-          <div className="flex justify-center mb-8">
-            <BrandLogo size="md" className="w-full max-w-[18rem]" imageClassName="p-0" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative z-10 w-full max-w-md"
+      >
+        <div className="bg-white border-4 border-[#1c1712] p-8 md:p-12 shadow-[16px_16px_0px_#1c1712] text-center relative">
+          <div className="absolute -top-6 -right-6 bg-[#ef4444] border-4 border-[#1c1712] p-4 shadow-[4px_4px_0px_#1c1712] animate-pulse">
+            <ShieldAlert size={32} className="text-white" />
           </div>
 
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-black text-zinc-900 tracking-tighter uppercase mb-2">
-              Nueva <span className="text-[#b98c52]">Credencial</span>
-            </h2>
-            <p className="text-zinc-600 font-bold text-[11px] uppercase tracking-widest leading-relaxed">
-              Define tu nueva llave de acceso para restaurar la integridad de tu cuenta.
+          <img src={LogoBuenProvecho} alt="Logo" className="h-12 mx-auto mb-10" />
+
+          <div className="mb-10">
+            <h1 className="text-3xl font-black text-[#1c1712] uppercase tracking-tighter leading-none mb-4">
+              Reset <span className="text-[#b98c52]">Password</span>
+            </h1>
+            <p className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500">
+              Define tu nueva llave de acceso para restaurar la seguridad.
             </p>
           </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-4" htmlFor="newPassword">
-                Nueva Contraseña
-              </label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-[#b98c52] transition-colors">
-                  <KeyRound className="w-4 h-4" />
-                </div>
-                <input
-                  id="newPassword"
-                  type="password"
-                  required
-                  minLength="8"
-                  className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl py-4 pl-14 pr-6 text-zinc-900 text-sm focus:border-[#b98c52] focus:ring-1 focus:ring-[#d7b77f]/25 transition-all placeholder:text-zinc-500"
-                  placeholder="Mínimo 8 caracteres"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-4" htmlFor="confirmPassword">
-                Confirmar Identidad
-              </label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-[#b98c52] transition-colors">
-                  <Lock className="w-4 h-4" />
-                </div>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  required
-                  className="w-full bg-[#fffaf3] border border-[#dcc7a5] rounded-2xl py-4 pl-14 pr-6 text-zinc-900 text-sm focus:border-[#b98c52] focus:ring-1 focus:ring-[#d7b77f]/25 transition-all placeholder:text-zinc-500"
-                  placeholder="Repite tu contraseña"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="pt-4">
-              <button
-                type="submit"
-                disabled={isLoading || !token}
-                className="w-full py-5 rounded-2xl bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white font-black uppercase tracking-[0.3em] text-[10px] hover:to-[#a97d45] shadow-2xl shadow-[rgba(185,140,82,0.18)] transition-all border border-[#d7b77f]/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-              >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Actualizar Protocolo'}
-              </button>
-            </div>
+          <form className="space-y-8 text-left" onSubmit={handleSubmit}>
+            <Input
+              label="Nueva Contraseña"
+              icon={KeyRound}
+              type="password"
+              placeholder="••••••••"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+            <Input
+              label="Confirmar Nueva"
+              icon={Lock}
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+            <Button type="submit" isLoading={isLoading} className="w-full py-6">
+              Actualizar Acceso
+            </Button>
           </form>
 
-          <div className="mt-10 text-center">
-            <Link to="/login" className="text-[10px] font-black text-zinc-500 hover:text-[#8b6435] transition-colors uppercase tracking-[0.2em] flex items-center justify-center gap-2">
-              <ArrowLeft className="w-3 h-3 text-[#b98c52]" /> Volver al Portal de Acceso
+          <div className="mt-12 pt-8 border-t-4 border-[#1c1712]">
+            <Link to="/login" className="inline-flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-[#1c1712] hover:text-[#b98c52] transition-colors">
+              <ArrowLeft size={18} className="text-[#b98c52]" />
+              Cancelar Operación
             </Link>
           </div>
         </div>

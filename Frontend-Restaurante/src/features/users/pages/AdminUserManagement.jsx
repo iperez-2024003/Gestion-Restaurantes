@@ -124,12 +124,12 @@ export const AdminUserManagement = () => {
       <div className="max-w-4xl mx-auto">
         <Card className="p-8 md:p-12">
           <div className="flex items-center gap-6 mb-10">
-            <div className="w-16 h-16 bg-primary-100 text-primary-600 rounded-[1.5rem] flex items-center justify-center border border-primary-200">
+            <div className="w-16 h-16 bg-[#fffaf3] text-[#1c1712] rounded-none flex items-center justify-center border-2 border-[#1c1712] shadow-[4px_4px_0px_#b98c52]">
               <UserPlus size={32} />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-ink uppercase tracking-tight">Dar de Alta Gerente</h2>
-              <p className="text-[10px] font-black uppercase text-muted-brown tracking-[0.2em]">Asignación de administrador de sede oficial</p>
+              <h2 className="text-2xl font-black text-[#1c1712] uppercase tracking-tight">Dar de Alta Gerente</h2>
+              <p className="text-[10px] font-black uppercase text-zinc-500 tracking-[0.2em]">Asignación de administrador de sede oficial</p>
             </div>
           </div>
 
@@ -151,9 +151,9 @@ export const AdminUserManagement = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Input label="Contraseña Temporal" name="password" type="password" value={formData.password} onChange={handleChange} required icon={Lock} placeholder="••••••••" />
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase text-muted-brown tracking-widest ml-1">Rango del Perfil</label>
-                  <div className="h-11 px-4 bg-primary-100/50 rounded-xl border border-primary-200 text-primary-700 text-xs font-black flex items-center gap-3 uppercase tracking-widest">
-                    <ShieldCheck size={18} /> Gerente de Sede
+                  <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest ml-1">Rango del Perfil</label>
+                  <div className="h-11 px-4 bg-[#fffaf3] rounded-none border-2 border-[#1c1712] text-[#1c1712] text-xs font-black flex items-center gap-3 uppercase tracking-widest">
+                    <ShieldCheck size={18} className="text-[#b98c52]" /> Gerente de Sede
                   </div>
                 </div>
               </div>
@@ -166,7 +166,7 @@ export const AdminUserManagement = () => {
                 <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400" size={18} />
                 <select
                   name="restaurant_id" value={formData.restaurant_id} onChange={handleChange} required
-                  className="w-full h-11 pl-12 pr-4 bg-white border border-primary-200 rounded-xl text-sm font-bold text-ink outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all appearance-none cursor-pointer uppercase tracking-widest"
+                  className="w-full h-11 pl-12 pr-4 bg-white border-2 border-[#1c1712] rounded-none text-sm font-bold text-[#1c1712] outline-none focus:shadow-[4px_4px_0px_#b98c52] transition-all appearance-none cursor-pointer uppercase tracking-widest"
                 >
                   <option value="">Seleccionar Sede...</option>
                   {restaurants.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
@@ -191,10 +191,10 @@ export const AdminUserManagement = () => {
       {/* Tabla de Gerentes Existentes */}
       <div className="mt-16">
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-10 h-10 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center border border-primary-200">
+          <div className="w-10 h-10 bg-[#fffaf3] text-[#1c1712] rounded-none flex items-center justify-center border-2 border-[#1c1712] shadow-[3px_3px_0px_#b98c52]">
             <UserCheck size={20} />
           </div>
-          <h2 className="text-2xl font-black text-ink uppercase tracking-tight">Gerentes Asignados</h2>
+          <h2 className="text-2xl font-black text-[#1c1712] uppercase tracking-tight">Gerentes Asignados</h2>
         </div>
 
         {managersLoading ? (

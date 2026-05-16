@@ -11,6 +11,7 @@ import {
   Star,
   Trophy,
   Utensils,
+  LayoutGrid,
 } from 'lucide-react';
 import { useRestaurantStore } from '../../restaurants/store/useRestaurantStore';
 import { useAuthStore } from '../../auth/store/useAuthStore';
@@ -95,10 +96,11 @@ const FALLBACK_IMAGES = [
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#fcf8f2] text-[#2b2015]">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(215,183,127,0.18),transparent_42%),radial-gradient(circle_at_bottom_right,_rgba(139,100,53,0.08),transparent_38%)]" />
-      <div className="absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_top,_rgba(201,163,99,0.18),_transparent_52%)]" />
-      <div className="absolute inset-x-0 top-20 mx-auto h-72 w-[72rem] rounded-full bg-[#f1d7b1]/30 blur-3xl" />
+    <div className="relative min-h-screen bg-[#fffaf3] text-[#1c1712] font-outfit">
+      {/* ── BACKGROUND ACCENTS ── */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(185,140,82,0.1),transparent_50%)]" />
+      <div className="absolute inset-x-0 top-0 h-[420px] border-b-2 border-[#1c1712] opacity-5 pointer-events-none" />
+
 
       <div className="relative z-10 pt-16 md:pt-24 lg:pt-32 pb-16 md:pb-20 px-4 md:px-6 lg:px-0">
         <main className="flex min-w-0 flex-col gap-6 md:gap-10 max-w-7xl mx-auto">
@@ -107,85 +109,81 @@ const FALLBACK_IMAGES = [
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.25 }}
-          className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-[1.4fr_0.9fr]"
+          className="grid gap-6 md:gap-8 grid-cols-1 lg:grid-cols-[1.4fr_0.9fr]"
         >
-          <div className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] lg:rounded-[4rem] border border-white/70 bg-white/88 p-4 md:p-6 lg:p-10 shadow-[0_30px_100px_rgba(110,80,45,0.12)] backdrop-blur-2xl">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,183,127,0.2),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(139,100,53,0.08),transparent_44%)]" />
-            <div className="relative z-10 grid grid-cols-1 items-center gap-6 md:gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="relative overflow-hidden rounded-xl border-2 border-[#1c1712] bg-white p-6 md:p-8 lg:p-12 shadow-[8px_8px_0px_#1c1712]">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#b98c52]/10 rounded-bl-full -z-0" />
+            <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="max-w-3xl">
-                <div className="mb-4 md:mb-6 inline-flex items-center rounded-[1.5rem] md:rounded-[2rem] border border-[#dcc7a5] bg-[#fffaf3] px-3 md:px-5 py-2 md:py-4 shadow-[0_15px_40px_rgba(110,80,45,0.08)]">
+                <div className="mb-6 inline-flex items-center rounded border-2 border-[#1c1712] bg-[#fffaf3] px-4 py-3 shadow-[4px_4px_0px_#1c1712]">
                   <img
                     src={LogoBuenProvecho}
                     alt="Buen Provecho"
-                    className="block h-20 md:h-32 lg:h-44 w-auto object-contain"
+                    className="block h-16 md:h-24 lg:h-28 w-auto object-contain"
                     draggable={false}
                   />
                 </div>
-                <p className="mb-3 md:mb-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.45em] text-[#b98c52]">BuenProvecho Club</p>
-                <h1 className="mb-4 md:mb-5 text-3xl md:text-5xl lg:text-6xl font-black leading-[0.96] tracking-tighter text-zinc-900 uppercase">
+                <p className="mb-3 text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] text-[#b98c52]">Dashboard Premium</p>
+                <h1 className="mb-5 text-4xl md:text-5xl lg:text-7xl font-black leading-[0.9] tracking-tighter text-[#1c1712] uppercase" style={{ textShadow: '3px 3px 0px rgba(185,140,82,0.2)' }}>
                   Tu pase <span className="text-[#b98c52]">VIP</span> al sabor
                 </h1>
-                <p className="max-w-2xl text-[8px] md:text-[10px] font-semibold uppercase leading-relaxed tracking-[0.15em] md:tracking-[0.24em] text-zinc-600">
-                  Gestiona tus puntos, explora sedes y reserva con un solo toque. El dashboard editorial diseñado para los amantes del buen comer.
+                <p className="max-w-2xl text-[10px] md:text-[12px] font-bold uppercase leading-relaxed tracking-wider text-zinc-600">
+                  Gestiona tus puntos, explora las mejores sedes y reserva con un solo toque. Diseño neobrutalista para experiencias de alto nivel.
                 </p>
-                <div className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-2 md:gap-3">
+                <div className="mt-8 flex flex-col sm:flex-row gap-4">
                   <button
                     type="button"
                     onClick={() => navigate(firstFeaturedMenuPath)}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl md:rounded-2xl bg-[#2b2015] px-4 md:px-5 py-2 md:py-3 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-white transition-all hover:scale-[1.02] hover:bg-[#3d2d1e] active:scale-95 shadow-lg shadow-black/10"
+                    className="inline-flex items-center justify-center gap-2 rounded border-2 border-[#1c1712] bg-[#1c1712] px-6 py-4 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-[#fffaf3] transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_#b98c52] active:translate-y-1 active:shadow-none"
                   >
                     Ir al menú
-                    <ArrowRight className="h-3 md:h-4 w-3 md:w-4" />
+                    <ArrowRight className="h-4 w-4" />
                   </button>
                   <button
                     type="button"
                     onClick={() => navigate('/dashboard/events?type=promotion')}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl md:rounded-2xl border border-[#dcc7a5] bg-white px-4 md:px-5 py-2 md:py-3 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[#8b6435] transition-all hover:scale-[1.02] hover:bg-[#fffaf2] active:scale-95 shadow-sm"
+                    className="inline-flex items-center justify-center gap-2 rounded border-2 border-[#1c1712] bg-[#fffaf3] px-6 py-4 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-[#1c1712] transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_#1c1712] active:translate-y-1 active:shadow-none"
                   >
                     Ver promos
-                    <Sparkles className="h-3 md:h-4 w-3 md:w-4" />
+                    <Sparkles className="h-4 w-4" />
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4">
-                <div className="group relative rounded-[2rem] bg-[#2b2015] p-6 text-white shadow-[0_25px_60px_rgba(47,35,23,0.2)] md:p-8 transition-transform hover:-translate-y-1">
-                  <div className="absolute top-4 right-4 opacity-10 transition-opacity group-hover:opacity-20">
-                    <Trophy className="h-16 w-16 text-white" />
+
+              <div className="grid grid-cols-1 gap-6">
+                <div className="group relative rounded-none border-4 border-[#1c1712] bg-[#fffaf3] p-8 text-[#1c1712] shadow-[8px_8px_0px_#b98c52] transition-all hover:-translate-y-1">
+                  <div className="absolute top-4 right-4 opacity-10">
+                    <Trophy className="h-16 w-16 text-[#1c1712]" />
                   </div>
-                  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.35em] text-[#f3e4ca]">Nivel de socio</p>
-                  <div className="flex items-end justify-between gap-4">
-                    <div>
-                      <h2 className="text-xl font-black uppercase tracking-[0.1em] text-white">
-                        {user?.points > 1000 ? 'Platino' : user?.points > 500 ? 'Oro' : 'Miembro Gourmet'}
-                      </h2>
-                      <div className="mt-4 flex items-center gap-3">
-                        <p className="text-5xl font-black leading-none">{user?.points || 0}</p>
-                        <span className="text-[10px] font-bold uppercase text-[#f3e4ca] tracking-widest">Puntos</span>
-                      </div>
+                  <p className="mb-4 text-[11px] font-black uppercase tracking-[0.4em] text-[#b98c52]">Nivel Comensal</p>
+                  <div>
+                    <h2 className="text-2xl font-black uppercase tracking-tighter text-[#1c1712]">
+                      {user?.points > 1000 ? 'Platino' : user?.points > 500 ? 'Oro' : 'Miembro Gourmet'}
+                    </h2>
+                    <div className="mt-4 flex items-center gap-4">
+                      <p className="text-6xl font-black leading-none text-[#1c1712]">{user?.points || 0}</p>
+                      <span className="text-[10px] font-black uppercase text-[#fffaf3] tracking-widest bg-[#1c1712] px-3 py-1.5 rounded-none border-2 border-[#1c1712] shadow-[2px_2px_0px_#b98c52]">Puntos</span>
                     </div>
                   </div>
-                  <div className="mt-6 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                  <div className="mt-8 h-3 w-full overflow-hidden rounded-none border-2 border-[#1c1712] bg-[#1c1712]/10">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.min((user?.points || 0) / 15, 100)}%` }}
                       transition={{ duration: 1, ease: 'easeOut' }}
-                      className="h-full bg-gradient-to-r from-[#dcc7a5] to-white" 
+                      className="h-full bg-[#b98c52]" 
                     />
                   </div>
-                  <p className="mt-2 text-[8px] font-bold uppercase tracking-widest text-white/50">
-                    {(user?.points || 0) < 1500 ? `Te faltan ${1500 - (user?.points || 0)} para el siguiente nivel` : 'Nivel máximo alcanzado'}
-                  </p>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-[1.75rem] border border-[#dcc7a5] bg-white p-4 shadow-[0_15px_40px_rgba(110,80,45,0.06)] md:p-5 flex flex-col justify-between">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="rounded-lg border-2 border-[#1c1712] bg-[#fffaf3] p-5 shadow-[4px_4px_0px_#1c1712] flex flex-col justify-between">
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#b98c52]">Sedes</p>
-                    <p className="mt-2 text-3xl font-black text-zinc-900">{restaurants.length}</p>
+                    <p className="mt-2 text-4xl font-black text-[#1c1712]">{restaurants.length}</p>
                   </div>
-                  <div className="rounded-[1.75rem] border border-[#dcc7a5] bg-white p-4 shadow-[0_15px_40px_rgba(110,80,45,0.06)] md:p-5 flex flex-col justify-between">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#b98c52]">Categorías</p>
-                    <p className="mt-2 text-3xl font-black text-zinc-900">{categories.length}</p>
+                  <div className="rounded-lg border-2 border-[#1c1712] bg-[#fffaf3] p-5 shadow-[4px_4px_0px_#1c1712] flex flex-col justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#b98c52]">Tipos</p>
+                    <p className="mt-2 text-4xl font-black text-[#1c1712]">{categories.length}</p>
                   </div>
                 </div>
               </div>
@@ -197,19 +195,14 @@ const FALLBACK_IMAGES = [
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.25 }}
-            className="rounded-[2rem] border border-white/70 bg-white/92 p-5 shadow-[0_20px_70px_rgba(58,43,21,0.10)]"
+            className="rounded-xl border-2 border-[#1c1712] bg-[#fffaf3] p-6 shadow-[6px_6px_0px_#1c1712]"
           >
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#a07845]">Accesos rápidos</p>
-                <h2 className="mt-2 text-2xl font-black tracking-tight text-[#2b2015]">Atajos que sí se usan</h2>
-              </div>
-              <div className="rounded-full border border-[#dcc7a5] bg-[#fffaf3] px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#8b6435]">
-                Scroll normal, sin traba
-              </div>
+            <div className="mb-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#b98c52]">Navegación Veloz</p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-[#1c1712] uppercase">Atajos Premium</h2>
             </div>
 
-            <motion.div variants={staggerList} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="space-y-3">
+            <motion.div variants={staggerList} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="space-y-4">
               {quickActions.map((card) => {
                 const Icon = card.icon;
 
@@ -219,14 +212,14 @@ const FALLBACK_IMAGES = [
                     variants={staggerItem}
                     type="button"
                     onClick={card.onClick}
-                    className="group w-full rounded-[1.6rem] border border-[#eadac0] bg-gradient-to-br from-white to-[#fff4e1] p-4 text-left transition hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(110,79,34,0.12)]"
+                    className="group w-full rounded border-2 border-[#1c1712] bg-white p-5 text-left transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_#1c1712] active:translate-y-1 active:shadow-none"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#b98c52]">{card.eyebrow}</p>
-                        <h3 className="mt-2 text-lg font-black uppercase tracking-tight text-[#2b2015]">{card.action}</h3>
+                        <h3 className="mt-2 text-lg font-black uppercase tracking-tight text-[#1c1712]">{card.action}</h3>
                       </div>
-                      <Icon className="h-5 w-5 text-[#8b6435] transition-transform group-hover:translate-x-1" />
+                      <Icon className="h-5 w-5 text-[#1c1712] transition-transform group-hover:translate-x-1" />
                     </div>
                   </motion.button>
                 );
@@ -235,32 +228,33 @@ const FALLBACK_IMAGES = [
           </motion.div>
         </motion.section>
 
+
         <motion.section
           id="featured"
           variants={fadeUpSection}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="rounded-[2.5rem] border border-[#dcc7a5]/70 bg-white/75 overflow-hidden shadow-[0_30px_100px_rgba(110,80,45,0.12)] backdrop-blur-2xl md:rounded-[4rem]"
+          className="rounded-xl border-2 border-[#1c1712] bg-[#fffaf3] overflow-hidden shadow-[8px_8px_0px_#1c1712]"
         >
-          <div className="flex items-center justify-between gap-4 border-b border-[#dcc7a5]/50 px-6 pb-4 pt-6 md:px-10 md:pt-8">
+          <div className="flex items-center justify-between gap-4 border-b-2 border-[#1c1712] px-6 pb-6 pt-8 md:px-10">
             <div>
-              <p className="mb-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#b98c52]">Sedes destacadas</p>
-              <h2 className="text-2xl font-black tracking-tighter text-zinc-900 md:text-3xl">Una experiencia más viva y visual</h2>
+              <p className="mb-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#b98c52]">Sedes Destacadas</p>
+              <h2 className="text-3xl font-black tracking-tighter text-[#1c1712] uppercase">Selección de hoy</h2>
             </div>
-            <div className="hidden items-center gap-2 rounded-full border border-[#dcc7a5] bg-[#fffaf3] px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-[#8b6435] md:flex">
-              <Sparkles className="h-4 w-4" />
-              Recomendadas para ti
+            <div className="hidden items-center gap-2 rounded border-2 border-[#1c1712] bg-white px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.3em] text-[#1c1712] shadow-[3px_3px_0px_#1c1712] md:flex">
+              <Sparkles className="h-4 w-4 text-[#b98c52]" />
+              Premium
             </div>
           </div>
 
-          <div className="px-4 py-5 md:px-6 md:py-6">
+          <div className="px-4 py-8 md:px-6">
             <LogoLoop
               logos={loopItems}
               speed={70}
               direction="left"
-              logoHeight={88}
-              gap={16}
+              logoHeight={100}
+              gap={24}
               hoverSpeed={0}
               fadeOut
               fadeOutColor="#fffaf3"
@@ -270,14 +264,14 @@ const FALLBACK_IMAGES = [
                 <button
                   type="button"
                   onClick={() => navigate(`/menu/${item.id}`)}
-                  className="group flex items-center gap-3 rounded-[2rem] border border-[#dcc7a5]/70 bg-white/95 px-4 py-3 text-left shadow-[0_18px_45px_rgba(110,80,45,0.08)] transition-all hover:-translate-y-1 hover:border-[#b98c52]/50 hover:shadow-[0_22px_55px_rgba(185,140,82,0.18)]"
+                  className="group flex items-center gap-4 rounded border-2 border-[#1c1712] bg-white px-6 py-4 text-left shadow-[4px_4px_0px_#1c1712] transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0px_#b98c52]"
                 >
-                  <img src={item.image} alt={item.name} className="h-16 w-16 rounded-2xl object-cover" />
+                  <img src={item.image} alt={item.name} className="h-16 w-16 rounded border-2 border-[#1c1712] object-cover" />
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#b98c52]">{item.category}</p>
-                    <p className="text-sm font-black uppercase tracking-tight text-zinc-900">{item.name}</p>
+                    <p className="text-sm font-black uppercase tracking-tight text-[#1c1712]">{item.name}</p>
                   </div>
-                  <ArrowRight className="ml-2 h-4 w-4 text-[#8b6435] transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="ml-2 h-4 w-4 text-[#1c1712] transition-transform group-hover:translate-x-1" />
                 </button>
               )}
             />
@@ -292,112 +286,97 @@ const FALLBACK_IMAGES = [
           viewport={{ once: true, amount: 0.2 }}
           className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[1.15fr_0.85fr]"
         >
-          <div className="relative overflow-hidden rounded-[2.5rem] border border-[#dcc7a5]/70 bg-white/80 shadow-[0_30px_100px_rgba(110,80,45,0.12)] backdrop-blur-2xl md:rounded-[4rem]">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,183,127,0.18),transparent_42%),radial-gradient(circle_at_bottom_left,rgba(139,100,53,0.09),transparent_44%)]" />
-            <div className="relative z-10 grid min-h-auto grid-cols-1 gap-0 md:grid-cols-1">
-              <div className="flex flex-col justify-between gap-8 p-6 md:p-10">
-                <div>
-                  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.4em] text-[#b98c52]">Sede recomendada</p>
-                  <h3 className="text-3xl font-black uppercase leading-[1.02] tracking-tighter text-zinc-900 md:text-5xl">
-                    {featuredRestaurant?.name || 'Restaurante destacado'}
-                  </h3>
-                  <p className="mt-5 max-w-xl font-medium leading-7 text-zinc-600">
-                    {featuredRestaurant?.address || 'Ubicación premium para una experiencia más cercana y visual.'}
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-[#dcc7a5] bg-[#fffaf3] px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#8b6435]">
-                    <MapPin className="h-4 w-4" />
-                    {featuredRestaurant?.category || 'Casual'}
-                  </span>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-[#dcc7a5] bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-zinc-700">
-                    <Star className="h-4 w-4 text-[#b98c52]" />
-                    {featuredRestaurant?.rating || '4.5'} / 5
-                  </span>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-[#dcc7a5] bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-zinc-700">
-                    <ChefHat className="h-4 w-4 text-[#b98c52]" />
-                    Menú listo para explorar
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => navigate(firstFeaturedMenuPath)}
-                  className="inline-flex w-fit items-center gap-2 rounded-2xl bg-[#2b2015] px-5 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-white transition-transform hover:scale-[1.02] active:scale-95"
-                >
-                  Abrir menú
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+          <div className="relative overflow-hidden rounded-xl border-2 border-[#1c1712] bg-white shadow-[8px_8px_0px_#1c1712]">
+            <div className="relative z-10 flex flex-col justify-between gap-8 p-8 md:p-12">
+              <div>
+                <p className="mb-4 text-[10px] font-black uppercase tracking-[0.4em] text-[#b98c52] bg-[#fffaf3] w-fit px-3 py-1 border-2 border-[#1c1712] shadow-[2px_2px_0px_#1c1712]">Sede Recomendada</p>
+                <h3 className="text-4xl font-black uppercase leading-[1] tracking-tighter text-[#1c1712] md:text-6xl">
+                  {featuredRestaurant?.name || 'Restaurante destacado'}
+                </h3>
+                <p className="mt-6 max-w-xl font-bold leading-relaxed text-zinc-600 uppercase text-[10px] tracking-widest">
+                  {featuredRestaurant?.address || 'Ubicación premium para una experiencia culinaria inigualable.'}
+                </p>
               </div>
+
+              <div className="flex flex-wrap gap-4">
+                <span className="inline-flex items-center gap-2 rounded border-2 border-[#1c1712] bg-[#fffaf3] px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-[#1c1712] shadow-[3px_3px_0px_#1c1712]">
+                  <MapPin className="h-4 w-4 text-[#b98c52]" />
+                  {featuredRestaurant?.category || 'Casual'}
+                </span>
+                <span className="inline-flex items-center gap-2 rounded border-2 border-[#1c1712] bg-white px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-[#1c1712] shadow-[3px_3px_0px_#1c1712]">
+                  <Star className="h-4 w-4 text-[#b98c52]" />
+                  {featuredRestaurant?.rating || '4.5'} Valoración
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => navigate(firstFeaturedMenuPath)}
+                className="inline-flex w-fit items-center gap-3 rounded border-2 border-[#1c1712] bg-[#1c1712] px-8 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-[#fffaf3] transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_#b98c52] active:translate-y-1 active:shadow-none"
+              >
+                Abrir Menú
+                <ArrowRight className="h-4 w-4" />
+              </button>
             </div>
           </div>
 
-          <div id="vip" className="relative overflow-hidden rounded-[2.5rem] border border-[#dcc7a5] bg-gradient-to-br from-[#fdfbf7] to-[#f5efdf] p-5 text-ink shadow-[0_30px_100px_rgba(185,140,82,0.15)] md:rounded-[4rem] md:p-8">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,183,127,0.3),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.8),transparent_50%)]" />
-            <div className="relative z-10 flex h-full flex-col gap-6">
+
+          <div id="vip" className="relative overflow-hidden rounded-xl border-2 border-[#1c1712] bg-[#fffaf3] p-6 shadow-[8px_8px_0px_#1c1712] md:p-10">
+            <div className="relative z-10 flex h-full flex-col gap-8">
               <div>
                 <p className="mb-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#b98c52]">Club VIP BuenProvecho</p>
-                <h3 className="text-2xl font-black tracking-tighter md:text-3xl text-ink">Experiencia <span className="text-primary-600">Personalizada</span></h3>
+                <h3 className="text-3xl font-black tracking-tighter text-[#1c1712] uppercase leading-none">Mi Estatus</h3>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
-                {quickActions.map((card) => {
-                  const Icon = card.icon;
-
-                  return (
-                    <button
-                      key={card.action}
-                      type="button"
-                      onClick={card.onClick}
-                      className="group rounded-[2rem] border border-primary-200 bg-white/60 p-5 text-left transition-all hover:bg-white hover:shadow-gold hover:-translate-y-0.5"
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
-                          <p className="mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-primary-600">{card.eyebrow}</p>
-                          <p className="text-xl font-black tracking-tight text-ink uppercase">{card.action}</p>
-                        </div>
-                        <Icon className="h-5 w-5 text-primary-500 transition-transform group-hover:translate-x-1" />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-auto rounded-[2.5rem] border border-primary-300 bg-gradient-to-r from-primary-400 to-primary-600 p-6 shadow-gold text-white">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.35em] text-primary-100">Beneficio Exclusivo</p>
-                    <h4 className="mt-2 text-xl font-black uppercase tracking-tight">Puntos Acumulados</h4>
+                <div className="rounded-none border-4 border-[#1c1712] bg-[#fffaf3] p-6 shadow-[8px_8px_0px_#b98c52] text-[#1c1712]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#b98c52]">Beneficio VIP</p>
+                      <h4 className="mt-2 text-2xl font-black uppercase tracking-tight text-[#1c1712]">Puntos Reales</h4>
+                    </div>
+                    <div className="w-12 h-12 bg-[#1c1712] rounded-none border-2 border-[#1c1712] flex items-center justify-center shadow-[2px_2px_0px_#b98c52]">
+                      <Trophy className="h-6 w-6 text-[#fffaf3]" />
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
-                    <Trophy className="h-6 w-6 text-white" />
+                  <div className="mt-8 flex items-end justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <p className="text-6xl font-black leading-none tracking-tighter text-[#1c1712]">{user?.points || 0}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#b98c52]">Balance</p>
+                      <p className="text-2xl font-black text-[#1c1712] leading-none mt-1">Q{(user?.points || 0) * 0.5}</p>
+                    </div>
                   </div>
                 </div>
-                <div className="mt-6 flex items-end justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="h-7 w-7 text-primary-200 animate-pulse" />
-                    <p className="text-6xl font-black leading-none tracking-tighter">{user?.points || 0}</p>
+
+                <button
+                  onClick={() => navigate('/dashboard/history')}
+                  className="group rounded-none border-4 border-[#1c1712] bg-white p-5 text-left transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0px_#1c1712] active:translate-y-1 active:shadow-none"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="mb-1 text-[10px] font-black uppercase tracking-[0.3em] text-[#b98c52]">Historial</p>
+                      <p className="text-lg font-black tracking-tight text-[#1c1712] uppercase">Mis Compras</p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-[#1c1712] transition-transform group-hover:translate-x-1" />
                   </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">Dinero Real</p>
-                    <p className="text-xl font-black text-white leading-none mt-1">Q{(user?.points || 0) * 0.5}</p>
-                    <p className="text-[8px] font-bold uppercase tracking-widest text-primary-100 mt-2">Canjeable en sala</p>
-                  </div>
-                </div>
+                </button>
               </div>
             </div>
           </div>
         </motion.section>
 
         <ScrollStack useWindowScroll={true} itemStackDistance={30} baseScale={1} rotationAmount={0} blurAmount={0} stackPosition="0">
+
           <ScrollStackItem itemClassName="bg-transparent shadow-none my-0 p-0 h-auto z-50">
             <motion.div
               variants={fadeUpSection}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
-              className="flex items-center gap-3 overflow-x-auto px-4 py-4 scroll-mt-28 scrollbar-hide md:px-0 backdrop-blur-md bg-white/40 rounded-[2rem] border border-white/50"
+              className="sticky top-0 z-50 flex items-center gap-4 overflow-x-auto px-4 py-6 scroll-mt-28 scrollbar-hide md:px-0 bg-[#fffaf3] border-b-2 border-[#1c1712] shadow-[0_8px_0px_#1c1712]"
+
               id="restaurants"
             >
               {['Todos', ...categories].map((category) => (
@@ -405,17 +384,22 @@ const FALLBACK_IMAGES = [
                 key={category}
                 type="button"
                 onClick={() => setActiveTab(category)}
-                className={`rounded-2xl px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
+                className={`rounded border-2 border-[#1c1712] px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all duration-300 transform active:translate-y-1 ${
                   activeTab === category
-                    ? 'border border-[#d7b77f]/50 bg-gradient-to-r from-[#d7b77f] to-[#b98c52] text-white shadow-lg shadow-[rgba(185,140,82,0.18)]'
-                    : 'border border-[#dcc7a5] bg-white/70 text-zinc-600 hover:border-[#b98c52]/30 hover:text-[#8b6435]'
+                    ? 'bg-[#1c1712] text-[#fffaf3] shadow-[4px_4px_0px_#b98c52]'
+                    : 'bg-white text-[#1c1712] hover:-translate-y-1 hover:shadow-[4px_4px_0px_#1c1712] active:shadow-none'
                 }`}
               >
-                {category === 'Todos' ? '🍽️ Todos' : category}
+                {category === 'Todos' ? (
+                  <span className="flex items-center gap-2">
+                    <LayoutGrid className="w-4 h-4" /> Todos
+                  </span>
+                ) : category}
               </button>
             ))}
-          </motion.div>
-        </ScrollStackItem>
+            </motion.div>
+          </ScrollStackItem>
+
 
           <div className="min-h-[300px] md:min-h-[400px]">
             {loading ? (
@@ -431,7 +415,7 @@ const FALLBACK_IMAGES = [
                 <p className="mt-2 text-xs font-medium text-zinc-500">Explora otras delicias o vuelve más tarde.</p>
               </div>
             ) : (
-              <motion.div variants={staggerList} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.12 }} className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 md:gap-10">
+              <motion.div variants={staggerList} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.12 }} className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3 md:gap-12">
                 <AnimatePresence mode="popLayout">
                   {filteredRestaurants.map((restaurant, index) => (
                     <motion.button
@@ -443,46 +427,46 @@ const FALLBACK_IMAGES = [
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: index * 0.05 }}
                       onClick={() => navigate(`/menu/${restaurant.id}`)}
-                      className="group relative w-full overflow-hidden rounded-[2.5rem] border border-[#dcc7a5]/70 bg-white/90 text-left shadow-[0_28px_90px_rgba(110,80,45,0.12)] backdrop-blur-3xl transition-all hover:-translate-y-1 hover:border-[#b98c52]/35 hover:shadow-[0_34px_110px_rgba(185,140,82,0.16)]"
+                      className="group relative w-full overflow-hidden rounded-xl border-2 border-[#1c1712] bg-white text-left shadow-[8px_8px_0px_#1c1712] transition-all hover:-translate-y-1 hover:shadow-[12px_12px_0px_#b98c52]"
                     >
-                      <div className="relative h-52 overflow-hidden md:h-60">
+                      <div className="relative h-56 overflow-hidden md:h-64 border-b-2 border-[#1c1712]">
                         <img
-                          src={restaurant.cover_image_url || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]}
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          src={restaurant.cover_image_url || restaurant.logo_url || restaurant.logoUrl || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]}
+                          onError={(e) => {
+                            e.target.onerror = null; 
+                            e.target.src = FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+                          }}
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                           alt={restaurant.name}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#2f2317]/70 via-transparent to-transparent opacity-80" />
-                        <div className="absolute left-5 top-5 rounded-full border border-[#dcc7a5] bg-white/85 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#8b6435] shadow-lg backdrop-blur-xl">
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c1712]/40 to-transparent" />
+                        <div className="absolute left-4 top-4 rounded border-2 border-[#1c1712] bg-[#fffaf3] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#1c1712] shadow-[3px_3px_0px_#1c1712]">
                           {restaurant.category || 'Casual'}
-                        </div>
-                        <div className="absolute right-5 top-5 rounded-full border border-[#dcc7a5] bg-white/85 px-4 py-2 text-[10px] font-black text-[#8b6435] shadow-lg backdrop-blur-xl">
-                          {restaurant.rating || '4.5'} ⭐
                         </div>
                       </div>
 
-                      <div className="p-6 text-zinc-900 md:p-8">
-                        <div className="mb-3 flex items-start justify-between gap-4">
+                      <div className="p-6 md:p-8">
+                        <div className="mb-4 flex items-start justify-between gap-4">
                           <div>
-                            <p className="mb-2 text-[10px] font-black uppercase tracking-[0.35em] text-[#b98c52]">Restaurante</p>
-                            <h3 className="text-2xl font-black uppercase leading-[1.02] tracking-tight md:text-[1.85rem]">{restaurant.name}</h3>
+                            <p className="mb-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#b98c52]">Sede Premium</p>
+                            <h3 className="text-2xl font-black uppercase leading-[1] tracking-tighter md:text-3xl text-[#1c1712]">{restaurant.name}</h3>
                           </div>
-                          <span className="inline-flex whitespace-nowrap rounded-full border border-[#dcc7a5] bg-[#f3e4ca] px-3 py-2 text-[9px] font-black uppercase tracking-widest text-[#8b6435]">
-                            {restaurant.rating || '4.5'}
+                        </div>
+                        
+                        <div className="mb-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                          <MapPin className="h-4 w-4 text-[#b98c52]" />
+                          <span className="truncate">{restaurant.address || 'Ubicación Exclusiva'}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4 pt-6 border-t-2 border-[#1c1712]/10">
+                          <div className="flex items-center gap-2">
+                            <Star className="h-4 w-4 text-[#b98c52] fill-[#b98c52]" />
+                            <span className="text-lg font-black text-[#1c1712]">{restaurant.rating || '4.5'}</span>
+                          </div>
+                          <span className="inline-flex items-center justify-center gap-2 rounded border-2 border-[#1c1712] bg-[#1c1712] px-6 py-3 text-[10px] font-black uppercase tracking-widest text-[#fffaf3] transition-all group-hover:bg-[#b98c52] group-hover:border-[#b98c52]">
+                            Ver Menú <ArrowRight className="h-4 w-4" />
                           </span>
                         </div>
-                        <div className="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                          <MapPin className="h-4 w-4 shrink-0 text-[#b98c52]" />
-                          <span className="truncate">{restaurant.address || 'Ubicación Premium'}</span>
-                        </div>
-
-                        <div className="mb-6 flex flex-wrap gap-2">
-                          <span className="inline-flex items-center rounded-full border border-[#dcc7a5] bg-[#fffaf3] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.25em] text-[#8b6435]">Abierto hoy</span>
-                          <span className="inline-flex items-center rounded-full border border-[#dcc7a5] bg-white px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600">Menú directo</span>
-                        </div>
-
-                        <span className="inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-[#2b2015] bg-[#2b2015] py-3 text-[10px] font-black uppercase tracking-[0.25em] text-white transition-all group-hover:border-[#d7b77f]/30 group-hover:bg-gradient-to-r group-hover:from-[#d7b77f] group-hover:to-[#b98c52] group-hover:shadow-lg group-hover:shadow-[rgba(185,140,82,0.18)]">
-                          Explorar Menú <ArrowRight className="h-4 w-4" />
-                        </span>
                       </div>
                     </motion.button>
                   ))}
@@ -492,7 +476,8 @@ const FALLBACK_IMAGES = [
           </div>
         </ScrollStack>
       </main>
+
+      </div>
     </div>
-  </div>
-);
+  );
 };
