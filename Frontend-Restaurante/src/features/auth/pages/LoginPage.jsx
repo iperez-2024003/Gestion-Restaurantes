@@ -150,15 +150,15 @@ export const LoginPage = () => {
               alt="BuenProvecho Experience"
             />
           </AnimatePresence>
-          
+
           <div className="absolute inset-0 bg-gradient-to-t from-[#1c1712] via-transparent to-transparent opacity-40" />
 
           {/* Indicadores de imagen minimalistas */}
           <div className="absolute bottom-10 right-10 flex gap-3 z-30">
             {uploadImages.map((_, i) => (
-              <div 
-                key={i} 
-                className={`h-1.5 border border-[#1c1712] transition-all duration-500 ${i === currentImage ? 'w-12 bg-[#b98c52]' : 'w-3 bg-white/30'}`} 
+              <div
+                key={i}
+                className={`h-1.5 border border-[#1c1712] transition-all duration-500 ${i === currentImage ? 'w-12 bg-[#b98c52]' : 'w-3 bg-white/30'}`}
               />
             ))}
           </div>

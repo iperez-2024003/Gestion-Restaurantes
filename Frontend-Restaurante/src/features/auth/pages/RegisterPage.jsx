@@ -19,7 +19,7 @@ export const RegisterPage = () => {
     phone: '',
     profilePicture: null
   });
-  
+
   const [fieldErrors, setFieldErrors] = useState({});
   const { register, isLoading } = useAuthStore();
   const navigate = useNavigate();
@@ -67,7 +67,7 @@ export const RegisterPage = () => {
     <div className="min-h-screen bg-[#fffaf3] flex items-center justify-center p-6 overflow-x-hidden relative font-outfit">
       {/* Fondo decorativo sutil */}
       <div className="absolute top-0 left-0 w-full h-24 bg-[#1c1712] border-b-4 border-[#b98c52] -z-0" />
-      
+
       <div className="relative z-10 w-full max-w-3xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -99,11 +99,11 @@ export const RegisterPage = () => {
                 <Input label="Teléfono" name="phone" icon={Phone} value={formData.phone} onChange={handleChange} required error={fieldErrors.phone} />
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1c1712] ml-1">Avatar</label>
-                  <input 
-                    type="file" 
-                    name="profilePicture" 
-                    onChange={handleChange} 
-                    className="w-full text-[9px] font-black file:mr-4 file:py-2 file:px-4 file:rounded-none file:border-2 file:border-[#1c1712] file:bg-[#fffaf3] file:text-[#1c1712] file:shadow-[3px_3px_0px_#1c1712] file:cursor-pointer" 
+                  <input
+                    type="file"
+                    name="profilePicture"
+                    onChange={handleChange}
+                    className="w-full text-[9px] font-black file:mr-4 file:py-2 file:px-4 file:rounded-none file:border-2 file:border-[#1c1712] file:bg-[#fffaf3] file:text-[#1c1712] file:shadow-[3px_3px_0px_#1c1712] file:cursor-pointer"
                   />
                 </div>
               </div>
