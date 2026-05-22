@@ -11,16 +11,35 @@ import {
   removeItemFromOrderRecord,
   fetchKitchenOrders,
 } from './order.service.js';
+import Order from './order.model.js';
 import Restaurant from '../restaurantes/restaurant.model.js';
 import { getIo } from '../../socket/socket.config.js';
+
+const isOperationalStaff = (req) => (
+  ['SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE'].includes(req.userRole || req.user?.role)
+);
+
+const ensureOrderAccess = (req, res, order) => {
+  if (isOperationalStaff(req)) return true;
+  if (!order || String(order.user_id) !== String(req.userId)) {
+    res.status(403).json({ success: false, message: 'No tienes permisos para realizar esta acción' });
+    return false;
+  }
+  return true;
+};
 
 export const createOrder = async (req, res) => {
   try {
     const order = await createOrderRecord(req.body);
     
-    // Emitir socket para tiempo real
-    const io = getIo();
-    io.to(`restaurant_${order.restaurant_id}`).emit('new_order', order);
+    try {
+      const io = getIo();
+      if (io) {
+        io.to(`restaurant_${order.restaurant_id}`).emit('new_order', order);
+      }
+    } catch (socketErr) {
+      console.error('Socket.io emit error:', socketErr.message);
+    }
     
     return res.status(201).json({ success: true, message: 'Orden creada exitosamente', data: order });
   } catch (error) {
@@ -31,7 +50,8 @@ export const createOrder = async (req, res) => {
 export const getAllOrders = async (req, res) => {
   try {
     const { restaurant_id, user_id, status, order_type, payment_status, page = 1, limit = 20 } = req.query;
-    const { orders, pagination } = await fetchOrders({ restaurant_id, user_id, status, order_type, payment_status, page, limit });
+    const effectiveUserId = isOperationalStaff(req) ? user_id : req.userId;
+    const { orders, pagination } = await fetchOrders({ restaurant_id, user_id: effectiveUserId, status, order_type, payment_status, page, limit });
     return res.status(200).json({ success: true, message: 'Órdenes obtenidas exitosamente', pagination, data: orders });
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Error interno del servidor', error: process.env.NODE_ENV === 'development' ? error.message : undefined });
@@ -42,6 +62,7 @@ export const getOrderById = async (req, res) => {
   try {
     const order = await fetchOrderById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' });
+    if (!ensureOrderAccess(req, res, order)) return;
     return res.status(200).json({ success: true, message: 'Orden obtenida exitosamente', data: order });
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Error interno del servidor', error: process.env.NODE_ENV === 'development' ? error.message : undefined });
@@ -52,13 +73,18 @@ export const updateOrderStatus = async (req, res) => {
   try {
     const order = await updateOrderStatusRecord({ id: req.params.id, status: req.body.status });
     
-    // Emitir socket para tiempo real
-    const io = getIo();
-    io.to(`restaurant_${order.restaurant_id}`).emit('order_status_updated', {
-      orderId: order.id,
-      status: order.status,
-      orderNumber: order.order_number
-    });
+    try {
+      const io = getIo();
+      if (io) {
+        io.to(`restaurant_${order.restaurant_id}`).emit('order_status_updated', {
+          orderId: order.id,
+          status: order.status,
+          orderNumber: order.order_number
+        });
+      }
+    } catch (socketErr) {
+      console.error('Socket.io emit error:', socketErr.message);
+    }
     
     return res.status(200).json({ success: true, message: `Order status updated to ${req.body.status}`, data: order });
   } catch (error) {
@@ -68,6 +94,9 @@ export const updateOrderStatus = async (req, res) => {
 
 export const cancelOrder = async (req, res) => {
   try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' });
+    if (!ensureOrderAccess(req, res, order)) return;
     await cancelOrderRecord(req.params.id);
     return res.status(200).json({ success: true, message: 'Orden cancelada exitosamente' });
   } catch (error) {
@@ -77,6 +106,9 @@ export const cancelOrder = async (req, res) => {
 
 export const addItemToOrder = async (req, res) => {
   try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' });
+    if (!ensureOrderAccess(req, res, order)) return;
     const orderItem = await addItemToOrderRecord({ orderId: req.params.id, ...req.body });
     return res.status(201).json({ success: true, message: 'Item added to order successfully', data: orderItem });
   } catch (error) {
@@ -86,6 +118,9 @@ export const addItemToOrder = async (req, res) => {
 
 export const removeItemFromOrder = async (req, res) => {
   try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' });
+    if (!ensureOrderAccess(req, res, order)) return;
     await removeItemFromOrderRecord({ orderId: req.params.id, itemId: req.params.itemId });
     return res.status(200).json({ success: true, message: 'Item removed from order successfully' });
   } catch (error) {
@@ -97,15 +132,19 @@ export const generateOrderPDF = async (req, res) => {
   try {
     const order = await fetchOrderById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' });
+    if (!ensureOrderAccess(req, res, order)) return;
+
+    if (!order.items || !Array.isArray(order.items)) {
+      return res.status(500).json({ success: false, message: 'Datos de orden corrupta' });
+    }
 
     const restaurant = await Restaurant.findById(order.restaurant_id);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename=Ticket_${order.order_number}.pdf`);
 
-    // Ticket format (300pt width is roughly 105mm, good for a narrow ticket look)
     const doc = new PDFDocument({ 
       margin: 30, 
-      size: [300, 841] // Custom height, will auto-adjust or be long enough
+      size: [300, 841]
     });
     doc.pipe(res);
 
@@ -124,13 +163,15 @@ export const generateOrderPDF = async (req, res) => {
       border: '#1c1712'
     };
 
-    // 1. HEADER (Logo & Restaurant Info Centered)
     let currentY = 30;
 
     if (logoSource) {
       try {
         const response = await fetch(logoSource);
-        const buffer = Buffer.from(await response.arrayBuffer());
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const arrayBuffer = await response.arrayBuffer();
+        if (!arrayBuffer || arrayBuffer.byteLength === 0) throw new Error('Empty buffer');
+        const buffer = Buffer.from(arrayBuffer);
         doc.image(buffer, (pageWidth - 60) / 2, currentY, { fit: [60, 60] });
         currentY += 70;
       } catch (err) {
@@ -146,25 +187,15 @@ export const generateOrderPDF = async (req, res) => {
     doc.text(`Tel: ${restaurant?.phone || 'N/A'}`, leftMargin, currentY, { width: contentWidth, align: 'center' });
     currentY += 25;
 
-    // Order Meta
-    doc.fillColor(colors.primary).fontSize(8).font('Helvetica-Bold').text(`FECHA: ${new Date(order.createdAt).toLocaleDateString('es-GT')}`, leftMargin, currentY);
-    doc.text(`HORA: ${new Date(order.createdAt).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}`, pageWidth - leftMargin - 80, currentY, { align: 'right' });
-    currentY += 12;
-    doc.text(`TICKET: #${orderNumber}`, leftMargin, currentY);
-    currentY += 20;
-
-    // Divider
     doc.moveTo(leftMargin, currentY).lineTo(pageWidth - leftMargin, currentY).strokeColor(colors.border).lineWidth(1.5).stroke();
     currentY += 15;
 
-    // 2. TABLE HEADERS
     doc.fontSize(8).font('Helvetica-Bold').fillColor(colors.primary);
     doc.text('CANT', leftMargin, currentY);
     doc.text('DESCRIPCIÓN', leftMargin + 40, currentY);
     doc.text('PRECIO', pageWidth - leftMargin - 60, currentY, { width: 60, align: 'right' });
     currentY += 15;
 
-    // 3. ITEMS
     doc.font('Helvetica').fontSize(9);
     order.items.forEach((item) => {
       const itemY = currentY;
@@ -181,7 +212,6 @@ export const generateOrderPDF = async (req, res) => {
     doc.undash();
     currentY += 20;
 
-    // 4. TOTALS
     doc.fontSize(8).font('Helvetica').fillColor(colors.secondary);
     doc.text('SUBTOTAL:', leftMargin, currentY);
     doc.text(formatMoney(order.subtotal), pageWidth - leftMargin - 100, currentY, { width: 100, align: 'right' });
@@ -203,7 +233,6 @@ export const generateOrderPDF = async (req, res) => {
     doc.fontSize(14).text(formatMoney(order.total), pageWidth - leftMargin - 100, currentY - 4, { width: 100, align: 'right' });
     currentY += 40;
 
-    // 5. FOOTER
     doc.fontSize(8).font('Helvetica-Bold').text('¡GRACIAS POR TU COMPRA!', leftMargin, currentY, { width: contentWidth, align: 'center' });
     currentY += 12;
     doc.font('Helvetica').text('BuenProvecho Premium Experience', leftMargin, currentY, { width: contentWidth, align: 'center' });

@@ -44,8 +44,8 @@ export const CategoryModal = ({ isOpen, onClose, restaurantId }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/60 backdrop-blur-md overflow-y-auto font-outfit">
-      <motion.div 
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-ink/60 backdrop-blur-md overflow-y-auto font-outfit">
+      <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-[#fffdf8] rounded-[2rem] border border-[#dcc7a5]/70 shadow-[0_30px_80px_rgba(33,24,14,0.18)] w-full max-w-md relative my-auto max-h-[92vh] flex flex-col overflow-hidden"

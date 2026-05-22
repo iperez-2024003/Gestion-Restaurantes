@@ -42,8 +42,8 @@ export const validateOrderCreation = [
   body('items.*.quantity')
     .notEmpty()
     .withMessage('Quantity is required for each item')
-    .isInt({ min: 1 })
-    .withMessage('Quantity must be at least 1'),
+    .isInt({ min: 1, max: 10000 })
+    .withMessage('Quantity must be between 1 and 10000'),
 
   body('items.*.special_instructions')
     .optional()
@@ -65,8 +65,8 @@ export const validateOrderCreation = [
 
   body('delivery_fee')
     .optional()
-    .isFloat({ min: 0 })
-    .withMessage('Delivery fee must be a positive number'),
+    .isFloat({ min: 0, max: 100000 })
+    .withMessage('Delivery fee must be between 0 and 100000'),
 
   (req, res, next) => {
     const errors = validationResult(req);
@@ -98,8 +98,8 @@ export const validateAddItem = [
   body('quantity')
     .notEmpty()
     .withMessage('Quantity is required')
-    .isInt({ min: 1 })
-    .withMessage('Quantity must be at least 1'),
+    .isInt({ min: 1, max: 10000 })
+    .withMessage('Quantity must be between 1 and 10000'),
 
   body('special_instructions')
     .optional()

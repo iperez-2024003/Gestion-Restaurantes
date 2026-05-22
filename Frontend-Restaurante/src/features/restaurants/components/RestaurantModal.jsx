@@ -134,7 +134,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
         </div>
 
         {/* Tabs Navigation */}
-        <div className="px-8 py-4 bg-white/50 border-b border-primary-100 flex gap-2 overflow-x-auto scrollbar-hide">
+        <div className="sticky top-0 z-20 px-8 py-4 bg-white/50 border-b border-primary-100 flex gap-2 overflow-x-auto scrollbar-hide">
           <TabButton id="general" label="General" icon={Info} />
           <TabButton id="location" label="Ubicación" icon={MapPin} />
           <TabButton id="schedule" label="Horarios" icon={Clock} />
@@ -216,7 +216,7 @@ export const RestaurantModal = ({ isOpen, onClose, restaurant = null }) => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase text-ink/80 tracking-widest ml-1">Rango de Precio</label>
-                      <select className="w-full h-11 px-4 rounded-xl border border-[#dcc7a5] bg-[#fffdf9] text-ink text-sm font-bold outline-none focus:ring-2 focus:ring-[#d7b77f]/20 focus:border-[#b98c52] transition-all" {...register('price_range')}>
+                      <select className="w-full h-11 px-4 rounded-xl border border-[#dcc7a5] bg-[#fffdf9] text-ink text-sm font-bold outline-none focus:ring-2 focus:ring-[#d7b77f]/20 focus:border-[#b98c52] transition-all max-h-64" {...register('price_range')}>
                         <option value="$">$ Económico</option>
                         <option value="$$">$$ Medio</option>
                         <option value="$$$">$$$ Premium</option>

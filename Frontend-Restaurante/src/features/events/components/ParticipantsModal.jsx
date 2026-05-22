@@ -41,8 +41,8 @@ export const ParticipantsModal = ({ isOpen, onClose, eventId, eventName }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#f7f1e7]/90 backdrop-blur-xl flex justify-center items-center z-[60] p-4 font-outfit">
-      <motion.div 
+    <div className="fixed inset-0 bg-ink/60 backdrop-blur-xl flex justify-center items-center z-[100] p-4 font-outfit">
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-white/90 rounded-[2.5rem] md:rounded-[3.5rem] border border-[#dcc7a5]/70 shadow-[0_30px_100px_rgba(110,80,45,0.14)] w-full max-w-3xl overflow-hidden max-h-[85vh] flex flex-col"

@@ -107,8 +107,8 @@ export const EventModal = ({ isOpen, onClose, onSubmit, creating, initialData = 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-ink/60 backdrop-blur-md flex justify-center items-center z-50 p-4 font-outfit overflow-y-auto">
-      <motion.div 
+    <div className="fixed inset-0 bg-ink/60 backdrop-blur-md flex justify-center items-center z-[100] p-4 font-outfit overflow-y-auto">
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-[#fefcf8] rounded-[2rem] border border-primary-200 shadow-gold w-full max-w-4xl overflow-hidden my-auto max-h-[92vh] flex flex-col relative"

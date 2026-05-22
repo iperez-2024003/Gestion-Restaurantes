@@ -53,40 +53,78 @@ const serializeOrderItem = (item) => {
   };
 };
 
+const validateNumberBounds = (value, min, max, fieldName) => {
+  const num = Number(value);
+  if (isNaN(num) || num < min || num > max) {
+    throw new Error(`${fieldName} debe estar entre ${min} y ${max}`);
+  }
+  return num;
+};
+
 const calculateTotals = (subtotal, discount = 0, deliveryFee = 0, tip = 0) => {
-  const taxableAmount = subtotal - discount;
+  const subNum = Number(subtotal);
+  const discNum = Number(discount);
+  if (isNaN(subNum) || isNaN(discNum)) throw new Error('Subtotal y descuento deben ser números válidos');
+  const taxableAmount = subNum - discNum;
+  if (taxableAmount < 0) throw new Error('Subtotal no puede ser negativo después de descuento');
   const tax = taxableAmount * TAX_RATE;
-  const total = taxableAmount + tax + deliveryFee + tip;
+  const total = taxableAmount + tax + Number(deliveryFee || 0) + Number(tip || 0);
   return { tax: Number(tax.toFixed(2)), total: Number(total.toFixed(2)) };
 };
 
 const generateOrderNumber = async () => {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const prefix = `ORD-${dateStr}-`;
-  const lastOrder = await Order.findOne({ order_number: new RegExp(`^${prefix}`) }).sort({ createdAt: -1 });
-  const sequence = lastOrder?.order_number ? Number(lastOrder.order_number.split('-')[2]) + 1 : 1;
-  return `${prefix}${String(sequence).padStart(4, '0')}`;
+  try {
+    const lastOrder = await Order.findOne({ order_number: new RegExp(`^${prefix}`) }).sort({ createdAt: -1 });
+    let sequence = 1;
+    if (lastOrder?.order_number) {
+      const parts = lastOrder.order_number.split('-');
+      const seqNum = parseInt(parts[2], 10);
+      if (!isNaN(seqNum) && seqNum > 0) {
+        sequence = seqNum + 1;
+      }
+    }
+    if (sequence > 9999) throw new Error('Límite de órdenes diarias excedido');
+    return `${prefix}${String(sequence).padStart(4, '0')}`;
+  } catch (error) {
+    if (error.message === 'Límite de órdenes diarias excedido') throw error;
+    throw new Error(`Error generando número de orden: ${error.message}`);
+  }
 };
 
 const loadOrderWithItems = async (orderId) => {
   const order = await Order.findById(orderId);
   if (!order) return null;
   const items = await OrderItem.find({ order_id: orderId });
-  const enrichedItems = await Promise.all(items.map(async (item) => {
-    const menuItem = await MenuItem.findById(item.menu_item_id).lean();
-    return {
-      ...serializeOrderItem(item),
-      MenuItem: menuItem ? {
-        id: menuItem._id.toString(),
-        name: menuItem.name,
-        price: menuItem.price
-      } : null
-    };
+  const enrichedItems = await Promise.allSettled(items.map(async (item) => {
+    try {
+      const menuItem = await MenuItem.findById(item.menu_item_id).lean();
+      return {
+        ...serializeOrderItem(item),
+        MenuItem: menuItem ? {
+          id: menuItem._id.toString(),
+          name: menuItem.name,
+          price: menuItem.price
+        } : null
+      };
+    } catch (error) {
+      console.error(`Error enriching menu item ${item.menu_item_id}:`, error.message);
+      return {
+        ...serializeOrderItem(item),
+        MenuItem: null
+      };
+    }
   }));
-  return serializeOrder(order, enrichedItems);
+  const items_serialized = enrichedItems
+    .filter(r => r.status === 'fulfilled')
+    .map(r => r.value);
+  return serializeOrder(order, items_serialized);
 };
 
 export const createOrderRecord = async (payload) => {
+  validateNumberBounds(payload.items?.length || 0, 1, 999, 'Cantidad de items');
+  
   const restaurant = await Restaurant.findById(payload.restaurant_id);
   if (!restaurant || restaurant.isActive === false) {
     throw new Error('Restaurante no encontrado');
@@ -104,12 +142,20 @@ export const createOrderRecord = async (payload) => {
     throw new Error('Este restaurante no ofrece para llevar');
   }
 
+  if (payload.order_type === 'delivery') {
+    const deliveryFee = payload.delivery_fee ? Number(payload.delivery_fee) : 0;
+    if (isNaN(deliveryFee) || deliveryFee < 0) {
+      throw new Error('Tarifa de envío debe ser un número válido y no negativo');
+    }
+  }
+
   let subtotal = 0;
   const orderItems = [];
-  // Usar operaciones atómicas para decrementar stock y evitar condiciones de carrera.
   const decremented = [];
+  
   for (const item of payload.items) {
-    // Intentar decrementar atómicamente
+    validateNumberBounds(item.quantity, 1, 10000, 'Cantidad por artículo');
+    
     const updatedMenuItem = await MenuItem.findOneAndUpdate(
       {
         _id: item.menu_item_id,
@@ -123,7 +169,6 @@ export const createOrderRecord = async (payload) => {
     ).lean();
 
     if (!updatedMenuItem) {
-      // Rollback de decrementos previos
       for (const d of decremented) {
         try {
           await MenuItem.findByIdAndUpdate(d.menu_item_id, { $inc: { stock_quantity: d.quantity } });
@@ -148,7 +193,8 @@ export const createOrderRecord = async (payload) => {
     });
   }
 
-  const { tax, total } = calculateTotals(subtotal, 0, payload.delivery_fee || 0, 0);
+  const delivery_fee = payload.order_type === 'delivery' ? validateNumberBounds(payload.delivery_fee || 0, 0, 100000, 'Tarifa de envío') : 0;
+  const { tax, total } = calculateTotals(subtotal, 0, delivery_fee, 0);
 
   const order = await Order.create({
     order_number: await generateOrderNumber(),
@@ -166,29 +212,60 @@ export const createOrderRecord = async (payload) => {
     payment_status: 'pending',
     notes: payload.notes,
     delivery_address: payload.order_type === 'delivery' ? payload.delivery_address : null,
-    delivery_fee: payload.order_type === 'delivery' ? Number(payload.delivery_fee || 0) : 0,
+    delivery_fee,
   });
 
-  const createdItems = await OrderItem.insertMany(orderItems.map((item) => ({ ...item, order_id: String(order._id) })));
-  
-  // Enriquecer los items con detalles del MenuItem para el retorno inmediato
-  const enrichedItems = await Promise.all(createdItems.map(async (item) => {
-    const menuItem = await MenuItem.findById(item.menu_item_id).lean();
-    return {
-      ...serializeOrderItem(item),
-      MenuItem: menuItem ? {
-        id: menuItem._id.toString(),
-        name: menuItem.name,
-        price: menuItem.price,
-        image_url: menuItem.image_url
-      } : null
-    };
-  }));
+  try {
+    const createdItems = await OrderItem.insertMany(orderItems.map((item) => ({ ...item, order_id: String(order._id) })));
+    
+    if (!createdItems || createdItems.length === 0) {
+      throw new Error('Fallo al crear items de la orden');
+    }
+    
+    const enrichedItems = await Promise.allSettled(createdItems.map(async (item) => {
+      try {
+        const menuItem = await MenuItem.findById(item.menu_item_id).lean();
+        return {
+          ...serializeOrderItem(item),
+          MenuItem: menuItem ? {
+            id: menuItem._id.toString(),
+            name: menuItem.name,
+            price: menuItem.price,
+            image_url: menuItem.image_url
+          } : null
+        };
+      } catch (error) {
+        console.error(`Error enriching menu item ${item.menu_item_id}:`, error.message);
+        return {
+          ...serializeOrderItem(item),
+          MenuItem: null
+        };
+      }
+    }));
 
-  return serializeOrder(order, enrichedItems);
+    const items_serialized = enrichedItems
+      .filter(r => r.status === 'fulfilled')
+      .map(r => r.value);
+
+    return serializeOrder(order, items_serialized);
+  } catch (itemError) {
+    console.error('Critical: OrderItem insert failed after Order created. Rolling back stock:', itemError.message);
+    await Order.findByIdAndDelete(order._id);
+    for (const d of decremented) {
+      try {
+        await MenuItem.findByIdAndUpdate(d.menu_item_id, { $inc: { stock_quantity: d.quantity } });
+      } catch (rollbackErr) {
+        console.error(`Critical: Rollback failed for ${d.menu_item_id}. MANUAL INTERVENTION NEEDED.`, rollbackErr.message);
+      }
+    }
+    throw new Error(`Fallo crítico en creación de orden. Stock ha sido restaurado. Por favor intente de nuevo.`);
+  }
 };
 
 export const fetchOrders = async ({ restaurant_id, user_id, status, order_type, payment_status, page = 1, limit = 20 }) => {
+  const pageNum = Math.max(1, parseInt(page) || 1);
+  const limitNum = Math.max(1, Math.min(100, parseInt(limit) || 20));
+  
   const filter = {};
   if (restaurant_id) filter.restaurant_id = restaurant_id;
   if (user_id) filter.user_id = user_id;
@@ -196,33 +273,53 @@ export const fetchOrders = async ({ restaurant_id, user_id, status, order_type, 
   if (order_type) filter.order_type = order_type;
   if (payment_status) filter.payment_status = payment_status;
 
-  const skip = (page - 1) * limit;
-  const orders = await Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit);
+  const skip = (pageNum - 1) * limitNum;
+  const orders = await Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limitNum);
   const total = await Order.countDocuments(filter);
-  const withItems = await Promise.all(orders.map(async (order) => {
-    const items = await OrderItem.find({ order_id: String(order._id) });
-    const enrichedItems = await Promise.all(items.map(async (item) => {
-      const menuItem = await MenuItem.findById(item.menu_item_id).lean();
-      return {
-        ...serializeOrderItem(item),
-        MenuItem: menuItem ? {
-          id: menuItem._id.toString(),
-          name: menuItem.name,
-          price: menuItem.price,
-          image_url: menuItem.image_url
-        } : null
-      };
-    }));
-    return serializeOrder(order, enrichedItems);
+  const withItems = await Promise.allSettled(orders.map(async (order) => {
+    try {
+      const items = await OrderItem.find({ order_id: String(order._id) });
+      const enrichedItems = await Promise.allSettled(items.map(async (item) => {
+        try {
+          const menuItem = await MenuItem.findById(item.menu_item_id).lean();
+          return {
+            ...serializeOrderItem(item),
+            MenuItem: menuItem ? {
+              id: menuItem._id.toString(),
+              name: menuItem.name,
+              price: menuItem.price,
+              image_url: menuItem.image_url
+            } : null
+          };
+        } catch (error) {
+          console.error(`Error enriching menu item ${item.menu_item_id}:`, error.message);
+          return {
+            ...serializeOrderItem(item),
+            MenuItem: null
+          };
+        }
+      }));
+      const items_serialized = enrichedItems
+        .filter(r => r.status === 'fulfilled')
+        .map(r => r.value);
+      return serializeOrder(order, items_serialized);
+    } catch (error) {
+      console.error(`Error fetching order ${order._id}:`, error.message);
+      return serializeOrder(order, []);
+    }
   }));
 
+  const orders_serialized = withItems
+    .filter(r => r.status === 'fulfilled')
+    .map(r => r.value);
+
   return {
-    orders: withItems,
+    orders: orders_serialized,
     pagination: {
       total,
-      page: parseInt(page),
-      limit: parseInt(limit),
-      total_pages: Math.ceil(total / limit),
+      page: pageNum,
+      limit: limitNum,
+      total_pages: Math.ceil(total / limitNum),
     },
   };
 };
@@ -266,21 +363,40 @@ export const cancelOrderRecord = async (id) => {
   }
 
   const items = await OrderItem.find({ order_id: String(order._id) });
-  for (const item of items) {
-    // Restaurar stock de forma atómica
-    await MenuItem.findByIdAndUpdate(item.menu_item_id, { $inc: { stock_quantity: Number(item.quantity) } });
+  
+  try {
+    for (const item of items) {
+      const updateResult = await MenuItem.findByIdAndUpdate(
+        item.menu_item_id,
+        { $inc: { stock_quantity: Number(item.quantity) } },
+        { new: true }
+      );
+      if (!updateResult) {
+        throw new Error(`No se encontró item para restaurar stock: ${item.menu_item_id}`);
+      }
+    }
+  } catch (stockError) {
+    console.error('Error restaurando stock en cancelación:', stockError.message);
+    throw new Error(`Error al restaurar stock: ${stockError.message}`);
   }
 
-  const updated = await Order.findByIdAndUpdate(id, { status: 'cancelled' }, { new: true, runValidators: true });
+  const updated = await Order.findByIdAndUpdate(
+    id,
+    { status: 'cancelled', cancelled_at: new Date() },
+    { new: true, runValidators: true }
+  );
+  
+  if (!updated) throw new Error('No se pudo cancelar la orden');
   return serializeOrder(updated, items.map(serializeOrderItem));
 };
 
 export const addItemToOrderRecord = async ({ orderId, menu_item_id, quantity, special_instructions }) => {
+  validateNumberBounds(quantity, 1, 10000, 'Cantidad del artículo');
+  
   const order = await Order.findById(orderId);
   if (!order) throw new Error('Orden no encontrada');
   if (!['pending', 'confirmed'].includes(order.status)) throw new Error('Cannot add items to order in current status');
 
-  // Decremento atómico del stock para evitar race conditions
   const updatedMenuItem = await MenuItem.findOneAndUpdate(
     { _id: menu_item_id, restaurant_id: order.restaurant_id, is_active: true, is_available: true, stock_quantity: { $gte: Number(quantity) } },
     { $inc: { stock_quantity: -Number(quantity) } },
@@ -289,12 +405,12 @@ export const addItemToOrderRecord = async ({ orderId, menu_item_id, quantity, sp
 
   if (!updatedMenuItem) throw new Error('Inventario insuficiente o platillo no disponible');
 
-  const itemSubtotal = Number(menuItem.price) * Number(quantity);
+  const itemSubtotal = Number(updatedMenuItem.price) * Number(quantity);
   const orderItem = await OrderItem.create({
     order_id: String(order._id),
     menu_item_id,
     quantity: Number(quantity),
-    unit_price: Number(menuItem.price),
+    unit_price: Number(updatedMenuItem.price),
     subtotal: Number(itemSubtotal.toFixed(2)),
     special_instructions,
   });

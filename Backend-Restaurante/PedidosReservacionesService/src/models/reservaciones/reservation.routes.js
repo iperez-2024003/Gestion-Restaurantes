@@ -22,9 +22,15 @@ import {
 
 const router = Router();
 const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
+const attachClientUserId = (req, res, next) => {
+  if ((req.userRole || req.user?.role) === 'CLIENT_ROLE') {
+    req.body.user_id = req.userId;
+  }
+  next();
+};
 
 router.get('/check-availability', validateCheckAvailability, checkAvailability);
-router.post('/', [validateJWT, validateReservationCreation], createReservation);
+router.post('/', [validateJWT, attachClientUserId, validateReservationCreation], createReservation);
 router.get('/today', validateJWT, getTodayReservations);
 router.get('/', validateJWT, getAllReservations);
 router.get('/:id', validateJWT, validateUuidParam('id'), getReservationById);

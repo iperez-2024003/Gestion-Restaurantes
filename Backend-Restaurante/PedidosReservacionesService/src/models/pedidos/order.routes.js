@@ -19,8 +19,14 @@ import { validateOrderCreation, validateAddItem, validateOrderStatusUpdate } fro
 
 const router = Router();
 const requireOperationalStaff = requireRole('SUPER_ADMIN_ROLE', 'RESTAURANT_ADMIN_ROLE', 'STAFF_ROLE');
+const attachClientUserId = (req, res, next) => {
+  if ((req.userRole || req.user?.role) === 'CLIENT_ROLE') {
+    req.body.user_id = req.userId;
+  }
+  next();
+};
 
-router.post('/', [validateJWT, validateOrderCreation], createOrder);
+router.post('/', [validateJWT, attachClientUserId, validateOrderCreation], createOrder);
 router.get('/', validateJWT, getAllOrders);
 router.get('/kitchen/:restaurantId', [validateJWT, requireOperationalStaff, validateUuidParam('restaurantId')], getKitchenOrders);
 router.get('/:id/invoice', validateJWT, validateUuidParam('id'), generateOrderPDF);
