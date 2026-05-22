@@ -61,6 +61,13 @@ const validateNumberBounds = (value, min, max, fieldName) => {
   return num;
 };
 
+const validateObjectId = (id, fieldName = 'ID') => {
+  if (!id || typeof id !== 'string' || !id.match(/^[0-9a-fA-F]{24}$/)) {
+    throw new Error(`${fieldName} inválido`);
+  }
+  return id;
+};
+
 const calculateTotals = (subtotal, discount = 0, deliveryFee = 0, tip = 0) => {
   const subNum = Number(subtotal);
   const discNum = Number(discount);
@@ -351,6 +358,7 @@ export const updateOrderStatusRecord = async ({ id, status }) => {
   }
 
   const updated = await Order.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+  if (!updated) throw new Error('No se pudo actualizar la orden');
   return serializeOrder(updated, (await OrderItem.find({ order_id: String(updated._id) })).map(serializeOrderItem));
 };
 
@@ -408,7 +416,7 @@ export const addItemToOrderRecord = async ({ orderId, menu_item_id, quantity, sp
   const itemSubtotal = Number(updatedMenuItem.price) * Number(quantity);
   const orderItem = await OrderItem.create({
     order_id: String(order._id),
-    menu_item_id,
+    menu_item_id: String(menu_item_id),
     quantity: Number(quantity),
     unit_price: Number(updatedMenuItem.price),
     subtotal: Number(itemSubtotal.toFixed(2)),
@@ -417,38 +425,50 @@ export const addItemToOrderRecord = async ({ orderId, menu_item_id, quantity, sp
 
   const newSubtotal = Number(order.subtotal) + itemSubtotal;
   const { tax, total } = calculateTotals(newSubtotal, Number(order.discount), Number(order.delivery_fee), Number(order.tip));
-  await Order.findByIdAndUpdate(orderId, { subtotal: newSubtotal, tax, total }, { new: true });
+  const updateResult = await Order.findByIdAndUpdate(orderId, { subtotal: newSubtotal, tax, total }, { new: true });
+  if (!updateResult) throw new Error('No se pudo actualizar totales de la orden');
 
   return serializeOrderItem(orderItem);
 };
 
 export const removeItemFromOrderRecord = async ({ orderId, itemId }) => {
+  validateObjectId(orderId, 'orderId');
+  validateObjectId(itemId, 'itemId');
+  
   const order = await Order.findById(orderId);
   if (!order) throw new Error('Orden no encontrada');
   if (!['pending', 'confirmed'].includes(order.status)) throw new Error('Cannot remove items from order in current status');
 
   const orderItem = await OrderItem.findOne({ _id: itemId, order_id: String(order._id) });
-  if (!orderItem) throw new Error('Order No encontrado');
+  if (!orderItem) throw new Error('Item no encontrado en la orden');
+  if (!orderItem.menu_item_id || orderItem.quantity == null || orderItem.subtotal == null) {
+    throw new Error('Item corrupto: falta menu_item_id, quantity o subtotal');
+  }
 
   // Restaurar stock atómicamente
-  await MenuItem.findByIdAndUpdate(orderItem.menu_item_id, { $inc: { stock_quantity: Number(orderItem.quantity) } });
+  const stockUpdateResult = await MenuItem.findByIdAndUpdate(orderItem.menu_item_id, { $inc: { stock_quantity: Number(orderItem.quantity) } }, { new: true });
+  if (!stockUpdateResult) throw new Error('No se pudo restaurar el inventario');
 
   await OrderItem.findByIdAndDelete(itemId);
   const newSubtotal = Math.max(0, Number(order.subtotal) - Number(orderItem.subtotal));
   const { tax, total } = calculateTotals(newSubtotal, Number(order.discount), Number(order.delivery_fee), Number(order.tip));
-  await Order.findByIdAndUpdate(orderId, { subtotal: newSubtotal, tax, total }, { new: true });
+  const updateResult = await Order.findByIdAndUpdate(orderId, { subtotal: newSubtotal, tax, total }, { new: true });
+  if (!updateResult) throw new Error('No se pudo actualizar totales de la orden');
+  
   return true;
 };
 
 export const fetchKitchenOrders = async (restaurantId) => {
+  validateObjectId(restaurantId, 'restaurantId');
+  
   const orders = await Order.find({ 
     restaurant_id: restaurantId, 
     status: { $in: ['pending', 'confirmed', 'preparing', 'ready'] } 
   }).sort({ createdAt: 1 });
 
-  const withItems = await Promise.all(orders.map(async (order) => {
+  const withItems = await Promise.allSettled(orders.map(async (order) => {
     const items = await OrderItem.find({ order_id: String(order._id) });
-    const enrichedItems = await Promise.all(items.map(async (item) => {
+    const enrichedItems = await Promise.allSettled(items.map(async (item) => {
       const menuItem = await MenuItem.findById(item.menu_item_id).lean();
       return {
         ...serializeOrderItem(item),
@@ -459,9 +479,24 @@ export const fetchKitchenOrders = async (restaurantId) => {
         } : null
       };
     }));
-    return serializeOrder(order, enrichedItems);
+    const validItems = enrichedItems
+      .filter(r => r.status === 'fulfilled')
+      .map(r => r.value);
+    if (enrichedItems.length > 0 && validItems.length === 0) {
+      console.warn(`All menu items failed to enrich for order ${order._id}`);
+    }
+    return serializeOrder(order, validItems);
   }));
-  return withItems;
+  
+  const result = withItems
+    .filter(r => r.status === 'fulfilled')
+    .map(r => r.value);
+  
+  if (withItems.length > 0 && result.length === 0) {
+    console.warn(`All orders failed to fetch for restaurant ${restaurantId}`);
+  }
+  
+  return result;
 };
 
 export const buildOrderPdf = async (orderId) => {

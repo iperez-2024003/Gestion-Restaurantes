@@ -28,6 +28,13 @@ const ensureOrderAccess = (req, res, order) => {
   return true;
 };
 
+const validateObjectId = (id, fieldName = 'ID') => {
+  if (!id || typeof id !== 'string' || !id.match(/^[0-9a-fA-F]{24}$/)) {
+    throw new Error(`${fieldName} inválido`);
+  }
+  return id;
+};
+
 export const createOrder = async (req, res) => {
   try {
     const order = await createOrderRecord(req.body);
@@ -60,12 +67,13 @@ export const getAllOrders = async (req, res) => {
 
 export const getOrderById = async (req, res) => {
   try {
+    validateObjectId(req.params.id, 'orderId');
     const order = await fetchOrderById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' });
     if (!ensureOrderAccess(req, res, order)) return;
     return res.status(200).json({ success: true, message: 'Orden obtenida exitosamente', data: order });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Error interno del servidor', error: process.env.NODE_ENV === 'development' ? error.message : undefined });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -134,8 +142,8 @@ export const generateOrderPDF = async (req, res) => {
     if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' });
     if (!ensureOrderAccess(req, res, order)) return;
 
-    if (!order.items || !Array.isArray(order.items)) {
-      return res.status(500).json({ success: false, message: 'Datos de orden corrupta' });
+    if (!order.items || !Array.isArray(order.items) || order.items.length === 0) {
+      return res.status(400).json({ success: false, message: 'La orden no contiene items' });
     }
 
     const restaurant = await Restaurant.findById(order.restaurant_id);
@@ -247,9 +255,10 @@ export const generateOrderPDF = async (req, res) => {
 
 export const getKitchenOrders = async (req, res) => {
   try {
+    validateObjectId(req.params.restaurantId, 'restaurantId');
     const orders = await fetchKitchenOrders(req.params.restaurantId);
     return res.status(200).json({ success: true, message: 'Órdenes obtenidas exitosamente', data: orders });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Error interno del servidor', error: process.env.NODE_ENV === 'development' ? error.message : undefined });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };

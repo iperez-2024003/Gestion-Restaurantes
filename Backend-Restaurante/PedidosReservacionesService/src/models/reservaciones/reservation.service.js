@@ -37,11 +37,18 @@ const normalizeTime = (time) => {
   if (typeof time !== 'string' || time.length < 5) {
     throw new Error('Formato de hora inválido');
   }
-  const normalized = time.slice(0, 8);
-  if (!/^\d{2}:\d{2}/.test(normalized)) {
-    throw new Error('La hora debe ser en formato HH:MM:SS');
+  const normalized = time.slice(0, 5);
+  if (!/^\d{2}:\d{2}$/.test(normalized)) {
+    throw new Error('La hora debe ser en formato HH:MM');
   }
   return normalized;
+};
+
+const validateObjectId = (id, fieldName = 'ID') => {
+  if (!id || typeof id !== 'string' || !id.match(/^[0-9a-fA-F]{24}$/)) {
+    throw new Error(`${fieldName} inválido`);
+  }
+  return id;
 };
 
 const generateReservationNumber = async () => {
@@ -51,14 +58,19 @@ const generateReservationNumber = async () => {
   let sequence = 1;
 
   if (lastReservation?.reservation_number) {
-    const lastNumber = lastReservation.reservation_number.split('-')[2];
-    sequence = Number(lastNumber) + 1;
+    const parts = lastReservation.reservation_number.split('-');
+    if (parts.length >= 3 && /^\d+$/.test(parts[2])) {
+      sequence = Number(parts[2]) + 1;
+    }
   }
 
+  if (sequence > 9999) sequence = 1;
   return `${prefix}${String(sequence).padStart(4, '0')}`;
 };
 
 const validateRestaurantReservationRules = async ({ restaurantId, reservationDate, reservationTime, partySize }) => {
+  validateObjectId(restaurantId, 'restaurantId');
+  
   const restaurant = await Restaurant.findById(restaurantId);
   if (!restaurant || restaurant.isActive === false) {
     throw new Error('Restaurante no encontrado');
@@ -102,6 +114,10 @@ const validateRestaurantReservationRules = async ({ restaurantId, reservationDat
 };
 
 export const createReservationRecord = async (payload) => {
+  if (!payload.restaurant_id || !payload.reservation_date || !payload.reservation_time || !payload.party_size) {
+    throw new Error('Campos requeridos faltantes: restaurant_id, reservation_date, reservation_time, party_size');
+  }
+  
   await validateRestaurantReservationRules({
     restaurantId: payload.restaurant_id,
     reservationDate: payload.reservation_date,
@@ -112,6 +128,7 @@ export const createReservationRecord = async (payload) => {
   const timeValue = normalizeTime(payload.reservation_time).slice(0, 5);
 
   if (payload.table_id) {
+    validateObjectId(payload.table_id, 'table_id');
     const tableReservation = await Reservation.findOne({
       restaurant_id: payload.restaurant_id,
       reservation_date: payload.reservation_date,
@@ -222,6 +239,7 @@ export const updateReservationRecord = async ({ id, updateData }) => {
   Object.keys(payload).forEach((key) => payload[key] === undefined && delete payload[key]);
 
   const updated = await Reservation.findByIdAndUpdate(id, payload, { new: true, runValidators: true });
+  if (!updated) throw new Error('No se pudo actualizar la reservación');
   return serializeReservation(updated);
 };
 

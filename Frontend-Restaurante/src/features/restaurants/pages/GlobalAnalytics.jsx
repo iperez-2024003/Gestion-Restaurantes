@@ -34,7 +34,7 @@ export const GlobalAnalytics = () => {
     setError(null);
     try {
       const res = await getGlobalOverview();
-      setStats(res.data.stats || null);
+      setStats(res.data.data || null);
     } catch (err) {
       console.error('Error fetching global stats:', err);
       const msg = err?.response?.data?.message || err?.message || 'Error desconocido al recuperar estadísticas globales';
