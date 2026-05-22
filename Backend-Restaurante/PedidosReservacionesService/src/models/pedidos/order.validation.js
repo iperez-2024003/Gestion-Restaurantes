@@ -8,65 +8,65 @@ import { body, validationResult } from 'express-validator';
 export const validateOrderCreation = [
   body('restaurant_id')
     .notEmpty()
-    .withMessage('Restaurant ID is required')
+    .withMessage('El ID del restaurante es requerido')
     .isString()
-    .withMessage('Restaurant ID must be a valid String/ID'),
+    .withMessage('El ID del restaurante debe ser un texto/ID válido'),
 
   body('user_id')
     .notEmpty()
-    .withMessage('User ID is required')
+    .withMessage('El ID de usuario es requerido')
     .isString()
-    .withMessage('User ID must be a valid String/ID'),
+    .withMessage('El ID de usuario debe ser un texto/ID válido'),
 
   body('customer_name')
     .optional()
     .trim()
     .isLength({ min: 2, max: 150 })
-    .withMessage('Customer name must be between 2 and 150 characters'),
+    .withMessage('El nombre del cliente debe tener entre 2 y 150 caracteres'),
 
   body('order_type')
     .optional()
     .isIn(['dine_in', 'takeout', 'delivery'])
-    .withMessage('Invalid order type'),
+    .withMessage('Tipo de orden inválido'),
 
   body('items')
     .isArray({ min: 1 })
-    .withMessage('Items array is required and must contain at least one item'),
+    .withMessage('La lista de items es requerida y debe contener al menos un elemento'),
 
   body('items.*.menu_item_id')
     .notEmpty()
-    .withMessage('Menu item ID is required for each item')
+    .withMessage('El ID del platillo es requerido para cada item')
     .isString()
-    .withMessage('Menu item ID must be a valid String/ID'),
+    .withMessage('El ID del platillo debe ser un texto/ID válido'),
 
   body('items.*.quantity')
     .notEmpty()
-    .withMessage('Quantity is required for each item')
+    .withMessage('La cantidad es requerida para cada item')
     .isInt({ min: 1, max: 10000 })
-    .withMessage('Quantity must be between 1 and 10000'),
+    .withMessage('La cantidad debe ser entre 1 y 10000'),
 
   body('items.*.special_instructions')
     .optional()
     .trim()
     .isLength({ max: 255 })
-    .withMessage('Special instructions cannot exceed 255 characters'),
+    .withMessage('Las instrucciones especiales no pueden exceder 255 caracteres'),
 
   body('notes')
     .optional()
     .trim()
     .isLength({ max: 1000 })
-    .withMessage('Notes cannot exceed 1000 characters'),
+    .withMessage('Las notas no pueden exceder 1000 caracteres'),
 
   body('delivery_address')
     .optional()
     .trim()
     .isLength({ max: 255 })
-    .withMessage('Delivery address cannot exceed 255 characters'),
+    .withMessage('La dirección de envío no puede exceder 255 caracteres'),
 
   body('delivery_fee')
     .optional()
     .isFloat({ min: 0, max: 100000 })
-    .withMessage('Delivery fee must be between 0 and 100000'),
+    .withMessage('La tarifa de envío debe ser entre 0 y 100000'),
 
   (req, res, next) => {
     const errors = validationResult(req);
@@ -74,7 +74,7 @@ export const validateOrderCreation = [
       console.log('Order Validation Errors:', errors.array());
       return res.status(400).json({
         ok: false,
-        message: 'Validation errors',
+        message: 'Errores de validación',
         errors: errors.array().map((error) => ({
           field: error.path,
           message: error.msg,
@@ -91,28 +91,28 @@ export const validateOrderCreation = [
 export const validateAddItem = [
   body('menu_item_id')
     .notEmpty()
-    .withMessage('Menu item ID is required')
+    .withMessage('El ID del platillo es requerido')
     .isString()
-    .withMessage('Menu item ID must be a valid String/ID'),
+    .withMessage('El ID del platillo debe ser un texto/ID válido'),
 
   body('quantity')
     .notEmpty()
-    .withMessage('Quantity is required')
+    .withMessage('La cantidad es requerida')
     .isInt({ min: 1, max: 10000 })
-    .withMessage('Quantity must be between 1 and 10000'),
+    .withMessage('La cantidad debe ser entre 1 y 10000'),
 
   body('special_instructions')
     .optional()
     .trim()
     .isLength({ max: 255 })
-    .withMessage('Special instructions cannot exceed 255 characters'),
+    .withMessage('Las instrucciones especiales no pueden exceder 255 caracteres'),
 
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
         ok: false,
-        message: 'Validation errors',
+        message: 'Errores de validación',
         errors: errors.array().map((error) => ({
           field: error.path,
           message: error.msg,
@@ -139,7 +139,7 @@ export const validateOrderStatusUpdate = [
     if (!errors.isEmpty()) {
       return res.status(400).json({
         ok: false,
-        message: 'Validation errors',
+        message: 'Errores de validación',
         errors: errors.array().map((error) => ({ field: error.path, message: error.msg })),
       });
     }
