@@ -152,6 +152,11 @@ export const validateReservationUpdate = [
     .isLength({ max: 1000 })
     .withMessage('Notes cannot exceed 1000 characters'),
 
+  body('status')
+    .optional()
+    .isIn(['pending', 'confirmed', 'completed', 'no_show', 'cancelled'])
+    .withMessage('Invalid status value'),
+
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

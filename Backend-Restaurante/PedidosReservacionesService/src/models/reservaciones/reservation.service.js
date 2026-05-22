@@ -230,6 +230,7 @@ export const updateReservationRecord = async ({ id, updateData }) => {
     reservation_date: updateData.reservation_date,
     reservation_time: updateData.reservation_time ? normalizeTime(updateData.reservation_time) : undefined,
     party_size: updateData.party_size !== undefined ? Number(updateData.party_size) : undefined,
+    status: updateData.status,
     special_requests: updateData.special_requests,
     table_preference: updateData.table_preference,
     occasion: updateData.occasion,
